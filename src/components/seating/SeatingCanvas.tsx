@@ -115,13 +115,13 @@ export default function SeatingCanvas({ selectedTableId, onSelectTable, stageRef
           {/* Bottom watermark */}
           <Text
             text="囍"
-            fontSize={120}
+            fontSize={200}
             fill={COLORS.primary}
-            opacity={0.05}
+            opacity={0.08}
             align="center"
-            x={stageSize.width / 2 - 60}
-            y={stageSize.height - 150}
-            width={120}
+            x={stageSize.width / 2 - 100}
+            y={stageSize.height - 240}
+            width={200}
           />
           <Text
             text="百年好合 · 永结同心"
@@ -226,12 +226,16 @@ function TableNode({
         const fillColor = isConfirmed ? COLORS.confirmedFill : isAssigned ? COLORS.assignedFill : COLORS.emptyFill
         const strokeColor = isConfirmed ? COLORS.confirmedStroke : isAssigned ? COLORS.assignedStroke : COLORS.emptyStroke
         const textColor = isConfirmed ? '#ffffff' : isAssigned ? COLORS.assignedText : COLORS.emptyText
-        const displayText = guest ? guest.name.slice(0, 3) : '空'
+        // 4字名拆成两行（上2下2），3字及以下单行显示
+        const name = guest ? guest.name.slice(0, 4) : ''
+        const displayText = guest
+          ? (name.length === 4 ? `${name.slice(0, 2)}\n${name.slice(2)}` : name)
+          : '空'
 
         return (
           <Group key={i} x={sx} y={sy}>
             <Circle
-              radius={15}
+              radius={16}
               fill={fillColor}
               stroke={strokeColor}
               strokeWidth={1.5}
@@ -239,15 +243,16 @@ function TableNode({
             {/* Text centered: x=-r, y=-r, width=2r, height=2r */}
             <Text
               text={displayText}
-              fontSize={guest ? 9 : 8}
+              fontSize={guest ? (name.length === 4 ? 10 : 11) : 10}
               fontStyle={guest ? 'bold' : 'normal'}
               fill={textColor}
               align="center"
               verticalAlign="middle"
-              x={-15}
-              y={-15}
-              width={30}
-              height={30}
+              x={-16}
+              y={-16}
+              width={32}
+              height={32}
+              lineHeight={1.1}
             />
           </Group>
         )
