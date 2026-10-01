@@ -40,8 +40,8 @@ export default function AccommodationPage() {
     const king = rooms.filter((r) => r.type === '大床房').length
     const twin = rooms.filter((r) => r.type === '标间').length
     const stayed = guests.filter((g) => g.roomId).length
-    const pending = guests.filter((g) => g.status === 'confirmed' && !g.roomId).length
-    return { king, twin, total: rooms.length, stayed, pending }
+    const pendingList = guests.filter((g) => g.status === 'confirmed' && !g.roomId)
+    return { king, twin, total: rooms.length, stayed, pending: pendingList.length, pendingNames: pendingList.map((g) => g.name) }
   }, [rooms, guests])
 
   // 当晚用房统计（选中具体日期时）
@@ -168,7 +168,7 @@ export default function AccommodationPage() {
             <StatCard value={stats.twin} label="标间" color="#7c9ec9" />
             <StatCard value={stats.total} label="合计房间" color="#5fae8f" />
             <StatCard value={stats.stayed} label="已入住" color="#d99a4e" />
-            <StatCard value={stats.pending} label="待安排住宿" color="#9ca3af" />
+            <StatCard value={stats.pending} label="待安排住宿" color="#9ca3af" names={stats.pendingNames} />
           </div>
         )}
 
@@ -319,11 +319,26 @@ function Seg({ active, onClick, children }: { active: boolean; onClick: () => vo
   )
 }
 
-function StatCard({ value, label, color }: { value: number; label: string; color: string }) {
+function StatCard({ value, label, color, names }: { value: number; label: string; color: string; names?: string[] }) {
+  const hoverable = !!names && names.length > 0
   return (
-    <div className="bg-white rounded-xl p-4 flex-1 min-w-[110px] border border-gray-100">
+    <div className={`bg-white rounded-xl p-4 flex-1 min-w-[110px] border border-gray-100 relative group ${hoverable ? 'cursor-help' : ''}`}>
       <div className="text-2xl font-bold" style={{ color }}>{value}</div>
-      <div className="text-sm text-gray-500">{label}</div>
+      <div className="text-sm text-gray-500">{label}{hoverable && <span className="ml-1 text-gray-300">ⓘ</span>}</div>
+      {names && (
+        <div className="hidden group-hover:block absolute z-20 left-0 top-full mt-1 w-64 max-h-64 overflow-y-auto bg-white rounded-xl border border-gray-100 shadow-lg p-3">
+          <p className="text-xs text-gray-400 mb-1.5">{label}（{names.length} 人）</p>
+          {names.length === 0 ? (
+            <p className="text-xs text-gray-300">暂无</p>
+          ) : (
+            <div className="flex flex-wrap gap-1">
+              {names.map((n, i) => (
+                <span key={i} className="text-xs px-2 py-0.5 rounded-full bg-[#faf9f7] text-gray-600">{n}</span>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }
