@@ -1,31 +1,55 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { v4 as uuid } from 'uuid'
-import type { Guest, Table, Note } from '../types'
+import type { Guest, Table, Note, Room, RoomType, SharedLink } from '../types'
 import { DEFAULT_GUEST_GROUPS } from '../types'
+import { normalizeDates } from '../utils/date'
+import { syncUpsertGuest, syncDeleteGuest, syncUpsertRoom, syncDeleteRoom } from '../lib/db'
 
 interface WeddingState {
   projectId: string
   projectTitle: string
+  mainStagePos: { x: number; y: number } | null
   guests: Guest[]
   tables: Table[]
+  rooms: Room[]
   notes: Note[]
   customGroups: string[]
+  stayDates: string[] // 项目级可选住宿晚次（ISO 日期），默认婚礼两晚
+  sharedLinks: SharedLink[] // 我生成的分享链接（仅本地）
 
   // Project actions
   setProjectTitle: (title: string) => void
+  setMainStagePos: (pos: { x: number; y: number }) => void
+
+  // Shared-link actions（仅本地）
+  addSharedLink: (link: SharedLink) => void
+  renameSharedLink: (id: string, name: string) => void
+  removeSharedLink: (id: string) => void
 
   // Guest actions
   addGuest: (name: string, group: string, phone?: string) => void
   updateGuest: (id: string, patch: Partial<Guest>) => void
   removeGuest: (id: string) => void
   assignGuestToTable: (guestId: string, tableId: string | null, seatIndex: number | null) => void
+  assignGuestToRoom: (guestId: string, roomId: string | null) => void
+  setGuestStayDates: (guestId: string, dates: string[]) => void
   addCustomGroup: (group: string) => void
 
   // Table actions
   addTable: (seats: number, x: number, y: number) => void
   updateTable: (id: string, patch: Partial<Table>) => void
   removeTable: (id: string) => void
+
+  // Room actions
+  addRoom: (type: RoomType) => void
+  updateRoom: (id: string, patch: Partial<Room>) => void
+  removeRoom: (id: string) => void
+
+  // Stay-date actions
+  addStayDate: (date: string) => void
+  removeStayDate: (date: string) => void
+  setStayDates: (dates: string[]) => void
 
   // Note actions
   addNote: (category: string, title: string, content: string, images: string[]) => void
@@ -35,40 +59,73 @@ interface WeddingState {
 
 export const useWeddingStore = create<WeddingState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       projectId: uuid().slice(0, 8),
       projectTitle: '备婚助手',
+      mainStagePos: null,
       guests: [],
       tables: [],
+      rooms: [],
       notes: [],
       customGroups: [],
+      stayDates: [],
+      sharedLinks: [],
 
       setProjectTitle: (title) => set({ projectTitle: title }),
+      setMainStagePos: (pos) => set({ mainStagePos: pos }),
 
-      addGuest: (name, group, phone) =>
-        set((s) => ({
-          guests: [
-            ...s.guests,
-            { id: uuid(), name, group, phone, notes: '', tableId: null, seatIndex: null, status: 'unassigned' },
-          ],
-        })),
+      addSharedLink: (link) => set((s) => ({ sharedLinks: [link, ...s.sharedLinks] })),
+      renameSharedLink: (id, name) =>
+        set((s) => ({ sharedLinks: s.sharedLinks.map((l) => (l.id === id ? { ...l, name } : l)) })),
+      removeSharedLink: (id) => set((s) => ({ sharedLinks: s.sharedLinks.filter((l) => l.id !== id) })),
 
-      updateGuest: (id, patch) =>
-        set((s) => ({
-          guests: s.guests.map((g) => (g.id === id ? { ...g, ...patch } : g)),
-        })),
+      addGuest: (name, group, phone) => {
+        const g: Guest = { id: uuid(), name, group, phone, notes: '', tableId: null, seatIndex: null, roomId: null, stayDates: [], status: 'unassigned' }
+        set((s) => ({ guests: [...s.guests, g] }))
+        syncUpsertGuest(g, get().projectId)
+      },
 
-      removeGuest: (id) =>
-        set((s) => ({ guests: s.guests.filter((g) => g.id !== id) })),
+      updateGuest: (id, patch) => {
+        set((s) => ({ guests: s.guests.map((g) => (g.id === id ? { ...g, ...patch } : g)) }))
+        const g = get().guests.find((x) => x.id === id)
+        if (g) syncUpsertGuest(g, get().projectId)
+      },
 
-      assignGuestToTable: (guestId, tableId, seatIndex) =>
+      removeGuest: (id) => {
+        set((s) => ({ guests: s.guests.filter((g) => g.id !== id) }))
+        syncDeleteGuest(id)
+      },
+
+      assignGuestToTable: (guestId, tableId, seatIndex) => {
         set((s) => ({
           guests: s.guests.map((g) =>
             g.id === guestId
               ? { ...g, tableId, seatIndex, status: tableId ? (g.status === 'confirmed' ? 'confirmed' : 'assigned') : 'unassigned' }
               : g
           ),
-        })),
+        }))
+        const g = get().guests.find((x) => x.id === guestId)
+        if (g) syncUpsertGuest(g, get().projectId)
+      },
+
+      // 住宿分配与座位/出席状态相互独立。分配到房间不自动选晚次（由用户手动点选），移出时清空。
+      assignGuestToRoom: (guestId, roomId) => {
+        set((s) => ({
+          guests: s.guests.map((g) =>
+            g.id === guestId
+              ? { ...g, roomId, stayDates: roomId ? normalizeDates(g.stayDates || []) : [] }
+              : g
+          ),
+        }))
+        const g = get().guests.find((x) => x.id === guestId)
+        if (g) syncUpsertGuest(g, get().projectId)
+      },
+
+      setGuestStayDates: (guestId, dates) => {
+        set((s) => ({ guests: s.guests.map((g) => (g.id === guestId ? { ...g, stayDates: normalizeDates(dates) } : g)) }))
+        const g = get().guests.find((x) => x.id === guestId)
+        if (g) syncUpsertGuest(g, get().projectId)
+      },
 
       addCustomGroup: (group) =>
         set((s) => ({
@@ -93,13 +150,67 @@ export const useWeddingStore = create<WeddingState>()(
           tables: s.tables.map((t) => (t.id === id ? { ...t, ...patch } : t)),
         })),
 
-      removeTable: (id) =>
+      removeTable: (id) => {
+        const affected = get().guests.filter((g) => g.tableId === id).map((g) => g.id)
         set((s) => ({
           tables: s.tables.filter((t) => t.id !== id),
           guests: s.guests.map((g) =>
             g.tableId === id ? { ...g, tableId: null, seatIndex: null, status: 'unassigned' } : g
           ),
-        })),
+        }))
+        const pid = get().projectId
+        affected.forEach((gid) => {
+          const g = get().guests.find((x) => x.id === gid)
+          if (g) syncUpsertGuest(g, pid)
+        })
+      },
+
+      addRoom: (type) => {
+        const num = get().rooms.filter((r) => r.type === type).length + 1
+        const room: Room = { id: uuid(), type, label: `${type}${num}` }
+        set((s) => ({ rooms: [...s.rooms, room] }))
+        syncUpsertRoom(room, get().projectId)
+      },
+
+      updateRoom: (id, patch) => {
+        set((s) => ({ rooms: s.rooms.map((r) => (r.id === id ? { ...r, ...patch } : r)) }))
+        const room = get().rooms.find((r) => r.id === id)
+        if (room) syncUpsertRoom(room, get().projectId)
+      },
+
+      removeRoom: (id) => {
+        const affected = get().guests.filter((g) => g.roomId === id).map((g) => g.id)
+        set((s) => ({
+          rooms: s.rooms.filter((r) => r.id !== id),
+          guests: s.guests.map((g) => (g.roomId === id ? { ...g, roomId: null, stayDates: [] } : g)),
+        }))
+        syncDeleteRoom(id)
+        const pid = get().projectId
+        affected.forEach((gid) => {
+          const g = get().guests.find((x) => x.id === gid)
+          if (g) syncUpsertGuest(g, pid)
+        })
+      },
+
+      addStayDate: (date) =>
+        set((s) => ({ stayDates: normalizeDates([...s.stayDates, date]) })),
+
+      removeStayDate: (date) => {
+        const affected = get().guests.filter((g) => (g.stayDates || []).includes(date)).map((g) => g.id)
+        set((s) => ({
+          stayDates: s.stayDates.filter((d) => d !== date),
+          guests: s.guests.map((g) =>
+            (g.stayDates || []).includes(date) ? { ...g, stayDates: g.stayDates.filter((d) => d !== date) } : g
+          ),
+        }))
+        const pid = get().projectId
+        affected.forEach((gid) => {
+          const g = get().guests.find((x) => x.id === gid)
+          if (g) syncUpsertGuest(g, pid)
+        })
+      },
+
+      setStayDates: (dates) => set({ stayDates: normalizeDates(dates) }),
 
       addNote: (category, title, content, images) =>
         set((s) => ({
