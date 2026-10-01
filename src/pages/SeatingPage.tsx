@@ -3,9 +3,10 @@ import { useWeddingStore } from '../stores/useWeddingStore'
 import { TABLE_PRESETS } from '../types'
 import SeatingCanvas from '../components/seating/SeatingCanvas'
 import { Download, Plus, Trash2, X, UserPlus, Pencil, GripVertical } from 'lucide-react'
+import { exportSeatingChart } from '../utils/exportSeatingChart'
 
 export default function SeatingPage() {
-  const { tables, guests, addTable, removeTable, updateTable, assignGuestToTable, updateGuest } = useWeddingStore()
+  const { tables, guests, addTable, removeTable, updateTable, assignGuestToTable, updateGuest, mainStagePos, projectTitle } = useWeddingStore()
   const [selectedTableId, setSelectedTableId] = useState<string | null>(null)
   const [showAssign, setShowAssign] = useState(false)
   const [editingLabel, setEditingLabel] = useState(false)
@@ -13,6 +14,8 @@ export default function SeatingPage() {
   const [dragIndex, setDragIndex] = useState<number | null>(null)
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null)
   const stageRef = useRef<any>(null)
+  // 画布视口状态（缩放到 SeatingPage 以便新增桌子时定位到视野中心）
+  const [viewport, setViewport] = useState({ scale: 1, x: 0, y: 0, width: 800, height: 600 })
 
   const selectedTable = tables.find((t) => t.id === selectedTableId)
   const tableGuests = guests
@@ -21,18 +24,68 @@ export default function SeatingPage() {
   const unassignedGuests = guests.filter((g) => !g.tableId)
 
   const handleAddTable = (seats: number) => {
-    const offsetX = 150 + (tables.length % 4) * 190
-    const offsetY = 160 + Math.floor(tables.length / 4) * 210
-    addTable(seats, offsetX, offsetY)
+    // 在当前视野中心生成新桌子，避免添加到看不见的地方
+    const centerX = (viewport.width / 2 - viewport.x) / viewport.scale
+    const centerY = (viewport.height / 2 - viewport.y) / viewport.scale
+    // 加一点随机偏移避免完全重叠
+    const jitter = (tables.length % 5) * 30
+    addTable(seats, centerX + jitter, centerY + jitter)
   }
 
   const handleExport = () => {
-    if (!stageRef.current) return
-    const uri = stageRef.current.toDataURL({ pixelRatio: 2 })
-    const link = document.createElement('a')
-    link.download = `座位图_${new Date().toLocaleDateString('zh-CN')}.png`
-    link.href = uri
-    link.click()
+    const stage = stageRef.current
+    if (!stage || tables.length === 0) return
+
+    const getR = (seats: number) => TABLE_PRESETS.find((p) => p.seats === seats)?.radius ?? 60
+    const margin = 100
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity
+    tables.forEach((t) => {
+      const r = getR(t.seats) + 45
+      minX = Math.min(minX, t.x - r); minY = Math.min(minY, t.y - r)
+      maxX = Math.max(maxX, t.x + r); maxY = Math.max(maxY, t.y + r)
+    })
+    // 纳入主舞台
+    const msx = mainStagePos?.x ?? viewport.width / 2
+    const msy = mainStagePos?.y ?? 40
+    minX = Math.min(minX, msx - 140); maxX = Math.max(maxX, msx + 140)
+    minY = Math.min(minY, msy); maxY = Math.max(maxY, msy + 60)
+
+    const contentW = maxX - minX + margin * 2
+    const contentH = maxY - minY + margin * 2
+    const scale = Math.min(viewport.width / contentW, viewport.height / contentH, 1.5)
+    const cx = (minX + maxX) / 2
+    const cy = (minY + maxY) / 2
+
+    const original = viewport
+    const pixelRatio = 3
+    // 先适配到内容，等渲染完成后导出合成高清图（含侧边信息面板），再恢复原视图
+    setViewport({
+      ...viewport,
+      scale,
+      x: viewport.width / 2 - cx * scale,
+      y: viewport.height / 2 - cy * scale,
+    })
+
+    setTimeout(() => {
+      const stageDataUrl = stage.toDataURL({ pixelRatio })
+      const seated = guests.filter((g) => g.tableId).length
+      const confirmed = guests.filter((g) => g.status === 'confirmed').length
+      exportSeatingChart({
+        stageDataUrl,
+        chartWidth: viewport.width,
+        chartHeight: viewport.height,
+        pixelRatio,
+        title: projectTitle,
+        stats: {
+          tables: tables.length,
+          seats: tables.reduce((sum, t) => sum + t.seats, 0),
+          seated,
+          confirmed,
+        },
+        filename: `座位图_${new Date().toLocaleDateString('zh-CN')}.png`,
+      })
+      setViewport(original)
+    }, 200)
   }
 
   const handleAssign = (guestId: string) => {
@@ -139,6 +192,8 @@ export default function SeatingPage() {
         selectedTableId={selectedTableId}
         onSelectTable={setSelectedTableId}
         stageRef={stageRef}
+        viewport={viewport}
+        onViewportChange={setViewport}
       />
 
       {/* Right panel */}
