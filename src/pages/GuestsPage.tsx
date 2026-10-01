@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { useWeddingStore, useAllGroups } from '../stores/useWeddingStore'
-import { Plus, Trash2, Search, UserCheck, UserX, Pencil, Check, X, TagPlus } from 'lucide-react'
+import { Plus, Trash2, Search, UserCheck, UserX, Pencil, Check, X, TagPlus, Download, BedDouble } from 'lucide-react'
+import { exportGuestsToExcel } from '../utils/exportGuests'
 
 export default function GuestsPage() {
-  const { guests, addGuest, updateGuest, removeGuest, addCustomGroup } = useWeddingStore()
+  const { guests, tables, rooms, addGuest, updateGuest, removeGuest, addCustomGroup } = useWeddingStore()
   const allGroups = useAllGroups()
   const [name, setName] = useState('')
   const [group, setGroup] = useState(allGroups[0])
@@ -59,6 +60,18 @@ export default function GuestsPage() {
 
   return (
     <div className="h-full flex flex-col p-6 max-w-4xl mx-auto">
+      {/* Header with export */}
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-base font-semibold text-gray-800">宾客名单</h2>
+        <button
+          onClick={() => exportGuestsToExcel(guests, tables)}
+          disabled={guests.length === 0}
+          className="flex items-center gap-1.5 px-3 py-2 bg-[#d4728a] text-white rounded-lg text-sm font-medium hover:bg-[#b85a72] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+        >
+          <Download className="w-4 h-4" /> 导出名单
+        </button>
+      </div>
+
       {/* Stats */}
       <div className="flex gap-4 mb-6">
         <div className="bg-white rounded-xl p-4 flex-1 border border-gray-100">
@@ -248,6 +261,12 @@ export default function GuestsPage() {
                     ) : (
                       <span className="text-xs px-2 py-0.5 rounded-full bg-amber-50 text-amber-600 flex items-center gap-0.5">
                         <UserX className="w-3 h-3" /> 待分配
+                      </span>
+                    )}
+                    {guest.roomId && (
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-[#eef3fa] text-[#7c9ec9] flex items-center gap-0.5">
+                        <BedDouble className="w-3 h-3" />
+                        {rooms.find((r) => r.id === guest.roomId)?.label || '已安排住宿'}
                       </span>
                     )}
                   </div>
