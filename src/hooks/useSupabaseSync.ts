@@ -105,6 +105,17 @@ export function useSupabaseSync(projectId: string | null) {
       syncing.current = false
       initialized.current = true
 
+      // 关键：加载完成后把 diff 基准重置为刚加载的数据，
+      // 避免切换项目时把「上一个项目」的行误判为被删除而从云端删掉（tables/notes 曾因此被清空）。
+      {
+        const st = useWeddingStore.getState()
+        prevGuests.current = st.guests
+        prevTables.current = st.tables
+        prevNotes.current = st.notes
+        prevRooms.current = st.rooms
+        prevStayDates.current = st.stayDates
+      }
+
       // 订阅实时变更
       const channel = supabase!
         .channel(`project-${projectId}`)
@@ -245,9 +256,22 @@ export function useSupabaseSync(projectId: string | null) {
   const prevNotes = useRef(notes)
   const prevRooms = useRef(rooms)
   const prevStayDates = useRef(stayDates)
+  const prevProjectId = useRef(projectId)
 
   useEffect(() => {
     if (!isSupabaseConfigured || !projectId || !supabase || !initialized.current || syncing.current) return
+
+    // 切换项目的瞬间：先对齐基准并跳过本次 diff，避免用旧项目基准把新项目差异误判为删除（曾误删 tables/notes）
+    if (prevProjectId.current !== projectId) {
+      prevProjectId.current = projectId
+      prevGuests.current = guests
+      prevTables.current = tables
+      prevNotes.current = notes
+      prevRooms.current = rooms
+      prevStayDates.current = stayDates
+      return
+    }
+
     const db = supabase
 
     // 注：guests / rooms 的写库已改为「操作即时写」(store 里 syncUpsertGuest/syncUpsertRoom)，
