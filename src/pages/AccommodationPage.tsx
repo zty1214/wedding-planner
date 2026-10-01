@@ -78,7 +78,7 @@ export default function AccommodationPage() {
 
   return (
     <div className="h-full overflow-y-auto">
-      <div className="max-w-5xl mx-auto p-6">
+      <div className="max-w-7xl mx-auto p-6">
         {/* 顶部：标题 + 操作 */}
         <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
           <div>
@@ -181,7 +181,7 @@ export default function AccommodationPage() {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {visibleRooms.map((room) => {
               const occupants = occupantsOf(room)
               const capacity = ROOM_CAPACITY[room.type]
