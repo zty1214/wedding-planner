@@ -1,5 +1,6 @@
-import { useState, useCallback } from 'react'
+import { useCallback } from 'react'
 import { Stage, Layer, Circle, Text, Group, Rect } from 'react-konva'
+import { ZoomIn, ZoomOut, Locate } from 'lucide-react'
 import { useWeddingStore } from '../../stores/useWeddingStore'
 import { TABLE_PRESETS } from '../../types'
 import type { Table, Guest } from '../../types'
@@ -24,21 +25,32 @@ const COLORS = {
   tableSub: '#b0a498',
 }
 
+interface Viewport {
+  scale: number
+  x: number
+  y: number
+  width: number
+  height: number
+}
+
 interface Props {
   selectedTableId: string | null
   onSelectTable: (id: string | null) => void
   stageRef: React.RefObject<any>
+  viewport: Viewport
+  onViewportChange: (v: Viewport) => void
 }
 
-export default function SeatingCanvas({ selectedTableId, onSelectTable, stageRef }: Props) {
-  const { tables, guests, updateTable } = useWeddingStore()
-  const [stageSize, setStageSize] = useState({ width: 800, height: 600 })
+export default function SeatingCanvas({ selectedTableId, onSelectTable, stageRef, viewport, onViewportChange }: Props) {
+  const { tables, guests, updateTable, mainStagePos, setMainStagePos } = useWeddingStore()
+  const { scale: stageScale, x: posX, y: posY, width: stageW, height: stageH } = viewport
 
   const measureRef = useCallback((node: HTMLDivElement | null) => {
     if (node) {
       const rect = node.getBoundingClientRect()
-      setStageSize({ width: rect.width, height: rect.height })
+      onViewportChange({ ...viewport, width: rect.width, height: rect.height })
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const getTableGuests = (tableId: string) =>
@@ -47,9 +59,78 @@ export default function SeatingCanvas({ selectedTableId, onSelectTable, stageRef
   const getRadius = (seats: number) =>
     TABLE_PRESETS.find((p) => p.seats === seats)?.radius ?? 60
 
-  const stageWidth = Math.min(stageSize.width * 0.35, 260)
-  const stageX = stageSize.width / 2
-  const stageY = 40
+  const stageWidth = Math.min(stageW * 0.35, 260)
+  // 主舞台位置：优先用存储的位置，否则默认居中
+  const stageX = mainStagePos?.x ?? stageW / 2
+  const stageY = mainStagePos?.y ?? 40
+
+  // 滚轮缩放（以鼠标位置为中心）
+  const handleWheel = (e: any) => {
+    e.evt.preventDefault()
+    const scaleBy = 1.08
+    const stage = stageRef.current
+    if (!stage) return
+    const oldScale = stage.scaleX()
+    const pointer = stage.getPointerPosition()
+    if (!pointer) return
+    const mousePointTo = {
+      x: (pointer.x - stage.x()) / oldScale,
+      y: (pointer.y - stage.y()) / oldScale,
+    }
+    const direction = e.evt.deltaY > 0 ? -1 : 1
+    const newScale = Math.min(Math.max(oldScale * Math.pow(scaleBy, direction), 0.2), 3)
+    onViewportChange({
+      ...viewport,
+      scale: newScale,
+      x: pointer.x - mousePointTo.x * newScale,
+      y: pointer.y - mousePointTo.y * newScale,
+    })
+  }
+
+  const zoomBy = (factor: number) => {
+    const newScale = Math.min(Math.max(stageScale * factor, 0.2), 3)
+    const centerX = stageW / 2
+    const centerY = stageH / 2
+    const pointTo = {
+      x: (centerX - posX) / stageScale,
+      y: (centerY - posY) / stageScale,
+    }
+    onViewportChange({
+      ...viewport,
+      scale: newScale,
+      x: centerX - pointTo.x * newScale,
+      y: centerY - pointTo.y * newScale,
+    })
+  }
+
+  // 定位所有桌子：计算包围盒并居中适配（只看桌子，不含主舞台，确保能找到丢失的桌子）
+  const fitToView = () => {
+    if (tables.length === 0) {
+      onViewportChange({ ...viewport, scale: 1, x: 0, y: 0 })
+      return
+    }
+    const margin = 100
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity
+    tables.forEach((t) => {
+      const r = getRadius(t.seats) + 45
+      minX = Math.min(minX, t.x - r)
+      minY = Math.min(minY, t.y - r)
+      maxX = Math.max(maxX, t.x + r)
+      maxY = Math.max(maxY, t.y + r)
+    })
+
+    const contentW = maxX - minX + margin * 2
+    const contentH = maxY - minY + margin * 2
+    const scale = Math.min(stageW / contentW, stageH / contentH, 1.5)
+    const centerX = (minX + maxX) / 2
+    const centerY = (minY + maxY) / 2
+    onViewportChange({
+      ...viewport,
+      scale,
+      x: stageW / 2 - centerX * scale,
+      y: stageH / 2 - centerY * scale,
+    })
+  }
 
   return (
     <div ref={measureRef} className="flex-1 relative bg-[#faf9f7] overflow-hidden">
@@ -63,16 +144,42 @@ export default function SeatingCanvas({ selectedTableId, onSelectTable, stageRef
       />
       <Stage
         ref={stageRef}
-        width={stageSize.width}
-        height={stageSize.height}
+        width={stageW}
+        height={stageH}
+        scaleX={stageScale}
+        scaleY={stageScale}
+        x={posX}
+        y={posY}
+        draggable
+        onWheel={handleWheel}
+        onDragEnd={(e) => {
+          // 只有拖拽的是 Stage 本身（空白处）才更新平移位置
+          if (e.target === e.target.getStage()) {
+            onViewportChange({ ...viewport, x: e.target.x(), y: e.target.y() })
+          }
+        }}
         onClick={(e) => {
           if (e.target === e.target.getStage()) onSelectTable(null)
         }}
         className="relative z-10"
       >
         <Layer>
-          {/* Main Stage - soft rose, no border, text centered */}
-          <Group x={stageX} y={stageY}>
+          {/* 背景底布：覆盖当前可视区域，导出时带底色（listening=false 不阻挡交互） */}
+          <Rect
+            x={-posX / stageScale}
+            y={-posY / stageScale}
+            width={stageW / stageScale}
+            height={stageH / stageScale}
+            fill="#faf9f7"
+            listening={false}
+          />
+          {/* Main Stage - soft rose, no border, text centered, draggable */}
+          <Group
+            x={stageX}
+            y={stageY}
+            draggable
+            onDragEnd={(e) => setMainStagePos({ x: e.target.x(), y: e.target.y() })}
+          >
             <Rect
               x={-stageWidth / 2}
               y={0}
@@ -119,8 +226,8 @@ export default function SeatingCanvas({ selectedTableId, onSelectTable, stageRef
             fill={COLORS.primary}
             opacity={0.08}
             align="center"
-            x={stageSize.width / 2 - 100}
-            y={stageSize.height - 240}
+            x={stageW / 2 - 100}
+            y={stageH - 240}
             width={200}
           />
           <Text
@@ -130,12 +237,39 @@ export default function SeatingCanvas({ selectedTableId, onSelectTable, stageRef
             opacity={0.35}
             align="center"
             x={0}
-            y={stageSize.height - 36}
-            width={stageSize.width}
+            y={stageH - 36}
+            width={stageW}
             letterSpacing={2}
           />
         </Layer>
       </Stage>
+
+      {/* Floating zoom controls */}
+      <div className="absolute bottom-4 right-4 z-20 flex items-center gap-1 bg-white rounded-lg border border-gray-200 shadow-sm px-1.5 py-1">
+        <button
+          onClick={() => zoomBy(1 / 1.25)}
+          className="p-1.5 text-gray-500 hover:text-[#d4728a] hover:bg-[#fdf5f7] rounded transition-colors"
+          title="缩小"
+        >
+          <ZoomOut className="w-4 h-4" />
+        </button>
+        <span className="text-xs text-gray-500 w-10 text-center select-none">{Math.round(stageScale * 100)}%</span>
+        <button
+          onClick={() => zoomBy(1.25)}
+          className="p-1.5 text-gray-500 hover:text-[#d4728a] hover:bg-[#fdf5f7] rounded transition-colors"
+          title="放大"
+        >
+          <ZoomIn className="w-4 h-4" />
+        </button>
+        <div className="w-px h-4 bg-gray-200 mx-0.5" />
+        <button
+          onClick={fitToView}
+          className="flex items-center gap-1 px-2 py-1.5 text-xs text-gray-500 hover:text-[#d4728a] hover:bg-[#fdf5f7] rounded transition-colors"
+          title="定位所有桌子"
+        >
+          <Locate className="w-3.5 h-3.5" /> 定位
+        </button>
+      </div>
 
       {tables.length === 0 && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
