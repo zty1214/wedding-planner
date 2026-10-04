@@ -1,0 +1,22 @@
+{
+  "observedAt": "2026-10-04T14:34:01.950Z",
+  "env": "dev-d1gh3jw1gdf06af22",
+  "mode": "JS_SDK_NODE_CLIENT_TO_DEPLOYED_FUNCTION",
+  "functionName": "planner-fusion-gateway-probe",
+  "bundleSha256": "39e822839bb7b3680ce5d269e882568a6c61b7282f471ce21f33ed6c993fcaed",
+  "fixtureProjectIds": [
+    "fusion-gateway-92b53b1f-69c9-4404-a81a-00dbe4797711",
+    "fusion-gateway-1bee471b-e0a1-449e-8859-9446a292e531"
+  ],
+  "checks": [
+    {
+      "name": "anonymous_client_reaches_function_with_valid_project_secret",
+      "passed": true,
+      "durationMs": 564
+    }
+  ],
+  "anonymousLogin": "PASS",
+  "status": "FAIL",
+  "failedStage": "missing_wrong_cross_project_and_nested_project_denied",
+  "errorCode": "FORBIDDEN"
+}

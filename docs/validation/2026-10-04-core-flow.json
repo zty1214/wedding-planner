@@ -1,0 +1,38 @@
+{
+  "observedAt": "2026-10-04T15:11:01.206Z",
+  "env": "dev-d1gh3jw1gdf06af22",
+  "mode": "REAL_BROWSER_TO_DEPLOYED_FUNCTION",
+  "functionName": "planner-fusion-gateway-probe",
+  "bundleSha256": "e72efb68af61220d0a171819ba220662b1728bf4c283a3833663ab06bab895c3",
+  "fixtureProjectIds": [
+    "fusion-gateway-b64fc9b1-7a44-4c65-86c5-bc2e68ba6911",
+    "fusion-gateway-bd679f5a-73f7-4cf1-8113-ddc7180c9b15"
+  ],
+  "checks": [
+    {
+      "name": "create_guests_table_room_and_dates",
+      "passed": true,
+      "durationMs": 2988
+    },
+    {
+      "name": "same_seat_one_winner_and_retry_receipt",
+      "passed": true,
+      "durationMs": 2738
+    },
+    {
+      "name": "room_independent_nights_layout_and_fresh_client_read",
+      "passed": true,
+      "durationMs": 3957
+    },
+    {
+      "name": "project_isolation_and_stale_edit_rejected",
+      "passed": true,
+      "durationMs": 1015
+    }
+  ],
+  "anonymousLogin": "PASS",
+  "structuredStateBytes": 780,
+  "ninetyActiveDayBodyBytes": 70200,
+  "status": "PASS",
+  "scope": "Structured main flow in isolated fixture projects; no images, production data, UI migration, real device test or daily snapshot scheduler. Fresh reader uses a separate Node SDK session. Byte estimate is this small fixture only."
+}

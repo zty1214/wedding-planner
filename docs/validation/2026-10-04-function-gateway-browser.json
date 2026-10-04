@@ -1,0 +1,41 @@
+{
+  "observedAt": "2026-10-04T14:36:09.898Z",
+  "env": "dev-d1gh3jw1gdf06af22",
+  "mode": "REAL_BROWSER_TO_DEPLOYED_FUNCTION",
+  "functionName": "planner-fusion-gateway-probe",
+  "bundleSha256": "56362ce739a12e1d3a4fff4cfbb662be2baff4cd4a12bbf2f87f93de377f6f5d",
+  "fixtureProjectIds": [
+    "fusion-gateway-dcdc3d38-3862-4028-9333-0f8a8fc687b4",
+    "fusion-gateway-4f4ea4e1-2463-4edc-a175-6d025d84bd4f"
+  ],
+  "checks": [
+    {
+      "name": "anonymous_client_reaches_function_with_valid_project_secret",
+      "passed": true,
+      "durationMs": 679
+    },
+    {
+      "name": "missing_wrong_cross_project_and_nested_project_denied",
+      "passed": true,
+      "durationMs": 903
+    },
+    {
+      "name": "management_command_requires_management_secret",
+      "passed": true,
+      "durationMs": 775
+    },
+    {
+      "name": "discarded_response_receipt_query_and_concurrent_retries_commit_once",
+      "passed": true,
+      "durationMs": 2146
+    },
+    {
+      "name": "polling_and_receipt_reads_recheck_revoked_credentials",
+      "passed": true,
+      "durationMs": 1429
+    }
+  ],
+  "anonymousLogin": "PASS",
+  "status": "PASS",
+  "scope": "Bearer-secret transport only, no link/session exchange, real network timeout, files, or business UI. Polling authorization verified per request, not a subscription implementation. See mode for Node vs real browser."
+}

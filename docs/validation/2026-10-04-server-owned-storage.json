@@ -1,0 +1,37 @@
+{
+  "observedAt": "2026-10-04T14:59:47.696Z",
+  "env": "dev-d1gh3jw1gdf06af22",
+  "project": "fusion-gateway-aa9a3688-6698-4b08-8792-4a7589fac3a9",
+  "fileID": "cloud://dev-d1gh3jw1gdf06af22.6465-dev-d1gh3jw1gdf06af22-1456231968/planner_fusion_probe_images/fusion-gateway-aa9a3688-6698-4b08-8792-4a7589fac3a9/pixel.png",
+  "mode": "LOCAL_ADMIN_UPLOAD_REAL_BROWSER_ACCESS",
+  "checks": [
+    {
+      "name": "server_without_end_user_context_uploaded_fixture",
+      "passed": true
+    }
+  ],
+  "urlResult": {
+    "code": null,
+    "itemCode": "SUCCESS",
+    "returnedUrl": true,
+    "httpStatus": 200,
+    "matchesFixture": true
+  },
+  "storage.upload": {
+    "code": null,
+    "itemCodes": [],
+    "returnedFileID": false
+  },
+  "storage.delete": {
+    "code": null,
+    "itemCodes": [
+      "STORAGE_EXCEED_AUTHORITY"
+    ],
+    "returnedFileID": false
+  },
+  "cleanupCodes": [
+    "SUCCESS"
+  ],
+  "status": "ACCESS_ISOLATION_FAILED",
+  "scope": "No cloud-function caller context used for upload. Direct browser access tested; no new storage rules, paid resources, or real files."
+}

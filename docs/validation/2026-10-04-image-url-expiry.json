@@ -1,0 +1,10 @@
+{
+  "observedAt": "2026-10-04T14:49:53.059Z",
+  "env": "dev-d1gh3jw1gdf06af22",
+  "project": "fusion-gateway-df8d79dc-1360-4d56-8f0b-a12956b2ce66",
+  "requestedMaxAgeSeconds": 15,
+  "initialStatus": 200,
+  "afterWaitStatus": 200,
+  "waitMs": 21000,
+  "status": "FAIL"
+}

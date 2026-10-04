@@ -1,0 +1,16 @@
+{
+  "observedAt": "2026-10-04T14:52:41.736Z",
+  "env": "dev-d1gh3jw1gdf06af22",
+  "restrictedPrefix": "planner_fusion_probe_images/",
+  "requestedRule": {
+    "read": "/^planner_fusion_probe_images\\//.test(resource.path) == false && auth != null && ((auth.uid != null && resource.openid == auth.uid) || (auth.openid != null && resource.openid == auth.openid))",
+    "write": "/^planner_fusion_probe_images\\//.test(resource.path) == false && auth != null && ((auth.uid != null && resource.openid == auth.uid) || (auth.openid != null && resource.openid == auth.openid))"
+  },
+  "before": {
+    "acl": "PRIVATE",
+    "aclDesc": "Only creator and admin can read and write",
+    "rule": null
+  },
+  "status": "FAIL",
+  "errorCode": "OperationDenied.FreePackageDenied"
+}

@@ -1,0 +1,12 @@
+{
+  "observedAt": "2026-10-04T14:09:14.573Z",
+  "env": "dev-d1gh3jw1gdf06af22",
+  "collection": "planner_fusion_probe_history",
+  "runId": "history-probe-8ecffd8c-eaa6-4d46-8f96-129b39a1ba6d",
+  "checks": [],
+  "status": "FAIL",
+  "failedStage": "atomic_day_rollover_captures_prior_day_before_new_edit",
+  "transactionStep": "read-notes",
+  "diagnostic": "[ResourceUnavailable.TransactionBusy] Transaction is busy. Please check your request, but if the problem persists, contact us. 更多错误信息请访问：https://docs.cloudbase.net/error-code/basic/DATABASE_TRANSACTION_FAIL",
+  "errorCode": "DATABASE_TRANSACTION_FAIL"
+}

@@ -1,0 +1,32 @@
+{
+  "observedAt": "2026-10-04T14:52:14.442Z",
+  "env": "dev-d1gh3jw1gdf06af22",
+  "requestedMaxAgeSeconds": 15,
+  "checks": [
+    {
+      "name": "signed_initial",
+      "status": 200,
+      "date": "Sun, 04 Oct 2026 14:49:57 GMT",
+      "age": "0",
+      "cacheControl": null,
+      "xCache": null
+    },
+    {
+      "name": "unsigned",
+      "status": 403,
+      "date": "Sun, 04 Oct 2026 14:52:16 GMT",
+      "age": null,
+      "cacheControl": null,
+      "xCache": null
+    },
+    {
+      "name": "signed_after_21_seconds",
+      "status": 200,
+      "date": "Sun, 04 Oct 2026 14:49:57 GMT",
+      "age": "22",
+      "cacheControl": null,
+      "xCache": null
+    }
+  ],
+  "status": "OBSERVATION"
+}

@@ -1,0 +1,35 @@
+{
+  "observedAt": "2026-10-04T14:39:44.963Z",
+  "status": "PASS",
+  "env": "dev-d1gh3jw1gdf06af22",
+  "functionName": "planner-fusion-gateway-probe",
+  "projects": [
+    "fusion-gateway-dcdc3d38-3862-4028-9333-0f8a8fc687b4",
+    "fusion-gateway-4f4ea4e1-2463-4edc-a175-6d025d84bd4f"
+  ],
+  "sha256": "56362ce739a12e1d3a4fff4cfbb662be2baff4cd4a12bbf2f87f93de377f6f5d",
+  "sdk": "3.18.3",
+  "functionId": "lam-ko4jbt5v",
+  "runtime": "Nodejs20.19",
+  "type": "Event",
+  "handler": "index.main",
+  "timeout": 20,
+  "memorySize": 256,
+  "installDependency": "FALSE",
+  "logOptions": {
+    "event": "false",
+    "headerBody": "false",
+    "content": "false"
+  },
+  "ruleReadback": [
+    {
+      "*": {
+        "invoke": "auth != null && auth.loginType != 'ANONYMOUS'"
+      },
+      "planner-fusion-gateway-probe": {
+        "invoke": "auth != null"
+      }
+    }
+  ],
+  "scope": "Remote configuration verified; bundle SHA from local deployment artifact, not a downloaded remote code digest."
+}

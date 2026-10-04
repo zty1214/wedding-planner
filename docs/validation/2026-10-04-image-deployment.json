@@ -1,0 +1,20 @@
+{
+  "observedAt": "2026-10-04T14:55:07.261Z",
+  "status": "CONFIGURATION_VERIFIED_IMAGE_ACCEPTANCE_BLOCKED",
+  "env": "dev-d1gh3jw1gdf06af22",
+  "functionName": "planner-fusion-gateway-probe",
+  "projects": [
+    "fusion-gateway-df8d79dc-1360-4d56-8f0b-a12956b2ce66",
+    "fusion-gateway-91dbe63a-3cfd-4bb6-9c3c-e28f9f4a4dce"
+  ],
+  "sha256": "a264f0a1fa9ead230e9d3710a8ad366c33f3c3e88c2ac32ae5128d4b62acc60a",
+  "sdk": "3.18.3",
+  "runtime": "Nodejs20.19",
+  "functionStatus": "Active",
+  "storageRule": {
+    "acl": "PRIVATE",
+    "aclDesc": "Only creator and admin can read and write",
+    "rule": null
+  },
+  "scope": "Local artifact SHA; remote configuration readback only. Storage rules unchanged after denied update."
+}

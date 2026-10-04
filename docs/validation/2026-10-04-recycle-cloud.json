@@ -1,0 +1,23 @@
+{
+  "observedAt": "2026-10-04T15:55:53.354Z",
+  "env": "dev-d1gh3jw1gdf06af22",
+  "functionName": "planner-fusion-gateway-probe",
+  "bundleSha256": "2a56589b3d2e02cc9d05accde91406424f34dba67e20c517b7773c180a08dfd2",
+  "mode": "JS_SDK_NODE_CLIENT_TO_DEPLOYED_FUNCTION",
+  "checks": [
+    {
+      "name": "atomic_swap_and_idempotent_retry",
+      "passed": true
+    },
+    {
+      "name": "delete_list_restore_associations_and_retry",
+      "passed": true
+    },
+    {
+      "name": "wrong_credential_cannot_list_recycle",
+      "passed": true
+    }
+  ],
+  "fixtureProjectId": "fusion-created-fc2a1bdc-c122-43d1-8388-328e7a3b282c",
+  "status": "PASS"
+}

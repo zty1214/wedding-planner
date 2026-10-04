@@ -1,0 +1,19 @@
+{
+  "observedAt": "2026-10-04T14:32:44.918Z",
+  "env": "dev-d1gh3jw1gdf06af22",
+  "functionName": "planner-fusion-gateway-probe",
+  "before": {
+    "*": {
+      "invoke": "auth != null && auth.loginType != 'ANONYMOUS'"
+    }
+  },
+  "after": {
+    "*": {
+      "invoke": "auth != null && auth.loginType != 'ANONYMOUS'"
+    },
+    "planner-fusion-gateway-probe": {
+      "invoke": "auth != null"
+    }
+  },
+  "status": "PASS"
+}

@@ -1,0 +1,43 @@
+{
+  "observedAt": "2026-10-04T14:46:53.351Z",
+  "env": "dev-d1gh3jw1gdf06af22",
+  "mode": "REAL_BROWSER_IMAGE_PROBE",
+  "bundleSha256": "a264f0a1fa9ead230e9d3710a8ad366c33f3c3e88c2ac32ae5128d4b62acc60a",
+  "projects": [
+    "fusion-gateway-df8d79dc-1360-4d56-8f0b-a12956b2ce66",
+    "fusion-gateway-91dbe63a-3cfd-4bb6-9c3c-e28f9f4a4dce"
+  ],
+  "cloudPaths": [
+    "planner_fusion_probe_images/fusion-gateway-df8d79dc-1360-4d56-8f0b-a12956b2ce66/pixel.png",
+    "planner_fusion_probe_images/fusion-gateway-91dbe63a-3cfd-4bb6-9c3c-e28f9f4a4dce/pixel.png"
+  ],
+  "checks": [
+    {
+      "name": "browser_upload_and_authorized_read_exact_fixture_bytes",
+      "passed": true,
+      "durationMs": 3576
+    },
+    {
+      "name": "cross_project_and_missing_credentials_cannot_upload_read_delete",
+      "passed": true,
+      "durationMs": 1696
+    }
+  ],
+  "observations": {
+    "storage.url": {
+      "codes": [
+        "SUCCESS"
+      ],
+      "returnedUrl": true,
+      "returnedFileId": false
+    }
+  },
+  "storageRuleBefore": {
+    "acl": "PRIVATE",
+    "aclDesc": "Only creator and admin can read and write",
+    "rule": null
+  },
+  "status": "FAIL",
+  "failedStage": "direct_client_cannot_read_overwrite_delete_server_uploaded_file",
+  "errorCode": "ERR_ASSERTION"
+}

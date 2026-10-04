@@ -1,0 +1,38 @@
+{
+  "observedAt": "2026-10-04T14:09:40.710Z",
+  "env": "dev-d1gh3jw1gdf06af22",
+  "collection": "planner_fusion_probe_history",
+  "runId": "history-probe-34603db0-95ef-4d74-b38f-bfd788df4804",
+  "checks": [
+    {
+      "name": "atomic_day_rollover_captures_prior_day_before_new_edit",
+      "passed": true,
+      "durationMs": 1779
+    },
+    {
+      "name": "failed_multi_document_restore_preserves_all_visible_data",
+      "passed": true,
+      "durationMs": 2438
+    },
+    {
+      "name": "snapshot_restore_commits_core_and_twenty_notes_together",
+      "passed": true,
+      "durationMs": 2326
+    },
+    {
+      "name": "ninety_snapshot_storage_and_paged_metadata_read",
+      "passed": true,
+      "durationMs": 2591
+    }
+  ],
+  "snapshotBytes": 49375,
+  "fixture": {
+    "guests": 150,
+    "notes": 20,
+    "imageFiles": 0
+  },
+  "historyPageMs": 46,
+  "ninetySnapshotPayloadEstimateBytes": 4443750,
+  "status": "PASS",
+  "limits": "Fixture capability and local-server network timings only; no cron, authorization gateway, preview conflicts, images, retention cleanup, transaction-limit boundary, billing or real-user load verified."
+}

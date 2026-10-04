@@ -1,0 +1,25 @@
+{
+  "observedAt": "2026-10-04T16:22:06.865Z",
+  "env": "dev-d1gh3jw1gdf06af22",
+  "functionName": "planner-fusion-daily-probe",
+  "bundleSha256": "caaf676df7500e10e556b25c4da7ffce1bb9db7653dc410432eb244cb67fa233",
+  "mode": "REAL_SCHEDULE_WITH_SEEDED_PREVIOUS_DAY_NO_MANUAL_INVOKE",
+  "checks": [
+    {
+      "name": "scheduled_capture_core_notes_and_sealed_marker",
+      "passed": true
+    }
+  ],
+  "triggers": [
+    {
+      "AddTime": "2026-10-05 00:21:55",
+      "ModTime": "2026-10-05 00:21:56",
+      "TriggerDesc": "{\"cron\":\"0 23 * * * * *\"}",
+      "TriggerName": "planner-daily-hourly",
+      "Type": "timer"
+    }
+  ],
+  "fixtureProjectId": "fusion-created-c3b1e2a3-e556-4586-bcdd-e9c9a94ca0c1",
+  "capturedAt": "2026-10-04T16:23:01.189Z",
+  "status": "PASS"
+}

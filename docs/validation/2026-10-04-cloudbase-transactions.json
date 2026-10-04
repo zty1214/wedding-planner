@@ -1,0 +1,44 @@
+{
+  "observedAt": "2026-10-04T14:00:52.750Z",
+  "env": "dev-d1gh3jw1gdf06af22",
+  "mode": "LOCAL_SERVER_SDK_TO_LIVE_CLOUDBASE",
+  "checks": [
+    {
+      "name": "concurrent_duplicate_commits_once",
+      "passed": true,
+      "durationMs": 1730
+    },
+    {
+      "name": "project_and_management_permissions",
+      "passed": true,
+      "durationMs": 840
+    },
+    {
+      "name": "receipt_failure_rolls_back_business_write",
+      "passed": true,
+      "durationMs": 977
+    },
+    {
+      "name": "competing_fixture_seat_has_one_winner",
+      "passed": true,
+      "durationMs": 937
+    },
+    {
+      "name": "revocation_applies_to_receipt_reads",
+      "passed": true,
+      "durationMs": 1352
+    }
+  ],
+  "collections": [
+    "planner_fusion_probe_access",
+    "planner_fusion_probe_current",
+    "planner_fusion_probe_receipts",
+    "planner_fusion_probe_activity"
+  ],
+  "status": "PASS",
+  "fixtureProjectIds": [
+    "fusion-probe-b8ed1f78-c1d0-48d4-b95c-c8a2eb6fc5e1",
+    "fusion-probe-81d4a8fa-6f1c-4d9c-b353-6802a9b78033"
+  ],
+  "scope": "Admin SDK and application authorization only. Anonymous client rules, cloud function gateway, images and daily snapshots NOT VERIFIED."
+}
