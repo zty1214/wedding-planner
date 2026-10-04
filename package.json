@@ -7,9 +7,13 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:fusion": "node --experimental-strip-types --test tests/fusion/*.test.ts tests/fusion/*.test.mjs",
+    "typecheck:fusion": "tsc -p tsconfig.fusion.json",
+    "inventory:planner": "node --env-file=.env.local scripts/fusion/read-supabase.mjs"
   },
   "dependencies": {
+    "@cloudbase/js-sdk": "3.6.3",
     "@supabase/supabase-js": "^2.110.7",
     "konva": "^10.3.0",
     "lucide-react": "^1.25.0",
@@ -22,15 +26,19 @@
     "zustand": "^5.0.14"
   },
   "devDependencies": {
+    "@cloudbase/node-sdk": "3.18.3",
     "@tailwindcss/vite": "^4.3.3",
     "@types/node": "^24.13.2",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@types/uuid": "^10.0.0",
     "@vitejs/plugin-react": "^6.0.3",
+    "fake-indexeddb": "6.2.5",
     "oxlint": "^1.71.0",
+    "rolldown": "1.1.5",
     "tailwindcss": "^4.3.3",
     "typescript": "~6.0.2",
-    "vite": "^8.1.1"
+    "vite": "^8.1.1",
+    "ws": "8.22.0"
   }
 }

@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { BedDouble, Bed, DoorOpen, Plus, Download, Trash2, Search, X, UserPlus, Pencil, CalendarPlus } from 'lucide-react'
-import { useWeddingStore } from '../stores/useWeddingStore'
+import { useWeddingStore } from '../fusion/PageContext'
 import { ROOM_CAPACITY, type Guest, type Room } from '../types'
 import { exportRoomsToExcel } from '../utils/exportRooms'
 import { formatNight } from '../utils/date'
@@ -40,7 +40,7 @@ export default function AccommodationPage() {
     const king = rooms.filter((r) => r.type === '大床房').length
     const twin = rooms.filter((r) => r.type === '标间').length
     const stayed = guests.filter((g) => g.roomId).length
-    const pendingList = guests.filter((g) => g.status === 'confirmed' && !g.roomId)
+    const pendingList = guests.filter((g) => (g.stayNeed === undefined ? g.status === 'confirmed' : g.stayNeed === 'needed') && !g.roomId)
     return { king, twin, total: rooms.length, stayed, pending: pendingList.length, pendingNames: pendingList.map((g) => g.name) }
   }, [rooms, guests])
 
@@ -83,7 +83,7 @@ export default function AccommodationPage() {
         <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
           <div>
             <h2 className="text-lg font-semibold text-gray-800">住宿安排</h2>
-            <p className="text-sm text-gray-400 mt-0.5">为大床房 / 标间分配入住宾客，按晚次统计用房</p>
+            <p className="text-sm text-gray-400 mt-0.5">为宾客安排房间，按个人住宿晚次统计用房；请先在名单中确认住宿需求</p>
           </div>
           <div className="flex items-center gap-2">
             <button
@@ -160,14 +160,14 @@ export default function AccommodationPage() {
             <StatCard value={nightStats.twin} label="标间·当晚" color="#7c9ec9" />
             <StatCard value={nightStats.total} label="当晚房间数" color="#5fae8f" />
             <StatCard value={nightStats.people} label="当晚总人数" color="#d99a4e" />
-            <StatCard value={nightStats.checkIn} label="当日入住人数" color="#b07cc6" />
+            <StatCard value={nightStats.checkIn} label="该晚开始住宿人数" color="#b07cc6" />
           </div>
         ) : (
           <div className="flex gap-4 mb-6 flex-wrap">
             <StatCard value={stats.king} label="大床房" color="#d4728a" />
             <StatCard value={stats.twin} label="标间" color="#7c9ec9" />
             <StatCard value={stats.total} label="合计房间" color="#5fae8f" />
-            <StatCard value={stats.stayed} label="已入住" color="#d99a4e" />
+            <StatCard value={stats.stayed} label="已安排住宿" color="#d99a4e" />
             <StatCard value={stats.pending} label="待安排住宿" color="#9ca3af" names={stats.pendingNames} />
           </div>
         )}
@@ -238,7 +238,7 @@ export default function AccommodationPage() {
                             <div className="flex items-center justify-between">
                               <span className="text-sm text-gray-700 truncate">{g.name}</span>
                               <button
-                                onClick={() => assignGuestToRoom(g.id, null)}
+                                onClick={() => { if (confirm(`将“${g.name}”移出房间？其已选住宿晚次也会清除。`)) assignGuestToRoom(g.id, null) }}
                                 className="text-gray-300 hover:text-red-400 transition-colors shrink-0"
                                 title="移出房间"
                               >
@@ -367,7 +367,7 @@ function GuestPicker({
   }
 
   const filtered = guests.filter(
-    (g) => g.name.includes(q) || g.group.includes(q) || (g.phone || '').includes(q)
+    (g) => (g.stayNeed === undefined || g.stayNeed === 'needed') && (g.name.includes(q) || g.group.includes(q) || (g.phone || '').includes(q))
   )
 
   return (
@@ -416,13 +416,13 @@ function GuestPicker({
                       {g.status === 'confirmed' && <span className="text-[11px] text-emerald-500 ml-2">已确认</span>}
                     </div>
                     {inThisRoom ? (
-                      <span className="text-xs text-emerald-500 px-2 py-1 shrink-0">已入住</span>
+                      <span className="text-xs text-emerald-500 px-2 py-1 shrink-0">已安排住宿</span>
                     ) : (
                       <button
                         onClick={() => handleAssign(g.id)}
                         className="text-xs px-3 py-1.5 rounded-lg border border-[#f0c4d0] text-[#d4728a] hover:bg-[#fdf5f7] transition-colors shrink-0"
                       >
-                        {state === '未安排' ? '安排入住' : `移入（原${state}）`}
+                        {state === '未安排' ? '安排住宿' : `移入（原${state}）`}
                       </button>
                     )}
                   </li>

@@ -1,10 +1,10 @@
 import { useState } from 'react'
-import { useWeddingStore, useAllGroups } from '../stores/useWeddingStore'
+import { useWeddingStore, useAllGroups } from '../fusion/PageContext'
 import { Plus, Trash2, Search, UserCheck, UserX, Pencil, Check, X, TagPlus, Download, BedDouble } from 'lucide-react'
 import { exportGuestsToExcel } from '../utils/exportGuests'
 
 export default function GuestsPage() {
-  const { guests, tables, rooms, addGuest, updateGuest, removeGuest, addCustomGroup } = useWeddingStore()
+  const { guests, tables, rooms, addGuest, updateGuest, removeGuest, addCustomGroup, setGuestStayNeed } = useWeddingStore()
   const allGroups = useAllGroups()
   const [name, setName] = useState('')
   const [group, setGroup] = useState(allGroups[0])
@@ -18,16 +18,16 @@ export default function GuestsPage() {
   const [editGroup, setEditGroup] = useState('')
   const [editPhone, setEditPhone] = useState('')
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
     if (!name.trim()) return
-    addGuest(name.trim(), group, phone.trim() || undefined)
+    if (await addGuest(name.trim(), group, phone.trim() || undefined) === false) return
     setName('')
     setPhone('')
   }
 
-  const handleAddGroup = () => {
+  const handleAddGroup = async () => {
     if (!newGroup.trim()) return
-    addCustomGroup(newGroup.trim())
+    if (await addCustomGroup(newGroup.trim()) === false) return
     setGroup(newGroup.trim())
     setNewGroup('')
     setShowAddGroup(false)
@@ -42,9 +42,9 @@ export default function GuestsPage() {
     setEditPhone(guest.phone || '')
   }
 
-  const saveEdit = () => {
+  const saveEdit = async () => {
     if (!editingId || !editName.trim()) return
-    updateGuest(editingId, { name: editName.trim(), group: editGroup, phone: editPhone.trim() || undefined })
+    if (await updateGuest(editingId, { name: editName.trim(), group: editGroup, phone: editPhone.trim() || undefined }) === false) return
     setEditingId(null)
   }
 
@@ -270,6 +270,15 @@ export default function GuestsPage() {
                       </span>
                     )}
                   </div>
+                  {setGuestStayNeed && <label className="block text-xs text-gray-500 mt-2">住宿需求
+                    <select aria-label={`${guest.name}的住宿需求`} className="ml-2 border rounded p-1" value={guest.stayNeed ?? 'pending'} onChange={e => {
+                      const value = e.target.value as 'pending' | 'needed' | 'not_needed'
+                      if (guest.roomId && value === 'not_needed' && !confirm(`将“${guest.name}”改为不需要住宿？房间和住宿晚次将清除，并保留在回收站。`)) return
+                      setGuestStayNeed(guest.id, value)
+                    }}>
+                      <option value="pending" disabled={!!guest.roomId}>待确认</option><option value="needed">需要住宿</option><option value="not_needed">不需要住宿</option>
+                    </select>
+                  </label>}
                   {guest.phone && (
                     <div className="text-xs text-gray-400 mt-0.5">{guest.phone}</div>
                   )}
@@ -282,7 +291,7 @@ export default function GuestsPage() {
                   <Pencil className="w-4 h-4" />
                 </button>
                 <button
-                  onClick={() => removeGuest(guest.id)}
+                  onClick={() => { if (confirm(`删除宾客“${guest.name}”？其座位、房间和住宿晚次安排也会一并移除。`)) removeGuest(guest.id) }}
                   className="opacity-0 group-hover:opacity-100 p-1.5 text-gray-400 hover:text-red-500 transition-all"
                   title="删除"
                 >

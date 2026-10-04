@@ -1,12 +1,14 @@
 import { useState, useRef } from 'react'
-import { useWeddingStore } from '../stores/useWeddingStore'
+import { useWeddingStore, useFusionMode } from '../fusion/PageContext'
 import { NOTE_CATEGORIES } from '../types'
 import { Plus, Trash2, ImagePlus, X, StickyNote } from 'lucide-react'
 
 export default function NotesPage() {
-  const { notes, addNote, removeNote } = useWeddingStore()
+  const fusion = useFusionMode()
+  const { notes, addNote, updateNote, removeNote } = useWeddingStore()
   const [activeTab, setActiveTab] = useState<string>(NOTE_CATEGORIES[0])
   const [showEditor, setShowEditor] = useState(false)
+  const [editingId, setEditingId] = useState<string | null>(null)
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [images, setImages] = useState<string[]>([])
@@ -27,9 +29,13 @@ export default function NotesPage() {
     e.target.value = ''
   }
 
-  const handlePublish = () => {
+  const handlePublish = async () => {
     if (!title.trim() && !content.trim()) return
-    addNote(activeTab, title.trim(), content.trim(), images)
+    const saved = editingId
+      ? await updateNote(editingId, { category: activeTab, title: title.trim(), content: content.trim(), images })
+      : await addNote(activeTab, title.trim(), content.trim(), images)
+    if (saved === false) return
+    setEditingId(null)
     setTitle('')
     setContent('')
     setImages([])
@@ -54,7 +60,7 @@ export default function NotesPage() {
           </button>
         ))}
         <button
-          onClick={() => setShowEditor(true)}
+          onClick={() => { setEditingId(null); setTitle(''); setContent(''); setImages([]); setShowEditor(true) }}
           className="ml-auto flex items-center gap-1.5 px-4 py-2 bg-[#d4728a] text-white rounded-lg text-sm font-medium hover:bg-[#b85a72] transition-colors"
         >
           <Plus className="w-4 h-4" /> 写笔记
@@ -97,6 +103,8 @@ export default function NotesPage() {
 
           <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-100">
             <button
+              disabled={fusion}
+              title={fusion ? '当前主流程保存文本笔记，图片附件暂未接入' : '添加图片'}
               onClick={() => fileRef.current?.click()}
               className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-500 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors"
             >
@@ -112,7 +120,7 @@ export default function NotesPage() {
             />
             <div className="ml-auto flex gap-2">
               <button
-                onClick={() => { setShowEditor(false); setTitle(''); setContent(''); setImages([]) }}
+                onClick={() => { setEditingId(null); setShowEditor(false); setTitle(''); setContent(''); setImages([]) }}
                 className="px-4 py-1.5 text-sm text-gray-500 hover:text-gray-700 transition-colors"
               >
                 取消
@@ -121,7 +129,7 @@ export default function NotesPage() {
                 onClick={handlePublish}
                 className="px-4 py-1.5 bg-[#d4728a] text-white text-sm rounded-lg font-medium hover:bg-[#b85a72] transition-colors"
               >
-                发布
+                {editingId ? '保存修改' : '发布'}
               </button>
             </div>
           </div>
@@ -145,8 +153,10 @@ export default function NotesPage() {
               {note.title && (
                 <h3 className="text-sm font-semibold text-gray-800 mb-1">{note.title}</h3>
               )}
+              {fusion && <button className="ml-auto text-sm text-rose-600 px-2" onClick={() => { setEditingId(note.id); setTitle(note.title); setContent(note.content); setImages([]); setShowEditor(true) }}>编辑</button>}
               <button
-                onClick={() => removeNote(note.id)}
+                aria-label="删除笔记"
+                onClick={() => { if (confirm(`删除笔记“${note.title || '无标题'}”？正文将一并移除。`)) removeNote(note.id) }}
                 className="opacity-0 group-hover:opacity-100 p-1 text-gray-300 hover:text-red-500 transition-all ml-auto shrink-0"
               >
                 <Trash2 className="w-4 h-4" />

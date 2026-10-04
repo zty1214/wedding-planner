@@ -1,61 +1,12 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { v4 as uuid } from 'uuid'
-import type { Guest, Table, Note, Room, RoomType, SharedLink } from '../types'
+import type { Guest, Room } from '../types'
 import { DEFAULT_GUEST_GROUPS } from '../types'
 import { normalizeDates } from '../utils/date'
 import { syncUpsertGuest, syncDeleteGuest, syncUpsertRoom, syncDeleteRoom } from '../lib/db'
 
-interface WeddingState {
-  projectId: string
-  projectTitle: string
-  mainStagePos: { x: number; y: number } | null
-  guests: Guest[]
-  tables: Table[]
-  rooms: Room[]
-  notes: Note[]
-  customGroups: string[]
-  stayDates: string[] // 项目级可选住宿晚次（ISO 日期），默认婚礼两晚
-  sharedLinks: SharedLink[] // 我生成的分享链接（仅本地）
-
-  // Project actions
-  setProjectTitle: (title: string) => void
-  setMainStagePos: (pos: { x: number; y: number }) => void
-
-  // Shared-link actions（仅本地）
-  addSharedLink: (link: SharedLink) => void
-  renameSharedLink: (id: string, name: string) => void
-  removeSharedLink: (id: string) => void
-
-  // Guest actions
-  addGuest: (name: string, group: string, phone?: string) => void
-  updateGuest: (id: string, patch: Partial<Guest>) => void
-  removeGuest: (id: string) => void
-  assignGuestToTable: (guestId: string, tableId: string | null, seatIndex: number | null) => void
-  assignGuestToRoom: (guestId: string, roomId: string | null) => void
-  setGuestStayDates: (guestId: string, dates: string[]) => void
-  addCustomGroup: (group: string) => void
-
-  // Table actions
-  addTable: (seats: number, x: number, y: number) => void
-  updateTable: (id: string, patch: Partial<Table>) => void
-  removeTable: (id: string) => void
-
-  // Room actions
-  addRoom: (type: RoomType) => void
-  updateRoom: (id: string, patch: Partial<Room>) => void
-  removeRoom: (id: string) => void
-
-  // Stay-date actions
-  addStayDate: (date: string) => void
-  removeStayDate: (date: string) => void
-  setStayDates: (dates: string[]) => void
-
-  // Note actions
-  addNote: (category: string, title: string, content: string, images: string[]) => void
-  updateNote: (id: string, patch: Partial<Note>) => void
-  removeNote: (id: string) => void
-}
+import type { WeddingState } from '../types/weddingState'
 
 export const useWeddingStore = create<WeddingState>()(
   persist(
@@ -71,7 +22,7 @@ export const useWeddingStore = create<WeddingState>()(
       stayDates: [],
       sharedLinks: [],
 
-      setProjectTitle: (title) => set({ projectTitle: title }),
+      setProjectTitle: (title) => { set({ projectTitle: title }) },
       setMainStagePos: (pos) => set({ mainStagePos: pos }),
 
       addSharedLink: (link) => set((s) => ({ sharedLinks: [link, ...s.sharedLinks] })),
@@ -128,7 +79,7 @@ export const useWeddingStore = create<WeddingState>()(
       },
 
       addCustomGroup: (group) =>
-        set((s) => ({
+        void set((s) => ({
           customGroups: s.customGroups.includes(group)
             ? s.customGroups
             : [...s.customGroups, group],
@@ -213,7 +164,7 @@ export const useWeddingStore = create<WeddingState>()(
       setStayDates: (dates) => set({ stayDates: normalizeDates(dates) }),
 
       addNote: (category, title, content, images) =>
-        set((s) => ({
+        void set((s) => ({
           notes: [
             {
               id: uuid(),
@@ -229,7 +180,7 @@ export const useWeddingStore = create<WeddingState>()(
         })),
 
       updateNote: (id, patch) =>
-        set((s) => ({
+        void set((s) => ({
           notes: s.notes.map((n) =>
             n.id === id ? { ...n, ...patch, updatedAt: new Date().toISOString() } : n
           ),

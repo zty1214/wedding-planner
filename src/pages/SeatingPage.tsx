@@ -1,12 +1,12 @@
 import { useState, useRef } from 'react'
-import { useWeddingStore } from '../stores/useWeddingStore'
+import { useWeddingStore } from '../fusion/PageContext'
 import { TABLE_PRESETS } from '../types'
 import SeatingCanvas from '../components/seating/SeatingCanvas'
 import { Download, Plus, Trash2, X, UserPlus, Pencil, GripVertical } from 'lucide-react'
 import { exportSeatingChart } from '../utils/exportSeatingChart'
 
 export default function SeatingPage() {
-  const { tables, guests, addTable, removeTable, updateTable, assignGuestToTable, updateGuest, mainStagePos, projectTitle } = useWeddingStore()
+  const { tables, guests, addTable, removeTable, updateTable, assignGuestToTable, swapGuestSeats, updateGuest, mainStagePos, projectTitle } = useWeddingStore()
   const [selectedTableId, setSelectedTableId] = useState<string | null>(null)
   const [showAssign, setShowAssign] = useState(false)
   const [editingLabel, setEditingLabel] = useState(false)
@@ -118,8 +118,11 @@ export default function SeatingPage() {
     if (dragIndex === null || dragIndex === targetIndex || !selectedTable) return
     const dragGuest = tableGuests.find((g) => g.seatIndex === dragIndex)
     const targetGuest = tableGuests.find((g) => g.seatIndex === targetIndex)
-    if (dragGuest) assignGuestToTable(dragGuest.id, selectedTable.id, targetIndex)
-    if (targetGuest) assignGuestToTable(targetGuest.id, selectedTable.id, dragIndex)
+    if (dragGuest && targetGuest && swapGuestSeats) swapGuestSeats(dragGuest.id, targetGuest.id)
+    else {
+      if (dragGuest) assignGuestToTable(dragGuest.id, selectedTable.id, targetIndex)
+      if (targetGuest) assignGuestToTable(targetGuest.id, selectedTable.id, dragIndex)
+    }
     setDragIndex(null)
     setDragOverIndex(null)
   }
@@ -221,7 +224,7 @@ export default function SeatingPage() {
             )}
             <div className="flex gap-1">
               <button
-                onClick={() => removeTable(selectedTable.id)}
+                onClick={() => { if (confirm(`删除“${selectedTable.label}”？桌上 ${tableGuests.length} 位宾客将移出座位，宾客记录和住宿安排保留。`)) removeTable(selectedTable.id) }}
                 className="p-1.5 text-gray-400 hover:text-red-500 transition-colors"
                 title="删除此桌"
               >

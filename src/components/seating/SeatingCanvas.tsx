@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 import { Stage, Layer, Circle, Text, Group, Rect } from 'react-konva'
 import { ZoomIn, ZoomOut, Locate } from 'lucide-react'
-import { useWeddingStore } from '../../stores/useWeddingStore'
+import { useWeddingStore } from '../../fusion/PageContext'
 import { TABLE_PRESETS } from '../../types'
 import type { Table, Guest } from '../../types'
 
