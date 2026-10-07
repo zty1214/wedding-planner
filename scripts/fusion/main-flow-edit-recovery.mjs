@@ -1,7 +1,7 @@
 // Actual App + IndexedDB + local fictitious gateway; bounded fault injection only.
 import assert from 'node:assert/strict'
 import { spawn, execFileSync } from 'node:child_process'
-import { mkdir, open } from 'node:fs/promises'
+import { mkdir, open, readFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import { createServer } from 'node:net'
 import { chromium } from 'playwright'
@@ -19,7 +19,7 @@ async function observe() {
 async function forms(kind) {
   return page.evaluate(async ({ kind, projectId }) => { const module = await import('/src/fusion/' + kind.toLowerCase() + 'Drafts.ts'), vault = await module['open' + kind + 'DraftVault'](); try { return await vault.list(projectId) } finally { vault.close() } }, { kind, projectId: report.projectId })
 }
-async function queue() { return page.evaluate(() => new Promise((resolve, reject) => { const request = indexedDB.open('wedding-planner-fusion-drafts'); request.onerror = () => reject(Error('READ_FAILED')); request.onsuccess = () => { const db = request.result, tx = db.transaction('outbox', 'readonly'), rows = tx.objectStore('outbox').getAll(); tx.oncomplete = () => { db.close(); resolve(rows.result) }; tx.onabort = () => { db.close(); reject(Error('READ_FAILED')) } } })) }
+async function queue() { return page.evaluate(() => new Promise((resolve, reject) => { const request = indexedDB.open('wedding-planner-fusion-drafts'); request.onerror = () => reject(Error('READ_FAILED')); request.onsuccess = () => { const db = request.result, tx = db.transaction('outbox', 'readonly'), rows = tx.objectStore('outbox').getAll(); tx.oncomplete = () => { db.close(); resolve(rows.result.sort((a, b) => a.sequence - b.sequence)) }; tx.onabort = () => { db.close(); reject(Error('READ_FAILED')) } } })) }
 async function snapshot(name) { await page.screenshot({ path: resolve(output, name + '.png'), fullPage: true, mask: [page.getByRole('region', { name: '协作链接管理' })] }) }
 async function record(name, facts) { report.results.push({ name, status: 'passed', ...facts }); await file.truncate(0); await file.write(JSON.stringify(report, null, 2) + '\n', 0, 'utf8'); console.log('PASS ' + name) }
 async function recoverGuest(name) {
@@ -98,6 +98,64 @@ try {
   const pending = (await queue())[0], beforeDiscard = await stats(); await page.reload(); await button('查看本机草稿').click(); await discard(); await page.getByText('已放弃 0 项未提交草稿；另有 1 项已经在云端保存，只清除了本机待确认记录。', { exact: true }).waitFor(); assert.equal((await queue()).length, 0); assert.equal((await stats()).receipts, beforeDiscard.receipts)
   await page.reload(); assert.equal((await queue()).length, 0); assert.equal((await observe()).data.guests[0].name, '已保存不可撤销的虚构宾客'); assert.equal((await stats()).receipts, beforeDiscard.receipts)
   await snapshot('committed-discard-reopened'); await record(stage, { operationId: pending.command.operationId, queueAfterReopen: 0, serverValuePreserved: true, extraReceipts: 0 })
+  stage = 'mixed-conflict-batch-retained-and-downloaded'
+  await page.getByText('已同步到云端', { exact: true }).waitFor()
+  await button('模拟断网').click()
+  await page.getByTitle('编辑', { exact: true }).click()
+  await page.getByLabel('宾客电话').fill('00099887766')
+  await page.getByText('宾客修改已保存在本机，尚未更新共享名单。', { exact: true }).waitFor()
+  await button('保存修改').click(); await wait(async () => (await queue()).length === 1)
+  await page.getByRole('link', { name: '备婚笔记', exact: true }).click()
+  await button('编辑').click(); await page.getByLabel('笔记正文').fill('暂停后只保留的笔记原意图')
+  await page.getByText('笔记草稿已保存在本机，尚未共享', { exact: true }).waitFor()
+  await button('保存修改').click(); await wait(async () => (await queue()).length === 2 && (await forms('Note')).length === 0)
+  stage = 'mixed-batch/original-command-order'
+  const originalCommands = (await queue()).map(item => item.command)
+  assert.deepEqual(originalCommands.map(item => item.type), ['guest.update', 'note.update'])
+  stage = 'mixed-batch/reopen-and-other-client-edit'
+  await page.reload(); await button('恢复网络').click()
+  const rivalContext = await browser.newContext({ viewport: { width: 1280, height: 900 } })
+  await rivalContext.route('**/*', route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort())
+  const rival = await rivalContext.newPage(); rival.setDefaultTimeout(15000)
+  await rival.goto(link.replace('/seating', '/guests')); await rival.getByText('已同步到云端', { exact: true }).waitFor()
+  await rival.getByTitle('编辑', { exact: true }).click(); await rival.getByLabel('宾客电话').fill('00112233445')
+  await rival.getByText('宾客修改已保存在本机，尚未更新共享名单。', { exact: true }).waitFor()
+  await button('保存修改', rival).click(); await wait(async () => (await observe()).data.guests[0].phone === '00112233445')
+  await rivalContext.close()
+  stage = 'mixed-batch/confirm-first-conflict'
+  await button('确认并继续同步').click(); await wait(async () => (await queue())[0]?.status === 'conflict')
+  const rejectedBatch = await queue(), beforeRetain = await stats()
+  assert.deepEqual(rejectedBatch.map(item => item.command), originalCommands)
+  assert.equal((await observe()).notes[0].content, '编辑后保留的完整正文')
+  await button('查看本机草稿').click()
+  stage = 'mixed-batch/retain-whole-batch'
+  await button('保留原草稿，开始重新编辑').click()
+  await button('核对云端并保留，开始重新编辑').click()
+  await wait(async () => (await queue()).length === 0)
+  assert.equal((await stats()).receipts, beforeRetain.receipts)
+  await page.reload(); await button('查看本机草稿').click()
+  stage = 'mixed-batch/download-after-reopen'
+  await page.locator('summary').filter({ hasText: '2 项原草稿' }).click()
+  const downloadReady = page.waitForEvent('download')
+  await button('导出这组原草稿').click()
+  const download = await downloadReady, downloaded = resolve(output, 'retained-mixed-batch.json')
+  await download.saveAs(downloaded)
+  const exported = JSON.parse(await readFile(downloaded, 'utf8'))
+  assert.equal(exported.format, 'planner-local-drafts-v1')
+  assert.deepEqual(exported.drafts, rejectedBatch)
+  assert.equal((await queue()).length, 0); assert.equal((await stats()).receipts, beforeRetain.receipts)
+  const sharedAfterRetain = await observe()
+  assert.equal(sharedAfterRetain.data.guests[0].phone, '00112233445')
+  assert.equal(sharedAfterRetain.notes[0].content, '编辑后保留的完整正文')
+  await snapshot('mixed-conflict-retained')
+  await page.getByRole('dialog', { name: '本机草稿', exact: true }).getByRole('button', { name: '关闭', exact: true }).click()
+  await page.getByRole('link', { name: '宾客名单', exact: true }).click()
+  await page.getByTitle('编辑', { exact: true }).click(); await page.getByLabel('宾客电话').fill('00055667788')
+  await page.getByText('宾客修改已保存在本机，尚未更新共享名单。', { exact: true }).waitFor()
+  await button('保存修改').click(); await wait(async () => (await observe()).data.guests[0].phone === '00055667788')
+  assert.equal((await stats()).receipts, beforeRetain.receipts + 1)
+  assert.equal((await observe()).notes[0].content, '编辑后保留的完整正文')
+  await record('mixed-conflict-batch-retained-and-downloaded', { operationIds: originalCommands.map(item => item.operationId), commandTypes: originalCommands.map(item => item.type), queueAfterReopen: 0, archivedWholeBatchAndDownloaded: true, retainAndDownloadAddedReceipts: 0, reeditAddedReceipts: 1, pausedNoteNotSent: true })
   report.status = 'passed'
 } catch (error) {
   report.status = 'failed'; report.failedStage = stage; report.failureType = error.name

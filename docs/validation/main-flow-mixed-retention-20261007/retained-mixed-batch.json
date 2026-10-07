@@ -1,0 +1,48 @@
+{
+  "format": "planner-local-drafts-v1",
+  "exportedAt": "2026-10-07T09:43:30.711Z",
+  "drafts": [
+    {
+      "command": {
+        "projectId": "fusion-created-123f860f-51ff-431a-87dd-120a3b7cbedd",
+        "dataEpoch": "123f860f-51ff-431a-87dd-120a3b7cbedd",
+        "operationId": "10af950b-f036-4ffe-ac93-e80c52493bb3",
+        "commandVersion": 1,
+        "type": "guest.update",
+        "payload": {
+          "id": "f28dfe15-e956-4f77-b5ae-bb0ea8005434",
+          "patch": {
+            "name": "已保存不可撤销的虚构宾客",
+            "group": "新郎亲属",
+            "phone": "00099887766"
+          }
+        },
+        "expectedRevisions": {
+          "guest:f28dfe15-e956-4f77-b5ae-bb0ea8005434": 3
+        }
+      },
+      "status": "conflict",
+      "sequence": 1
+    },
+    {
+      "command": {
+        "projectId": "fusion-created-123f860f-51ff-431a-87dd-120a3b7cbedd",
+        "dataEpoch": "123f860f-51ff-431a-87dd-120a3b7cbedd",
+        "operationId": "c372dc6e-293e-463c-be3b-8c4cc6d659d8",
+        "commandVersion": 1,
+        "type": "note.update",
+        "payload": {
+          "id": "333da5f2-59a8-495c-b05d-6e08530c0e39",
+          "category": "酒店",
+          "title": "待编辑虚构笔记",
+          "content": "暂停后只保留的笔记原意图"
+        },
+        "expectedRevisions": {
+          "note:333da5f2-59a8-495c-b05d-6e08530c0e39": 1
+        }
+      },
+      "status": "prepared",
+      "sequence": 2
+    }
+  ]
+}

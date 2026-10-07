@@ -186,3 +186,52 @@ for (const alreadyCommitted of [false, true]) test(`whole-project recovery expor
     reopened.stop()
   } finally { repo.stop(); storage.close() }
 })
+
+
+test('reopened mixed four-module queue export matches explicit ordered server replay without submitting during export', async () => {
+  const { repo, storage, remote, transport, store, setOffline } = await setup()
+  let reopened: ReturnType<typeof projectRepository> | undefined
+  try {
+    const note = { id: 'mixed-note', category: '酒店', title: '混合队列', content: '原正文' }
+    assert.equal(await repo.dispatch('note.add', note, {}), true)
+    const confirmed = await remote.read()
+    setOffline(true)
+    assert.equal(await repo.dispatch('guest.update', { id: 'g', patch: { name: '混合草稿宾客', phone: '00123456789' } }, { 'guest:g': 0 }), true)
+    assert.equal(await repo.dispatch('table.update', { id: 't', patch: { label: '草稿桌位', x: 160, y: 90 } }, { 'table:t': 0 }), true)
+    assert.equal(await repo.dispatch('room.update', { id: 'r', patch: { label: '001' } }, { 'room:r': 0 }), true)
+    assert.equal(await repo.dispatch('stayDate.add', { date: '2026-12-31' }, { config: 0 }), true)
+    assert.equal(await repo.dispatch('guest.setStayDates', { id: 'g', dates: ['2026-12-31'] }, { 'guest:g': 1, config: 1 }), true)
+    assert.equal(await repo.dispatch('note.update', { ...note, content: '正文第二稿' }, { 'note:mixed-note': 0 }), true)
+    assert.equal(await repo.dispatch('note.update', { ...note, content: '正文最终稿' }, { 'note:mixed-note': 1 }), true)
+    const original = await repo.readDrafts()
+    assert.equal(original.length, 7)
+    const live = repo.captureExport('draft').snapshot
+    repo.stop(); setOffline(false)
+    reopened = projectRepository('a', storage, transport, async (_key, body) => body())
+    await reopened.open()
+    assert.equal(reopened.getSnapshot().status, 'resume_required')
+    const beforeReceipts = store.projects.get('a')!.receipts.size
+    const exported = await reopened.captureRecoveredDraft()
+    assert.equal(exported.source, 'draft')
+    assert.deepEqual(exported.snapshot.data, live.data)
+    assert.equal(exported.snapshot.data.guests.g.phone, '00123456789')
+    assert.equal(exported.snapshot.data.rooms.r.label, '001')
+    assert.deepEqual(exported.snapshot.data.guests.g.stayDates, ['2026-12-31'])
+    assert.equal(exported.snapshot.notes![0].content, '正文最终稿')
+    assert.equal(exported.snapshot.notes![0].revision, 2)
+    assert.deepEqual(await reopened.readDrafts(), original)
+    assert.deepEqual(await remote.read(), confirmed)
+    assert.equal(store.projects.get('a')!.receipts.size, beforeReceipts)
+    await reopened.resume()
+    assert.equal(reopened.getSnapshot().status, 'synced')
+    assert.deepEqual(await reopened.readDrafts(), [])
+    const actual = await remote.read()
+    assert.deepEqual(actual.data, exported.snapshot.data)
+    // updatedAt is generated independently during projection and confirmed commit.
+    const businessNotes = (notes: typeof actual.notes) => notes?.map(({ updatedAt: _time, ...value }) => value)
+    assert.deepEqual(businessNotes(actual.notes), businessNotes(exported.snapshot.notes))
+    assert.equal(actual.notesRevision, exported.snapshot.notesRevision)
+    assert.equal(store.projects.get('a')!.receipts.size, beforeReceipts + original.length)
+    for (const item of original) assert.equal((await remote.queryReceipt(item.command))?.operationId, item.command.operationId)
+  } finally { reopened?.stop(); repo.stop(); storage.close() }
+})

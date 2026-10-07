@@ -1,0 +1,65 @@
+{
+  "baseline": "b6dc15e0df43079848273db25181de2ae1378b54",
+  "mode": "real App + IndexedDB + local MemoryStore gateway; handoff/cleanup/lost-response injection",
+  "startedAt": "2026-10-07T09:42:47.259Z",
+  "results": [
+    {
+      "name": "guest-edit-handoff-save-failure",
+      "status": "passed",
+      "operationId": "a412d388-ed0f-4266-8fbe-a6aeefd748b5",
+      "noDispatch": true,
+      "inputAndOriginalIdAfterReload": true
+    },
+    {
+      "name": "guest-edit-cleanup-failure",
+      "status": "passed",
+      "operationId": "a412d388-ed0f-4266-8fbe-a6aeefd748b5",
+      "receiptsAdded": 1,
+      "repeatCheckAddedReceipts": 0,
+      "formsAfterCleanup": 0
+    },
+    {
+      "name": "note-edit-handoff-save-failure",
+      "status": "passed",
+      "operationId": "f0058df5-28fd-4fec-b79a-468827fef58a",
+      "noDispatch": true,
+      "contentAndOriginalIdAfterReload": true
+    },
+    {
+      "name": "note-edit-cleanup-failure",
+      "status": "passed",
+      "operationId": "f0058df5-28fd-4fec-b79a-468827fef58a",
+      "receiptsAdded": 1,
+      "repeatCheckAddedReceipts": 0,
+      "formsAfterCleanup": 0
+    },
+    {
+      "name": "unknown-result-discard-denied",
+      "status": "passed",
+      "operationId": "e2a2206f-8cb0-4a55-953b-d0211976f733",
+      "queuePreserved": true
+    },
+    {
+      "name": "known-conflict-permanent-discard",
+      "status": "passed",
+      "operationId": "e2a2206f-8cb0-4a55-953b-d0211976f733",
+      "queueAfterReopen": 0,
+      "otherValuePreserved": true,
+      "extraReceipts": 0
+    },
+    {
+      "name": "committed-result-discard-does-not-undo",
+      "status": "passed",
+      "operationId": "e41947a2-4355-4910-bbf4-38accfb3304e",
+      "queueAfterReopen": 0,
+      "serverValuePreserved": true,
+      "extraReceipts": 0
+    }
+  ],
+  "browserVersion": "151.0.7922.34",
+  "projectId": "fusion-created-1359fbc8-0d54-4454-ac3d-18b3573012cd",
+  "status": "failed",
+  "failedStage": "mixed-conflict-batch-retained-and-downloaded",
+  "failureType": "AssertionError",
+  "finishedAt": "2026-10-07T09:42:53.957Z"
+}
