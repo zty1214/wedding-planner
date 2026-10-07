@@ -15,7 +15,8 @@
     "check": "npm run test && npm run test:scale && npm run typecheck:fusion && npm run lint && npm run build && npm run build:fusion-check",
     "test:scale": "node --experimental-strip-types scripts/fusion/validate-scale.ts",
     "build:fusion-check": "node scripts/fusion/validate-build.mjs",
-    "test:e2e": "node scripts/fusion/main-flow-e2e-run.mjs"
+    "test:e2e": "node scripts/fusion/main-flow-e2e-run.mjs",
+    "test:e2e:business": "node scripts/release/verify-business-frontend.mjs"
   },
   "dependencies": {
     "@cloudbase/js-sdk": "3.6.3",

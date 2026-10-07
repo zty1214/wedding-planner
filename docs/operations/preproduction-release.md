@@ -37,3 +37,21 @@ node --experimental-strip-types scripts/release/build-business-functions.mjs --o
 测试入口和证据见[来源备份](../validation/source-backup-20261008/README.md)及[预发工程](../validation/preproduction-engineering-20261008/README.md)。本机SDK传输替换、打包烟测及浏览器夹具都不代表目标云端已验证。
 
 最新创建调查见[进度记录](2026-10-08-implementation-progress.md)：免费体验版创建被CreateDealError拒绝，未确认新环境；个人版首月实际报价19.90元，预算待确认。官方[CreateEnv](https://cloud.tencent.com/document/api/876/128592)明确会自动下单支付，别名最长20位，手动续费与超限停用参数需显式固定；不把免费询价等同可发货。
+
+## 独立前端入口与离线候选构建
+
+预发候选必须使用Fusion-only构建：首页进入`/fusion`，旧`/guests`、`/seating`、`/stay`、`/notes`及旧分享路径返回项目入口，不把旧ID转换为新凭证。新Fusion深链保留原权限校验。默认开发/旧站构建仍沿用现有路由。
+
+离线构建命令（值为示例，不能直接部署）：
+
+```sh
+node scripts/release/build-business-frontend.mjs \
+  --output /受控目录/全新候选目录 \
+  --target-env 独立目标环境ID \
+  --publishable-key 目标公开访问密钥 \
+  --function planner-fusion-gateway
+```
+
+只接受独立环境和明确非probe函数；产物目录必须在Git外且不存在。工具不读`.env`，显式覆盖继承的VITE配置，禁用Supabase客户端。manifest绑定基线SHA、实际源码/配置/产物哈希；配置摘要不代替部署配置回读。公开访问密钥属于浏览器配置，禁止把服务端凭证传入此参数。
+
+`npm run test:e2e:business`使用生产构建和虚构配置，检查首页/旧路径、新深链保留、错误环境/probe拒绝、继承旧配置未进入产物及零外部请求。远端CI执行此检查；真实网关、域名、直接数据库拒绝及手机验收仍须在独立环境补齐。此工具不创建资源或发布站点。

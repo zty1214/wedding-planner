@@ -9,6 +9,8 @@ import SeatingPage from './pages/SeatingPage'
 import AccommodationPage from './pages/AccommodationPage'
 import NotesPage from './pages/NotesPage'
 
+const fusionOnly = import.meta.env.VITE_FUSION_ONLY === 'true'
+
 function App() {
   return (
     <Routes>
@@ -22,7 +24,7 @@ function App() {
         <Route path="history" element={<HistoryPage />} />
         <Route path="recycle" element={<RecyclePage />} />
       </Route>
-      <Route element={<Layout />}>
+      {fusionOnly ? <Route path="*" element={<Navigate to="/fusion" replace />} /> : <Route element={<Layout />}>
         <Route path="/" element={<Navigate to="/seating" replace />} />
         <Route path="/guests" element={<GuestsPage />} />
         <Route path="/seating" element={<SeatingPage />} />
@@ -34,7 +36,7 @@ function App() {
         <Route path="/p/:projectId/seating" element={<SeatingPage />} />
         <Route path="/p/:projectId/stay" element={<AccommodationPage />} />
         <Route path="/p/:projectId/notes" element={<NotesPage />} />
-      </Route>
+      </Route>}
     </Routes>
   )
 }

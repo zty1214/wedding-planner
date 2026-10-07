@@ -9,3 +9,5 @@
 平台每日/7天回档及独立保管频率/RPO/RTO是待确认方案，实际可回档点、费用、备份责任/通知和恢复时长未验收。见[操作方案](../../operations/disaster-backup-recovery.md)。完整检查随本阶段交付，不为小日志单独提交。
 
 最终完整npm run check通过240项回归、规模检查、Fusion类型、lint及两次构建，见check.txt；40条笔记最重事务计数低于100操作。此代码阶段尚需同提交CI后集成，不据本地测试标记真实恢复或正式切换完成。
+
+候选42697a4已通过[同提交CI](https://github.com/zty1214/wedding-planner/actions/runs/37670851730)，已快进集成主feat，脱敏回读见ci-report.json。
