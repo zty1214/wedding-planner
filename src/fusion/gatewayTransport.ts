@@ -36,6 +36,11 @@ export function gatewayTransport(projectId: string, secret: string, invoke: Invo
   }
   const scope = (command: Command) => { if (command.projectId !== projectId) throw new CommandError('FORBIDDEN') }
   return {
+    async readAccess(candidateHash) {
+      const value = record(await call('access.read', candidateHash === undefined ? {} : { candidateHash }))
+      if (!Number.isSafeInteger(value.revision) || Number(value.revision) < 0 || (candidateHash !== undefined && typeof value.matches !== 'boolean')) throw Error('INVALID_ACCESS_RESPONSE')
+      return { revision: Number(value.revision), ...(candidateHash === undefined ? {} : { matches: value.matches as boolean }) }
+    },
     validateCommand(command) { scope(command); assertGatewayRequestSize({ action: 'execute', projectId, secret, command }) },
     async readActivityMonth(month) {
       const value = await call('activity.month', { month }); assertActivityMonth(value)

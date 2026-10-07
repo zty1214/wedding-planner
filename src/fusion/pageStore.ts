@@ -28,8 +28,8 @@ export function createPageStore(projectId: string, repo: ReturnType<typeof proje
     addGuest: (name, group, phone) => send('guest.add', { id: crypto.randomUUID(), name, group, phone: phone ?? '' }),
     updateGuest: (id, patch) => {
       const converted: Record<string, Json> = {}
-      for (const key of ['name', 'group', 'phone', 'notes'] as const) if (Object.hasOwn(patch, key)) converted[key] = patch[key] ?? ''
-      if (patch.status) converted.attendance = patch.status === 'confirmed' ? 'confirmed' : 'pending'
+      for (const key of ['name', 'group', 'phone', 'notes', 'side', 'attendance'] as const) if (Object.hasOwn(patch, key)) converted[key] = patch[key] ?? ''
+      if (patch.status && !patch.attendance) converted.attendance = patch.status === 'confirmed' ? 'confirmed' : 'pending'
       return send('guest.update', { id, patch: converted }, [`guest:${id}`])
     },
     removeGuest: id => send('guest.delete', { id }, [`guest:${id}`]),

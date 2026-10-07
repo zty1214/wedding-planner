@@ -1,10 +1,19 @@
-import { useState } from 'react'
-import { useWeddingStore, useAllGroups } from '../fusion/PageContext'
+import FusionFieldEditor from '../fusion/FusionFieldEditor'
+import FusionGuestForm from '../fusion/FusionGuestForm'
+import { ExportContext } from '../fusion/ExportContext'
+import { useContext, useState } from 'react'
+import { useWeddingStore, useAllGroups, useFusionMode } from '../fusion/PageContext'
 import { Plus, Trash2, Search, UserCheck, UserX, Pencil, Check, X, TagPlus, Download, BedDouble } from 'lucide-react'
+import type { Guest } from '../types'
 import { exportGuestsToExcel } from '../utils/exportGuests'
 
 export default function GuestsPage() {
+  const openExport = useContext(ExportContext)
   const { guests, tables, rooms, addGuest, updateGuest, removeGuest, addCustomGroup, setGuestStayNeed } = useWeddingStore()
+  const fusion = useFusionMode()
+  const [decliningId, setDecliningId] = useState<string | null>(null)
+  const [savingAttendance, setSavingAttendance] = useState(false)
+  const decliningGuest = guests.find(g => g.id === decliningId)
   const allGroups = useAllGroups()
   const [name, setName] = useState('')
   const [group, setGroup] = useState(allGroups[0])
@@ -55,7 +64,9 @@ export default function GuestsPage() {
   })
 
   const assignedCount = guests.filter((g) => g.tableId).length
-  const confirmedCount = guests.filter((g) => g.status === 'confirmed').length
+  const confirmedCount = guests.filter((g) => (g.attendance ?? (g.status === 'confirmed' ? 'confirmed' : 'pending')) === 'confirmed').length
+  const unseatedCount = guests.filter(g => !g.tableId && g.attendance !== 'declined').length
+  const declinedCount = guests.filter(g => g.attendance === 'declined').length
   const filterGroups = ['全部', ...allGroups]
 
   return (
@@ -64,7 +75,7 @@ export default function GuestsPage() {
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-base font-semibold text-gray-800">宾客名单</h2>
         <button
-          onClick={() => exportGuestsToExcel(guests, tables)}
+          onClick={() => openExport ? openExport('guests') : exportGuestsToExcel(guests, tables)}
           disabled={guests.length === 0}
           className="flex items-center gap-1.5 px-3 py-2 bg-[#d4728a] text-white rounded-lg text-sm font-medium hover:bg-[#b85a72] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         >
@@ -87,13 +98,25 @@ export default function GuestsPage() {
           <div className="text-sm text-gray-500">已分配座位</div>
         </div>
         <div className="bg-white rounded-xl p-4 flex-1 border border-gray-100">
-          <div className="text-2xl font-bold text-amber-500">{guests.length - assignedCount}</div>
+          <div className="text-2xl font-bold text-amber-500">{unseatedCount}</div>
           <div className="text-sm text-gray-500">待分配</div>
         </div>
       </div>
 
+      {fusion && <p className="text-sm text-gray-500 mb-3">不出席：{declinedCount} 人（不计入待分配）；出席状态与排座、住宿分别管理。</p>}
+      {decliningGuest && <section role="alertdialog" aria-label="确认不出席" className="border border-amber-300 rounded p-3 mb-3">
+        <p>将“{decliningGuest.name}”设为不出席？会释放当前座位，住宿安排保留。以后改回出席也不会自动恢复原座位。</p>
+        <button disabled={savingAttendance} className="text-red-700 mr-4" onClick={async () => {
+          setSavingAttendance(true)
+          try { if (await updateGuest(decliningGuest.id, { attendance: 'declined' }) !== false) setDecliningId(null) }
+          finally { setSavingAttendance(false) }
+        }}>确认不出席并释放座位</button>
+        <button disabled={savingAttendance} onClick={() => setDecliningId(null)}>取消</button>
+      </section>}
+
       {/* Add form */}
       <div className="bg-white rounded-xl p-4 border border-gray-100 mb-4">
+        {fusion ? <FusionGuestForm key={editingId ?? 'new'} guestId={editingId ?? undefined} onClose={editingId ? () => setEditingId(null) : undefined} groups={allGroups} onAddGroup={() => setShowAddGroup(true)} /> : (
         <div className="flex gap-3 flex-wrap items-center">
           <input
             value={name}
@@ -134,9 +157,14 @@ export default function GuestsPage() {
             <Plus className="w-4 h-4" /> 添加
           </button>
         </div>
+        )}
 
         {/* Custom group input */}
-        {showAddGroup && (
+        {showAddGroup && fusion && <div className="flex gap-2 mt-3 pt-3 border-t">
+          <FusionFieldEditor kind="group" entityId="config" label="新类别名称" value="" submitLabel="添加类别" />
+          <button onClick={() => setShowAddGroup(false)} className="text-sm text-gray-500">关闭</button>
+        </div>}
+        {showAddGroup && !fusion && (
           <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-100">
             <input
               value={newGroup}
@@ -202,7 +230,7 @@ export default function GuestsPage() {
             key={guest.id}
             className="bg-white rounded-lg px-4 py-3 border border-gray-100 flex items-center gap-3 group"
           >
-            {editingId === guest.id ? (
+            {!fusion && editingId === guest.id ? (
               /* Edit mode */
               <div className="flex-1 flex items-center gap-2 flex-wrap">
                 <input
@@ -250,7 +278,7 @@ export default function GuestsPage() {
                     <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">
                       {guest.group}
                     </span>
-                    {guest.status === 'confirmed' ? (
+                    {fusion ? <span className="text-xs text-gray-600">{guest.tableId ? tables.find(t => t.id === guest.tableId)?.label ?? '已排座' : '未排座'}</span> : guest.status === 'confirmed' ? (
                       <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 flex items-center gap-0.5">
                         <UserCheck className="w-3 h-3" /> 已确认
                       </span>
@@ -270,6 +298,18 @@ export default function GuestsPage() {
                       </span>
                     )}
                   </div>
+                  {fusion && <div className="flex flex-wrap gap-3 text-xs text-gray-600 mt-2">
+                    <label>出席状态 <select aria-label={`${guest.name}的出席状态`} className="border rounded p-1" value={guest.attendance ?? 'pending'} onChange={e => {
+                      const attendance = e.target.value as NonNullable<Guest['attendance']>
+                      if (attendance === 'declined' && guest.tableId) { setDecliningId(guest.id); return }
+                      void updateGuest(guest.id, { attendance })
+                    }}>
+                      <option value="pending">待确认</option><option value="confirmed">已确认</option><option value="declined">不出席</option>
+                    </select></label>
+                    <label>归属 <select aria-label={`${guest.name}的归属`} className="border rounded p-1" value={guest.side ?? 'unset'} onChange={e => void updateGuest(guest.id, { side: e.target.value as NonNullable<Guest['side']> })}>
+                      <option value="unset">未设置</option><option value="bride">女方</option><option value="groom">男方</option><option value="shared">共同</option>
+                    </select></label>
+                  </div>}
                   {setGuestStayNeed && <label className="block text-xs text-gray-500 mt-2">住宿需求
                     <select aria-label={`${guest.name}的住宿需求`} className="ml-2 border rounded p-1" value={guest.stayNeed ?? 'pending'} onChange={e => {
                       const value = e.target.value as 'pending' | 'needed' | 'not_needed'
@@ -284,6 +324,7 @@ export default function GuestsPage() {
                   )}
                 </div>
                 <button
+                  data-guest-form-switch
                   onClick={() => startEdit(guest.id)}
                   className="opacity-0 group-hover:opacity-100 p-1.5 text-gray-400 hover:text-[#d4728a] transition-all"
                   title="编辑"

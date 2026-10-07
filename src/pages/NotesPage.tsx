@@ -1,3 +1,4 @@
+import FusionNotesEditor from '../fusion/FusionNotesEditor'
 import { useState, useRef } from 'react'
 import { useWeddingStore, useFusionMode } from '../fusion/PageContext'
 import { NOTE_CATEGORIES } from '../types'
@@ -60,6 +61,7 @@ export default function NotesPage() {
           </button>
         ))}
         <button
+          data-note-editor-switch
           onClick={() => { setEditingId(null); setTitle(''); setContent(''); setImages([]); setShowEditor(true) }}
           className="ml-auto flex items-center gap-1.5 px-4 py-2 bg-[#d4728a] text-white rounded-lg text-sm font-medium hover:bg-[#b85a72] transition-colors"
         >
@@ -68,7 +70,8 @@ export default function NotesPage() {
       </div>
 
       {/* Editor */}
-      {showEditor && (
+      {showEditor && fusion && <FusionNotesEditor key={editingId ?? 'new'} category={activeTab} noteId={editingId} onClose={() => { setShowEditor(false); setEditingId(null) }} />}
+      {showEditor && !fusion && (
         <div className="bg-white rounded-xl border border-gray-200 p-4 mb-6 shadow-sm">
           <input
             value={title}
@@ -153,7 +156,7 @@ export default function NotesPage() {
               {note.title && (
                 <h3 className="text-sm font-semibold text-gray-800 mb-1">{note.title}</h3>
               )}
-              {fusion && <button className="ml-auto text-sm text-rose-600 px-2" onClick={() => { setEditingId(note.id); setTitle(note.title); setContent(note.content); setImages([]); setShowEditor(true) }}>编辑</button>}
+              {fusion && <button data-note-editor-switch className="ml-auto text-sm text-rose-600 px-2" onClick={() => { setEditingId(note.id); setTitle(note.title); setContent(note.content); setImages([]); setShowEditor(true) }}>编辑</button>}
               <button
                 aria-label="删除笔记"
                 onClick={() => { if (confirm(`删除笔记“${note.title || '无标题'}”？正文将一并移除。`)) removeNote(note.id) }}

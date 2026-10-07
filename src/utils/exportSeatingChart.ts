@@ -32,6 +32,10 @@ interface Options {
   title: string
   stats: ExportStats
   filename: string
+  provenance?: string
+  capturedAt?: string
+  canDownload?: () => boolean
+  download?: boolean
 }
 
 function loadImage(src: string): Promise<HTMLImageElement> {
@@ -80,12 +84,18 @@ export async function exportSeatingChart(opts: Options) {
   ctx.fillStyle = COLORS.primary
   ctx.font = `bold ${26 * s}px "PingFang SC", "Microsoft YaHei", sans-serif`
   ctx.textBaseline = 'alphabetic'
-  ctx.fillText(title, pad, y + 26 * s)
+  ctx.fillText(title, pad, y + 26 * s, panelW - pad * 2)
   y += 26 * s
   ctx.fillStyle = COLORS.textLight
   ctx.font = `${14 * s}px "PingFang SC", "Microsoft YaHei", sans-serif`
   ctx.fillText('婚礼座位安排图', pad, y + 22 * s)
   y += 22 * s + 28 * s
+
+  if (opts.provenance) {
+    ctx.font = `${12 * s}px sans-serif`
+    ctx.fillText(opts.provenance, pad, y, panelW - pad * 2)
+    y += 20 * s
+  }
 
   // 分隔线
   ctx.strokeStyle = COLORS.border
@@ -157,14 +167,16 @@ export async function exportSeatingChart(opts: Options) {
   })
 
   // 6. 底部日期
-  const dateStr = new Date().toLocaleDateString('zh-CN')
+  const dateStr = new Date(opts.capturedAt ?? Date.now()).toLocaleString('zh-CN')
   ctx.fillStyle = COLORS.textLight
   ctx.font = `${12 * s}px "PingFang SC", "Microsoft YaHei", sans-serif`
-  ctx.fillText(`导出日期：${dateStr}`, pad, chartH - 30 * s)
+  ctx.fillText(`${opts.capturedAt ? '取样时间' : '导出时间'}：${dateStr}`, pad, chartH - 30 * s, panelW - pad * 2)
 
   // 触发下载
   const link = document.createElement('a')
   link.download = filename
   link.href = canvas.toDataURL('image/png')
-  link.click()
+  if (opts.canDownload && !opts.canDownload()) return
+  if (opts.download !== false) link.click()
+  return link.href
 }

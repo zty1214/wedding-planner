@@ -1,3 +1,5 @@
+import PrivateDraftPanel from './PrivateDraftPanel'
+import FusionFieldEditor from './FusionFieldEditor'
 import ActivityCalendar from './ActivityCalendar'
 import { useContext, useEffect, useState, useSyncExternalStore } from 'react'
 import { RepositoryContext } from './RepositoryContext'
@@ -26,7 +28,7 @@ export default function HistoryPage() {
   if (!repo) throw Error('PROJECT_NOT_READY')
   const state = useSyncExternalStore(repo.subscribe, repo.getSnapshot)
   const [selectedDay, setSelectedDay] = useState<string | null>(null)
-  const [name, setName] = useState(''), [error, setError] = useState(''), [busy, setBusy] = useState(false)
+  const [error, setError] = useState(''), [busy, setBusy] = useState(false)
   const [versions, setVersions] = useState<VersionMeta[]>([]), [cursor, setCursor] = useState<string | null>(null)
   const [against, setAgainst] = useState<ProjectSnapshot | null>(null), [confirming, setConfirming] = useState(false)
   const [preview, setPreview] = useState<ProjectVersion | null>(null), [reload, setReload] = useState(0)
@@ -38,14 +40,6 @@ export default function HistoryPage() {
       .finally(() => { if (!stopped) setBusy(false) })
     return () => { stopped = true }
   }, [repo, reload, selectedDay])
-  async function save() {
-    const current = repo!.getSnapshot()
-    if (!current.snapshot || current.pending || current.status !== 'synced' || !name.trim() || busy) return
-    setBusy(true)
-    const saved = await repo!.dispatch('version.save', { name: name.trim() }, { snapshot: current.snapshot.snapshotRevision, notes: current.snapshot.notesRevision ?? 0 })
-    if (saved) setName('')
-    setBusy(false); setReload(v => v + 1)
-  }
   async function more() {
     if (!cursor || busy) return
     setBusy(true); setError('')
@@ -73,8 +67,7 @@ export default function HistoryPage() {
   return <main className="h-full overflow-auto max-w-4xl mx-auto p-6 space-y-4">
     <h1 className="text-xl font-semibold">历史版本</h1>
     <p className="text-sm text-gray-600">手动版本保存已同步的宾客、座位布局、住宿和文本笔记，长期保留。当前不提供逐次修改日志。</p>
-    <div className="flex gap-2"><input aria-label="版本名称" maxLength={100} value={name} onChange={e => setName(e.target.value)} className="border rounded px-3 py-2" placeholder="例如：家人确认后的安排" />
-      <button disabled={busy || !name.trim() || state.status !== 'synced' || state.pending > 0} onClick={() => void save()} className="bg-rose-500 text-white rounded px-3 disabled:opacity-40">保存当前版本</button>
+    <div className="flex gap-2"><FusionFieldEditor kind="version" entityId="current" label="版本名称" value="" submitLabel="保存当前版本" disabled={busy || state.status !== 'synced' || state.pending > 0} onSaved={() => setReload(v => v + 1)} />
       <button disabled={busy} onClick={() => setReload(v => v + 1)}>刷新</button></div>
     {state.status !== 'synced' && <p className="text-amber-800">请先确认所有草稿已同步，再保存共享版本。</p>}
     <ActivityCalendar selected={selectedDay} onSelect={day => { setSelectedDay(day); setPreview(null); setConfirming(false) }} reload={reload} />
@@ -84,7 +77,8 @@ export default function HistoryPage() {
     {!busy && !error && !versions.length && <p>尚未保存版本。</p>}
     {versions.map(v => <article key={v.id} className="border rounded bg-white p-4">
       <h2 className="font-semibold">{v.name}</h2><p className="text-sm text-gray-600">{new Date(v.capturedAt).toLocaleString('zh-CN')} · {v.counts.guests} 位宾客 · {v.counts.tables} 桌 · {v.counts.rooms} 间房 · {v.counts.notes} 篇笔记 · {v.expiresAt ? `保留至 ${new Date(v.expiresAt).toLocaleDateString('zh-CN')}` : '长期保留'}</p>
-      <button disabled={busy} className="text-rose-600 mt-2" onClick={() => void inspect(v.id)}>预览内容</button>
+      <button disabled={busy || (!!v.expiresAt && Date.parse(v.expiresAt) <= Date.now())} className="text-rose-600 mt-2 disabled:opacity-40" onClick={() => void inspect(v.id)}>预览内容</button>
+      {v.expiresAt && Date.parse(v.expiresAt) <= Date.now() && <p className="text-sm text-gray-500">已过保留期限，仅保留版本摘要，内容不再可用。</p>}
     </article>)}
     {cursor && <button disabled={busy} onClick={() => void more()}>加载更多版本</button>}
     {preview && <section className="border rounded bg-white p-4 space-y-3">
@@ -100,6 +94,7 @@ export default function HistoryPage() {
         <p>将用“{preview.name}”替换项目的全部宾客、桌子布局、住宿和文本笔记。</p>
         <p>宾客 {against.data.guestOrder.length} → {preview.counts.guests}，桌子 {against.data.tableOrder.length} → {preview.counts.tables}，房间 {against.data.roomOrder.length} → {preview.counts.rooms}，笔记 {against.notes?.length ?? 0} → {preview.counts.notes}。</p>
         <p>恢复前会保存当前安全版本，保留 90 天。协作链接不变；其他设备的旧草稿需人工核对。预览后若有新修改，本次恢复会被拒绝。</p>
+        <PrivateDraftPanel key={repo.projectId} projectId={repo.projectId} dataEpoch={state.snapshot?.dataEpoch} />
         <button disabled={busy} className="bg-red-700 text-white px-3 py-2 rounded" onClick={() => void restore()}>确认替换并保留安全版本</button>
         <button disabled={busy} className="ml-3" onClick={() => setConfirming(false)}>取消</button>
       </div>}

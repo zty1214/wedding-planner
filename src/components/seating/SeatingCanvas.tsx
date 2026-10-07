@@ -1,7 +1,8 @@
-import { useCallback } from 'react'
+import { useCallback, useLayoutEffect, useRef } from 'react'
 import { Stage, Layer, Circle, Text, Group, Rect } from 'react-konva'
 import { ZoomIn, ZoomOut, Locate } from 'lucide-react'
 import { useWeddingStore } from '../../fusion/PageContext'
+import { seatNameLayout } from '../../utils/seatName'
 import { TABLE_PRESETS } from '../../types'
 import type { Table, Guest } from '../../types'
 
@@ -34,6 +35,7 @@ interface Viewport {
 }
 
 interface Props {
+  fixedData?: { tables: Table[]; guests: Guest[]; mainStagePos: { x: number; y: number } | null }
   selectedTableId: string | null
   onSelectTable: (id: string | null) => void
   stageRef: React.RefObject<any>
@@ -41,17 +43,26 @@ interface Props {
   onViewportChange: (v: Viewport) => void
 }
 
-export default function SeatingCanvas({ selectedTableId, onSelectTable, stageRef, viewport, onViewportChange }: Props) {
-  const { tables, guests, updateTable, mainStagePos, setMainStagePos } = useWeddingStore()
+export default function SeatingCanvas({ selectedTableId, onSelectTable, stageRef, viewport, onViewportChange, fixedData }: Props) {
+  const live = useWeddingStore()
+  const { tables, guests, mainStagePos } = fixedData ?? live
+  const { updateTable, setMainStagePos } = live
   const { scale: stageScale, x: posX, y: posY, width: stageW, height: stageH } = viewport
 
+  const latestViewport = useRef({ viewport, onViewportChange })
+  useLayoutEffect(() => { latestViewport.current = { viewport, onViewportChange } }, [viewport, onViewportChange])
+  const fixed = !!fixedData
   const measureRef = useCallback((node: HTMLDivElement | null) => {
-    if (node) {
-      const rect = node.getBoundingClientRect()
-      onViewportChange({ ...viewport, width: rect.width, height: rect.height })
+    if (!node || fixed) return
+    const measure = () => {
+      const { viewport: current, onViewportChange: change } = latestViewport.current
+      const { width, height } = node.getBoundingClientRect()
+      if (width > 0 && height > 0 && (current.width !== width || current.height !== height)) change({ ...current, width, height })
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    const observer = new ResizeObserver(measure)
+    observer.observe(node); measure()
+    return () => observer.disconnect()
+  }, [fixed])
 
   const getTableGuests = (tableId: string) =>
     guests.filter((g) => g.tableId === tableId).sort((a, b) => (a.seatIndex ?? 0) - (b.seatIndex ?? 0))
@@ -133,7 +144,7 @@ export default function SeatingCanvas({ selectedTableId, onSelectTable, stageRef
   }
 
   return (
-    <div ref={measureRef} className="flex-1 relative bg-[#faf9f7] overflow-hidden">
+    <div ref={measureRef} className="flex-1 min-w-0 min-h-0 relative bg-[#faf9f7] overflow-hidden">
       {/* Subtle grid */}
       <div
         className="absolute inset-0 opacity-20"
@@ -150,7 +161,8 @@ export default function SeatingCanvas({ selectedTableId, onSelectTable, stageRef
         scaleY={stageScale}
         x={posX}
         y={posY}
-        draggable
+        draggable={!fixedData}
+        listening={!fixedData}
         onWheel={handleWheel}
         onDragEnd={(e) => {
           // 只有拖拽的是 Stage 本身（空白处）才更新平移位置
@@ -273,7 +285,7 @@ export default function SeatingCanvas({ selectedTableId, onSelectTable, stageRef
 
       {tables.length === 0 && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
-          <p className="text-gray-400 text-sm mt-20">从左侧点击桌子添加到画布，自由拖拽排列</p>
+          <p className="text-gray-400 text-sm mt-20">点击添加桌子，再在画布中拖拽排列</p>
         </div>
       )}
     </div>
@@ -360,11 +372,7 @@ function TableNode({
         const fillColor = isConfirmed ? COLORS.confirmedFill : isAssigned ? COLORS.assignedFill : COLORS.emptyFill
         const strokeColor = isConfirmed ? COLORS.confirmedStroke : isAssigned ? COLORS.assignedStroke : COLORS.emptyStroke
         const textColor = isConfirmed ? '#ffffff' : isAssigned ? COLORS.assignedText : COLORS.emptyText
-        // 4字名拆成两行（上2下2），3字及以下单行显示
-        const name = guest ? guest.name.slice(0, 4) : ''
-        const displayText = guest
-          ? (name.length === 4 ? `${name.slice(0, 2)}\n${name.slice(2)}` : name)
-          : '空'
+        const name = guest ? seatNameLayout(guest.name) : { text: '空', fontSize: 10 }
 
         return (
           <Group key={i} x={sx} y={sy}>
@@ -376,8 +384,8 @@ function TableNode({
             />
             {/* Text centered: x=-r, y=-r, width=2r, height=2r */}
             <Text
-              text={displayText}
-              fontSize={guest ? (name.length === 4 ? 10 : 11) : 10}
+              text={name.text}
+              fontSize={name.fontSize}
               fontStyle={guest ? 'bold' : 'normal'}
               fill={textColor}
               align="center"

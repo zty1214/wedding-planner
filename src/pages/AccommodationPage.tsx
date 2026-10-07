@@ -1,14 +1,20 @@
-import { useMemo, useState } from 'react'
+import FusionFieldEditor from '../fusion/FusionFieldEditor'
+import { RepositoryContext } from '../fusion/RepositoryContext'
+import { ExportContext } from '../fusion/ExportContext'
+import { useContext, useMemo, useState } from 'react'
 import { BedDouble, Bed, DoorOpen, Plus, Download, Trash2, Search, X, UserPlus, Pencil, CalendarPlus } from 'lucide-react'
 import { useWeddingStore } from '../fusion/PageContext'
 import { ROOM_CAPACITY, type Guest, type Room } from '../types'
 import { exportRoomsToExcel } from '../utils/exportRooms'
 import { formatNight } from '../utils/date'
+import { accommodationNight, accommodationTodos, roomOccupancy } from '../utils/accommodation'
 import DatePicker from '../components/DatePicker'
 
 const ALL = '全部'
 
 export default function AccommodationPage() {
+  const fusion = useContext(RepositoryContext)
+  const openExport = useContext(ExportContext)
   const rooms = useWeddingStore((s) => s.rooms)
   const guests = useWeddingStore((s) => s.guests)
   const stayDates = useWeddingStore((s) => s.stayDates)
@@ -20,12 +26,15 @@ export default function AccommodationPage() {
   const addStayDate = useWeddingStore((s) => s.addStayDate)
   const removeStayDate = useWeddingStore((s) => s.removeStayDate)
 
-  const [dateFilter, setDateFilter] = useState<string>(ALL)
+  const [selectedDate, setDateFilter] = useState<string>(ALL)
   const [typeFilter, setTypeFilter] = useState<string>(ALL)
   const [pickerRoomId, setPickerRoomId] = useState<string | null>(null)
   const [editingRoomId, setEditingRoomId] = useState<string | null>(null)
   const [labelDraft, setLabelDraft] = useState('')
   const [addingDate, setAddingDate] = useState(false)
+
+  const dateFilter = stayDates.includes(selectedDate) ? selectedDate : ALL
+  const todos = useMemo(() => accommodationTodos(guests), [guests])
 
   // 某房间的入住人（按当前日期筛选）
   const occupantsOf = (room: Room): Guest[] => {
@@ -40,26 +49,12 @@ export default function AccommodationPage() {
     const king = rooms.filter((r) => r.type === '大床房').length
     const twin = rooms.filter((r) => r.type === '标间').length
     const stayed = guests.filter((g) => g.roomId).length
-    const pendingList = guests.filter((g) => (g.stayNeed === undefined ? g.status === 'confirmed' : g.stayNeed === 'needed') && !g.roomId)
-    return { king, twin, total: rooms.length, stayed, pending: pendingList.length, pendingNames: pendingList.map((g) => g.name) }
+    return { king, twin, total: rooms.length, stayed }
   }, [rooms, guests])
 
-  // 当晚用房统计（选中具体日期时）
-  const nightStats = useMemo(() => {
-    if (dateFilter === ALL) return null
-    const occ = (r: Room) => guests.filter((g) => g.roomId === r.id && (g.stayDates || []).includes(dateFilter))
-    const king = rooms.filter((r) => r.type === '大床房' && occ(r).length > 0).length
-    const twin = rooms.filter((r) => r.type === '标间' && occ(r).length > 0).length
-    const people = guests.filter((g) => g.roomId && (g.stayDates || []).includes(dateFilter)).length
-    // 当日入住人数：当晚在住、且入住首日（最早一晚）正好是这一天的宾客
-    const checkIn = guests.filter((g) => {
-      const sd = g.stayDates || []
-      return g.roomId && sd.includes(dateFilter) && dateFilter === [...sd].sort()[0]
-    }).length
-    return { king, twin, total: king + twin, people, checkIn }
-  }, [dateFilter, rooms, guests])
+  const nightStats = useMemo(() => dateFilter === ALL ? null : accommodationNight(rooms, guests, dateFilter), [dateFilter, rooms, guests])
 
-  const handleExport = () => exportRoomsToExcel(rooms, guests, stayDates)
+  const handleExport = () => openExport ? openExport('rooms') : exportRoomsToExcel(rooms, guests, stayDates)
 
   const toggleNight = (g: Guest, date: string) => {
     const cur = g.stayDates || []
@@ -71,8 +66,8 @@ export default function AccommodationPage() {
     setEditingRoomId(room.id)
     setLabelDraft(room.label)
   }
-  const commitLabel = () => {
-    if (editingRoomId && labelDraft.trim()) updateRoom(editingRoomId, { label: labelDraft.trim() })
+  const commitLabel = async () => {
+    if (editingRoomId && labelDraft.trim() && await updateRoom(editingRoomId, { label: labelDraft.trim() }) === false) return
     setEditingRoomId(null)
   }
 
@@ -168,9 +163,15 @@ export default function AccommodationPage() {
             <StatCard value={stats.twin} label="标间" color="#7c9ec9" />
             <StatCard value={stats.total} label="合计房间" color="#5fae8f" />
             <StatCard value={stats.stayed} label="已安排住宿" color="#d99a4e" />
-            <StatCard value={stats.pending} label="待安排住宿" color="#9ca3af" names={stats.pendingNames} />
+
           </div>
         )}
+
+        <div className="flex gap-4 mb-4 flex-wrap" aria-label="住宿待办">
+          <StatCard value={todos.needsRoom.length} label="需要住宿·待分房" color="#9ca3af" names={todos.needsRoom.map(g => g.name)} />
+          <StatCard value={todos.needsDecision.length} label="住宿需求待确认" color="#9ca3af" names={todos.needsDecision.map(g => g.name)} />
+          <StatCard value={todos.needsDates.length} label="已分房·晚次待定" color="#d99a4e" names={todos.needsDates.map(g => g.name)} />
+        </div>
 
         {/* 房间卡片 */}
         {visibleRooms.length === 0 ? (
@@ -185,7 +186,9 @@ export default function AccommodationPage() {
             {visibleRooms.map((room) => {
               const occupants = occupantsOf(room)
               const capacity = ROOM_CAPACITY[room.type]
-              const over = occupants.length > capacity
+              const occupancy = roomOccupancy(room, guests, stayDates)
+              const overNights = occupancy.over.filter(n => dateFilter === ALL || n.date === dateFilter)
+              const over = overNights.length > 0
               const emptyThisNight = dateFilter !== ALL && occupants.length === 0
               return (
                 <div key={room.id} className={`bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col transition-opacity ${emptyThisNight ? 'opacity-60' : ''}`}>
@@ -196,7 +199,7 @@ export default function AccommodationPage() {
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-1">
-                        {editingRoomId === room.id ? (
+                        {fusion ? <FusionFieldEditor key={room.id} kind="room" entityId={room.id} label="房号" value={room.label} /> : editingRoomId === room.id ? (
                           <input
                             value={labelDraft}
                             autoFocus
@@ -255,6 +258,8 @@ export default function AccommodationPage() {
                                   return (
                                     <button
                                       key={d}
+                                      aria-label={`${g.name}住宿${d}`}
+                                      aria-pressed={on}
                                       onClick={() => toggleNight(g, d)}
                                       className={`text-[11px] px-1.5 py-0.5 rounded transition-colors ${
                                         on ? 'bg-[#d4728a] text-white' : 'bg-white text-gray-400 border border-gray-200 hover:border-[#f0c4d0]'
@@ -275,8 +280,9 @@ export default function AccommodationPage() {
                   {/* 容量 + 添加 */}
                   <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-50">
                     <span className={`text-xs ${over ? 'text-red-400' : 'text-gray-400'}`}>
-                      {room.type === '大床房' ? '按 1 户计' : `建议 ${capacity} 人`} · {dateFilter === ALL ? '共' : '当晚'} {occupants.length} 人
-                      {over && '（超员）'}
+                      每晚建议 {capacity} 人 · {dateFilter === ALL ? `共安排 ${occupants.length} 人，单晚最多 ${occupancy.peak} 人` : `当晚 ${occupants.length} 人`}
+                      {over && `（超员：${overNights.map(n => `${formatNight(n.date)} ${n.people}人`).join('、')}）`}
+                      {occupancy.undated.length > 0 && `；${occupancy.undated.length} 人晚次待定，尚未计入每晚人数`}
                     </span>
                     <button
                       onClick={() => setPickerRoomId(room.id)}
@@ -294,7 +300,7 @@ export default function AccommodationPage() {
       </div>
 
       {/* 宾客选择弹窗 */}
-      {pickerRoomId && (
+      {pickerRoomId && rooms.some(r => r.id === pickerRoomId) && (
         <GuestPicker
           targetRoom={rooms.find((r) => r.id === pickerRoomId)!}
           guests={guests}
@@ -351,19 +357,18 @@ function GuestPicker({
 }: {
   targetRoom: Room
   guests: Guest[]
-  onAssign: (guestId: string) => void
+  onAssign: (guestId: string) => void | Promise<boolean>
   onClose: () => void
 }) {
   const [q, setQ] = useState('')
   const roomState = (roomId: string | null) => (roomId ? (targetRoom.id === roomId ? '本房间' : '其他房间') : '未安排')
 
-  const capacity = ROOM_CAPACITY[targetRoom.type]
   const occupantCount = guests.filter((g) => g.roomId === targetRoom.id).length
 
-  const handleAssign = (guestId: string) => {
-    onAssign(guestId)
-    // 选够容量（2 人）后自动关闭弹窗
-    if (occupantCount + 1 >= capacity) onClose()
+  const [assigning, setAssigning] = useState(false)
+  const handleAssign = async (guestId: string) => {
+    setAssigning(true)
+    try { await onAssign(guestId) } finally { setAssigning(false) }
   }
 
   const filtered = guests.filter(
@@ -377,8 +382,8 @@ function GuestPicker({
           <div className="flex items-center gap-2">
             <DoorOpen className="w-4 h-4 text-[#d4728a]" />
             <span className="font-semibold text-gray-800">添加到「{targetRoom.label}」</span>
-            <span className={`text-xs px-2 py-0.5 rounded-full ${occupantCount >= capacity ? 'bg-[#d4728a] text-white' : 'bg-gray-100 text-gray-500'}`}>
-              已选 {occupantCount}/{capacity}
+            <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">
+              已安排 {occupantCount} 人，按晚核对容量
             </span>
           </div>
           <button onClick={onClose} className="p-1.5 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-50">
@@ -419,7 +424,8 @@ function GuestPicker({
                       <span className="text-xs text-emerald-500 px-2 py-1 shrink-0">已安排住宿</span>
                     ) : (
                       <button
-                        onClick={() => handleAssign(g.id)}
+                        disabled={assigning}
+                        onClick={() => void handleAssign(g.id)}
                         className="text-xs px-3 py-1.5 rounded-lg border border-[#f0c4d0] text-[#d4728a] hover:bg-[#fdf5f7] transition-colors shrink-0"
                       >
                         {state === '未安排' ? '安排住宿' : `移入（原${state}）`}

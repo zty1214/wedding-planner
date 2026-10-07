@@ -9,6 +9,8 @@ export interface Guest {
   roomId: string | null // 住宿房间（与座位独立），null 表示暂不安排住宿
   stayNeed?: 'pending' | 'needed' | 'not_needed' // 新内核独立住宿需求
   stayDates: string[] // 入住的晚次（ISO 日期 'YYYY-MM-DD'），仅当 roomId 非空时有意义
+  attendance?: 'pending' | 'confirmed' | 'declined'
+  side?: 'unset' | 'bride' | 'groom' | 'shared'
   status: 'unassigned' | 'assigned' | 'confirmed' // 未分配 / 已分配待确认 / 确认出席
 }
 

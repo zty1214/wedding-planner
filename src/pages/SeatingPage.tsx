@@ -1,11 +1,15 @@
-import { useState, useRef } from 'react'
+import FusionFieldEditor from '../fusion/FusionFieldEditor'
+import { RepositoryContext } from '../fusion/RepositoryContext'
+import { useState, useRef, useContext } from 'react'
 import { useWeddingStore } from '../fusion/PageContext'
 import { TABLE_PRESETS } from '../types'
 import SeatingCanvas from '../components/seating/SeatingCanvas'
 import { Download, Plus, Trash2, X, UserPlus, Pencil, GripVertical } from 'lucide-react'
+import { ExportContext } from '../fusion/ExportContext'
 import { exportSeatingChart } from '../utils/exportSeatingChart'
 
 export default function SeatingPage() {
+  const fusion = useContext(RepositoryContext)
   const { tables, guests, addTable, removeTable, updateTable, assignGuestToTable, swapGuestSeats, updateGuest, mainStagePos, projectTitle } = useWeddingStore()
   const [selectedTableId, setSelectedTableId] = useState<string | null>(null)
   const [showAssign, setShowAssign] = useState(false)
@@ -21,7 +25,7 @@ export default function SeatingPage() {
   const tableGuests = guests
     .filter((g) => g.tableId === selectedTableId)
     .sort((a, b) => (a.seatIndex ?? 0) - (b.seatIndex ?? 0))
-  const unassignedGuests = guests.filter((g) => !g.tableId)
+  const unassignedGuests = guests.filter((g) => !g.tableId && g.attendance !== 'declined')
 
   const handleAddTable = (seats: number) => {
     // 在当前视野中心生成新桌子，避免添加到看不见的地方
@@ -32,7 +36,9 @@ export default function SeatingPage() {
     addTable(seats, centerX + jitter, centerY + jitter)
   }
 
+  const openExport = useContext(ExportContext)
   const handleExport = () => {
+    if (openExport) { openExport('seating'); return }
     const stage = stageRef.current
     if (!stage || tables.length === 0) return
 
@@ -128,9 +134,21 @@ export default function SeatingPage() {
   }
 
   return (
-    <div className="h-full flex">
+    <div className="h-full min-h-0 min-w-0 relative flex flex-col md:flex-row">
+      <div className="md:hidden shrink-0 bg-white border-b p-2 space-y-2" aria-label="排座工具">
+        <div className="flex flex-wrap gap-2">
+          {TABLE_PRESETS.map(preset => <button key={preset.seats} onClick={() => handleAddTable(preset.seats)} className="border rounded px-3 py-2 text-sm">添加{preset.seats}人桌</button>)}
+        </div>
+        <div className="flex gap-2 items-center">
+          <select aria-label="选择桌子" value={selectedTableId ?? ''} onChange={e => setSelectedTableId(e.target.value || null)} className="border rounded px-2 py-2 min-w-0 flex-1 text-sm">
+            <option value="">选择桌子安排宾客（{tables.length} 桌）</option>
+            {tables.map(table => <option key={table.id} value={table.id}>{table.label} · {guests.filter(g => g.tableId === table.id).length}/{table.seats} 人</option>)}
+          </select>
+          <button disabled={!tables.length} onClick={handleExport} className="border rounded px-3 py-2 text-sm disabled:opacity-40">导出 PNG</button>
+        </div>
+      </div>
       {/* Left panel */}
-      <div className="w-52 bg-white border-r border-gray-100 p-4 flex flex-col shrink-0">
+      <div className="hidden md:flex w-52 bg-white border-r border-gray-100 p-4 flex-col shrink-0 overflow-y-auto">
         <h3 className="text-sm font-semibold text-gray-700 mb-3">图形库</h3>
         <div className="space-y-2">
           {TABLE_PRESETS.map((preset) => (
@@ -201,10 +219,10 @@ export default function SeatingPage() {
 
       {/* Right panel */}
       {selectedTable && (
-        <div className="w-72 bg-white border-l border-gray-100 p-4 flex flex-col shrink-0 overflow-y-auto">
+        <div className="absolute inset-x-0 bottom-0 z-30 max-h-[70%] md:static md:max-h-full md:w-72 bg-white border border-gray-100 p-4 flex flex-col shrink-0 overflow-y-auto shadow-lg md:shadow-none">
           {/* Table name - editable */}
-          <div className="flex items-center justify-between mb-4">
-            {editingLabel ? (
+          <div className="sticky top-0 z-10 bg-white flex items-center justify-between mb-4 py-1 shrink-0">
+            {fusion ? <FusionFieldEditor key={selectedTable.id} kind="table" entityId={selectedTable.id} label="桌名" value={selectedTable.label} /> : editingLabel ? (
               <input
                 value={labelDraft}
                 onChange={(e) => setLabelDraft(e.target.value)}
@@ -232,6 +250,7 @@ export default function SeatingPage() {
               </button>
               <button
                 onClick={() => setSelectedTableId(null)}
+                aria-label="关闭桌子详情"
                 className="p-1.5 text-gray-400 hover:text-gray-600 transition-colors"
               >
                 <X className="w-4 h-4" />

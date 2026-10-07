@@ -2,12 +2,22 @@ import { assertCommand, canonicalJson, commandDigest, CommandError } from './pro
 import type { Command, Receipt } from './protocol.ts'
 export type PendingStatus = 'prepared' | 'result_unknown' | 'conflict' | 'forbidden' | 'failed'
 export interface Pending { command: Command; status: PendingStatus; sequence?: number }
+export interface DraftArchive { id: string; projectId: string; savedAt: string; drafts: Pending[] }
+export interface ConfirmedCopy { projectId: string; capturedAt: string; snapshot: import('./repository.ts').ProjectSnapshot }
 export interface OutboxStorage {
+  archiveBatch?(projectId: string, expected: Pending[]): Promise<void>
+  listArchives?(projectId: string): Promise<DraftArchive[]>
+  /** Cached comparison baseline, never authorization or a substitute for a live read. */
+  saveConfirmed?(value: ConfirmedCopy): Promise<void>
+  readDraftBaseline?(projectId: string): Promise<ConfirmedCopy | undefined>
+  readConfirmed?(projectId: string): Promise<ConfirmedCopy | undefined>
+  clearConfirmed?(projectId: string): Promise<void>
   insert(value: Pending): Promise<void>
   /** Durable insertion order; legacy entries without an order must not be auto-replayed. */
   list(projectId: string, epoch?: string): Promise<Pending[]>
   get(projectId: string, epoch: string, operationId: string): Promise<Pending | undefined>
   setStatus(projectId: string, epoch: string, operationId: string, status: PendingStatus): Promise<void>
+  removeBatch(projectId: string, expected: Pending[]): Promise<void>
   remove(projectId: string, epoch: string, operationId: string): Promise<void>
 }
 export interface CommandTransport {

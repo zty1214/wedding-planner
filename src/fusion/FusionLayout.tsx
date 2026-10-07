@@ -1,3 +1,10 @@
+import FusionFieldEditor from './FusionFieldEditor'
+import AccessPanel from './AccessPanel'
+import type { ProjectTransport } from './repository'
+import { refreshSignals } from './refreshSignals'
+import ExportPanel from './ExportPanel'
+import { ExportContext } from './ExportContext'
+import DraftPanel from './DraftPanel'
 import { useEffect, useState, useSyncExternalStore } from 'react'
 import { NavLink, Outlet, useParams } from 'react-router-dom'
 import { connectGateway } from './cloudClient'
@@ -14,34 +21,43 @@ const labels: Record<SaveState, string> = {
   syncing: '正在同步', unknown: '云端结果待确认，本地草稿保留', conflict: '冲突待处理，本地草稿保留',
   forbidden: '无权访问，本地草稿保留', local_error: '本地保存失败', failed: '操作未完成，本地草稿保留', resume_required: '发现本地草稿，请确认后继续同步',
 }
-type Session = { repo: ReturnType<typeof projectRepository>; page: ReturnType<typeof createPageStore> }
+type Session = { transport: ProjectTransport; repo: ReturnType<typeof projectRepository>; page: ReturnType<typeof createPageStore> }
 function ProjectView({ session, projectId, notice }: { session: Session; projectId: string; notice: string }) {
   const state = useSyncExternalStore(session.repo.subscribe, session.repo.getSnapshot)
-  const [title, setTitle] = useState<string | null>(null)
+  const [exportKind, setExportKind] = useState<'guests' | 'rooms' | 'seating' | null>(null)
+  const [showDrafts, setShowDrafts] = useState(false)
+  const [showAccess, setShowAccess] = useState(false)
   const editingPaused = !state.snapshot || ['loading', 'saving_local', 'syncing', 'resume_required', 'conflict', 'forbidden', 'failed'].includes(state.status)
-  const errorLabels: Record<string, string> = { REQUEST_TOO_LARGE: '内容超出当前单次保存大小，请缩短或拆分；输入尚未提交。', INVALID_INPUT: '此操作当前不可用或输入不符合要求', CONFLICT: '数据已被更新，请先处理冲突', SEAT_OCCUPIED: '座位已被占用', NETWORK_ERROR: '暂时无法连接云端', EDITING_PAUSED: '请先处理未完成的保存', PROJECT_REPLACED: '项目已恢复到另一版本，旧草稿未提交' }
-  return <RepositoryContext.Provider value={session.repo}><PageStoreContext.Provider value={session.page.store}>
-    <div className="flex flex-col h-screen">
-      <header className="bg-white border-b px-4 py-3 flex gap-4 items-center flex-wrap">
-        <input aria-label="项目标题" className="font-semibold w-36 border-b border-gray-200" value={title ?? state.snapshot?.data.config.title ?? ''} disabled={editingPaused}
-          onChange={e => setTitle(e.target.value)} onBlur={async () => {
-            const submitted = title
-            if (!submitted?.trim()) return
-            const saved = await session.page.store.getState().setProjectTitle(submitted.trim())
-            if (saved !== false) setTitle(current => current === submitted ? null : current)
-          }} />
+  const errorLabels: Record<string, string> = { REJECTED_CURRENT_CONFIRMED: '修改未提交，已重新读取云端安排。', CONFIRMED_READ_FAILED: '修改未提交，暂未读到最新云端安排。', REQUEST_TOO_LARGE: '内容超出当前单次保存大小，请缩短或拆分；输入尚未提交。', INVALID_INPUT: '此操作当前不可用或输入不符合要求', CONFLICT: '数据已被更新，请先处理冲突', SEAT_OCCUPIED: '座位已被占用', NETWORK_ERROR: '暂时无法连接云端', EDITING_PAUSED: '请先处理未完成的保存', PROJECT_REPLACED: '项目已恢复到另一版本，旧草稿未提交' }
+  return <RepositoryContext.Provider value={session.repo}><PageStoreContext.Provider value={session.page.store}><ExportContext.Provider value={setExportKind}>
+    <div className="flex flex-col h-dvh">
+      <header className="bg-white border-b px-4 py-3 flex gap-3 items-center flex-wrap shrink-0">
+        {state.snapshot && <FusionFieldEditor kind="project" entityId="config" label="项目标题" value={state.snapshot.data.config.title} disabled={editingPaused} />}
         <a href="/fusion" className="text-sm text-gray-500">我的项目</a>
-        <nav className="flex gap-3">{[['guests', '宾客名单'], ['seating', '座位安排'], ['stay', '住宿安排'], ['notes', '备婚笔记'], ['recycle', '回收站'], ['history', '历史版本']].map(([path, label]) =>
-          <NavLink key={path} to={`/fusion/p/${projectId}/${path}`} className={({ isActive }) => isActive ? 'text-rose-600 font-semibold' : 'text-gray-600'}>{label}</NavLink>)}</nav>
+        <nav className="flex flex-wrap gap-x-3 gap-y-2" aria-label="项目页面">{[['guests', '宾客名单'], ['seating', '座位安排'], ['stay', '住宿安排'], ['notes', '备婚笔记'], ['recycle', '回收站'], ['history', '历史版本']].map(([path, label]) =>
+          <NavLink key={path} to={`/fusion/p/${projectId}/${path}`} className={({ isActive }) => `whitespace-nowrap ${isActive ? 'text-rose-600 font-semibold' : 'text-gray-600'}`}>{label}</NavLink>)}</nav>
         <span role="status" className="text-sm ml-auto">{labels[state.status]}{state.pending ? `（${state.pending} 项）` : ''}</span>
         {(['resume_required', 'unknown', 'local'].includes(state.status) || state.error === 'PROJECT_REPLACED') && <button className="border rounded px-3 py-1" onClick={() => void session.repo.resume()}>确认并继续同步</button>}
+        {state.snapshot?.role === 'management' && <button className="border rounded px-3 py-1" onClick={() => setShowAccess(value => !value)}>协作链接</button>}
+        <button disabled={!state.snapshot} className="border rounded px-3 py-1" onClick={() => setExportKind('guests')}>导出表格</button>
+        <button className="border rounded px-3 py-1" onClick={() => setShowDrafts(value => !value)}>查看本机草稿</button>
         <button className="border rounded px-3 py-1" onClick={() => void session.repo.refresh()}>刷新项目</button>
       </header>
+      {state.cacheError && <p role="alert" className="bg-amber-50 text-amber-900 px-4 py-2">{state.cacheError === 'CACHE_CLEAR_FAILED'
+        ? '本机参考快照清理失败，页面已停止展示；请保留自己的草稿后清理此站点缓存。'
+        : '云端读取已完成，但参考快照未能保存在本机。原有草稿仍保留，暂不能保证重开后的参考版本可用。'}</p>}
       {(notice || state.error) && <div role="alert" className="bg-amber-50 text-amber-900 px-4 py-2">{notice || errorLabels[state.error!] || '操作未完成，请保留本地草稿并重试。'}</div>}
+      {['REJECTED_CURRENT_CONFIRMED', 'CONFIRMED_READ_FAILED'].includes(state.error ?? '') && <p className="bg-amber-50 text-amber-900 px-4 py-2">
+        {state.error === 'CONFIRMED_READ_FAILED' ? '暂未读到最新云端安排，页面显示最近确认的副本。' : '页面显示云端确认的安排。'}
+        被拒绝的修改及后续操作保留在本机草稿，后续发送已暂停；请查看草稿核对。
+      </p>}
+      {exportKind && <ExportPanel key={exportKind} repo={session.repo} initialKind={exportKind} onClose={() => setExportKind(null)} />}
+      {showAccess && state.snapshot?.role === 'management' && <AccessPanel projectId={projectId} transport={session.transport} repo={session.repo} onClose={() => setShowAccess(false)} />}
+      {showDrafts && <DraftPanel repo={session.repo} onClose={() => setShowDrafts(false)} />}
       {!state.snapshot ? <p className="p-8">{labels[state.status]}。请使用包含访问凭证的项目链接。</p>
-        : <fieldset disabled={editingPaused} className="flex-1 overflow-hidden min-h-0 border-0 p-0 m-0" inert={editingPaused || undefined}><Outlet /></fieldset>}
+        : <fieldset disabled={editingPaused} className="flex-1 overflow-hidden min-h-0 min-w-0 w-full border-0 p-0 m-0" inert={editingPaused || undefined}><Outlet /></fieldset>}
     </div>
-  </PageStoreContext.Provider></RepositoryContext.Provider>
+  </ExportContext.Provider></PageStoreContext.Provider></RepositoryContext.Provider>
 }
 
 /** Staged entry: no Supabase hook, no production project creation or implicit migration. */
@@ -73,14 +89,15 @@ export default function FusionLayout() {
       const exclusive: Exclusive = (key, body) => navigator.locks.request(key, body)
       const repo = projectRepository(projectId, storage, transport, exclusive)
       const page = createPageStore(projectId, repo, setNotice)
-      const poll = window.setInterval(() => { if (document.visibilityState === 'visible') void repo.refresh() }, 10000)
-      close = () => { clearInterval(poll); page.unsubscribe(); repo.stop(); storage.close() }
-      setSession({ repo, page }); await repo.open()
+      const stopRefresh = refreshSignals(() => repo.refresh())
+      close = () => { stopRefresh(); page.unsubscribe(); repo.stop(); storage.close() }
+      setSession({ repo, page, transport }); await repo.open()
     })().catch(error => {
       if (!stopped) setNotice(error instanceof Error && error.message === 'CONFIG' ? '新数据入口尚未配置 CloudBase 环境。' : '项目暂时无法打开。请检查链接凭证、网络和浏览器支持情况。')
     })
     return () => { stopped = true; close?.() }
   }, [projectId])
-  if (!session) return <div className="p-8" role="status">{notice || '正在打开项目…'}</div>
-  return <ProjectView session={session} projectId={projectId} notice={notice} />
+  // Route changes render before effect cleanup: never mount the previous project's session under a new URL.
+  if (!session || session.repo.projectId !== projectId) return <div className="p-8" role="status">{notice || '正在打开项目…'}</div>
+  return <ProjectView key={projectId} session={session} projectId={projectId} notice={notice} />
 }
