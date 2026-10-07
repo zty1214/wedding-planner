@@ -677,3 +677,15 @@
 按依赖保存：`a0706f1` 服务端权限/清理；`946fddc` 客户端表单/恢复/导出；`01ff031` 验证脚本/CI。每批从 Git 暂存区提取独立快照验证，不将工作区尚未暂存的代码当作该批可运行的证据。前两批运行全部当批 Fusion 测试与类型检查，第三批独立快照完整 `npm run check` 通过（188 项测试、本地规模、类型、lint、两种构建）。对应日志 `/private/tmp/planner-batch-{1,2,3}-check.log`。第四批保存现有验收证据、操作手册与并行分工文档；以第四批最终提交作为后续工作树共同基线。未推送或部署。
 
 分工沿用总方案与 T01–T09，不创建重复方案；S01–S03 标明 sol 的文件白名单、依赖、报告及验收，A01–A04 保留核心/权限/云端/集成任务。任务包尚未派发，独立工作树尚未创建。本地敏感文本模式扫描未发现私钥、腾讯云 SecretId 或硬编码会话令牌；该检查不是完整安全审计。
+
+
+## 2026-10-07 并行派发与权限/历史组合回归
+
+S01 已使用 `create_thread` 指定 GPT-6.1 sol 与 worktree 环境，来源分支 `feat/planner-cloudbase-fusion`，派发消息固定基线 `67da3c3759116edd34535782d7fa950ff52a738f`。工具返回临时创建标识 `client-new-thread:c6578ccc-8b2e-44d7-87ad-eed77aeed17e`，尚无正式threadId；Git已确认 `/Users/baojie/.codex/worktrees/c888/wedding-planner` 存在且HEAD与基线一致。不能据此宣称辅助任务已完成或正在编码，后续需取得正式会话状态。允许该任务额外新增纯本地夹具 `scripts/fusion/review-sol-s01-responsive.mjs`，不连接云端。
+
+主会话新增 `tests/fusion/accessHistoryBoundary.test.ts` 两项跨服务集成回归：
+
+1. 保存撤权前版本→轮换协作链接→新链接修改→协作恢复拒绝→管理恢复成功。访问摘要及 revision不回退，旧链接读/写/查回执均拒绝，新链接读取恢复后的业务值；旧代次轮换回执仍可查，重试恢复不重复生成安全版本。
+2. 随机生成三种秘密，检查共享当前值、历史列表/正文、成功回执、回收列表、权限候选确认、活动及名单/住宿/座位导出模型均不含秘密或存储摘要。没有修改产品权限逻辑。
+
+最终完整 `npm run check` 通过190项测试、本地规模、类型、lint及两种构建；日志 `/private/tmp/planner-access-history-check.log`。该验证为内存事务store与实际服务/网关代码，不冒充真实云端日志或独立设备证明。
