@@ -9,6 +9,7 @@ import { probeGateway } from '../../server/fusion/probeGateway.ts'
 const port = Number(process.env.S03_PORT ?? 4192)
 if (!Number.isInteger(port) || port < 1024 || port > 65535) throw Error('INVALID_S03_PORT')
 const store = new MemoryStore()
+const visualEntry = process.env.VISUAL_SCALE_FIXTURE === '1' ? await (await import('./visual-scale-fixture.mjs')).seedVisualScale(store) : null
 const gateway = probeGateway(store, [])
 const maxBytes = 1024 * 1024
 const server = await createServer({
@@ -22,6 +23,10 @@ const server = await createServer({
       if (id.split('?')[0].endsWith('/src/fusion/cloudClient.ts')) return `export async function connectGateway(){return async event=>{const response=await fetch('/__sol_s03_gateway',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(event)});return response.json()}}`
     },
     configureServer(s) {
+      if (visualEntry) s.middlewares.use((req, res, next) => {
+        if (req.url !== '/demo') return next()
+        res.writeHead(302, { Location: visualEntry, 'Cache-Control': 'no-store' }); res.end()
+      })
       s.middlewares.use('/__sol_s03_gateway', (req, res) => {
         const reply = (status, value) => { res.statusCode = status; res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify(value)) }
         if (req.method !== 'POST') return reply(405, { ok: false, error: { code: 'INVALID_INPUT' } })

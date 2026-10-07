@@ -11,3 +11,7 @@
 核对工具修正：初次权限摘要误包含每次变化的API RequestId，比较失败；废弃该摘要，改为解析SecurityRule与已存权限记录逐项比较，通过。未调用权限修改API。部署后计数20未在创建前单独回读，证据为部署前20、一个新项目及其重试后21；不虚构中间读回。
 
 本阶段本地 `npm run test:e2e` 七组通过，见[报告](local-e2e/main-flow-e2e-report.json)和[执行日志](local-e2e/run.txt)；报告baseline同样为提交前6dd8ede，实际测试包含本阶段源改动，不以该字段冒充冻结提交。新提交远端CI另行核对。
+
+阶段提交 `2ac4a5ed43b43cdc53f6a2c9d5993bfb9c9c5832` 已推送既有验收分支。[同提交CI #3](https://github.com/zty1214/wedding-planner/actions/runs/37645697145)及job总体completed/success，见[API证据](ci-report.json)。API与页面步骤列表不完整，仍含in_progress且缺少e2e行，故只记录总体终态，不将其冒充逐步骤独立证明；本地七组及真实云端两组证据完整。CI结果补录留工作区，待后续完整阶段统一提交。
+
+后续API读回已补齐所有步骤终态：npm ci、完整check、七组test:e2e均success；此前步骤列表暂时不完整的证据限制已解除，见更新后的CI报告。

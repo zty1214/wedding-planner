@@ -178,8 +178,28 @@ try {
   page.setDefaultTimeout(45000)
   await step('create-project', async () => {
     await page.goto(`${origin}/fusion`)
+    await page.getByLabel('新项目名称').waitFor()
+    // Warm the dev-only SDK dependency graph before persisting a creation request.
+    // This is an invalid read-only probe, not a new project or a creation retry.
+    let warmup
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        warmup = await deadline(page.evaluate(async () => {
+          const call = await (await import('/src/fusion/cloudClient.ts')).connectGateway()
+          return call({ action: 'project.create', request: null })
+        }))
+        break
+      } catch (error) {
+        if (attempt !== 0 || !String(error.message).includes('Execution context was destroyed')) throw error
+        report.devSdkWarmupReloadObserved = true
+        await page.waitForLoadState('domcontentloaded')
+      }
+    }
+    assert.deepEqual(warmup, { ok: false, error: { code: 'INVALID_INPUT' } })
+    await page.reload()
     await page.getByLabel('新项目名称').fill('自动回归虚构项目')
     await button('新建独立项目').click()
+    stage = 'create-project/await-confirmation'
     await button('复制协作链接').click()
     collaborationLink = await page.evaluate(() => navigator.clipboard.readText())
     assert.ok(collaborationLink.startsWith(`${origin}/fusion/p/`) && /#key=[a-f0-9]{64}$/.test(collaborationLink))
@@ -372,6 +392,18 @@ try {
     await page.getByLabel('桌名', { exact: true }).fill('恢复前变更桌名')
     await button('保存桌名').click()
     await wait(async () => (await serverRead(page, managementLink)).data.tables[0].label === '恢复前变更桌名')
+    stage = 'cloud/restore-real-seat-change'
+    await page.locator('[draggable="true"]').filter({ hasText: '虚构甲' }).getByTitle('移除', { exact: true }).click()
+    await wait(async () => (await serverRead(page, managementLink)).data.guests.find(g => g.name === '虚构甲').tableId === null)
+    await button('分配宾客').click()
+    await page.getByRole('button', { name: /^虚构乙/ }).click()
+    await wait(async () => (await serverRead(page, managementLink)).data.guests.find(g => g.name === '虚构乙').seatIndex === 0)
+    await page.getByRole('button', { name: /^虚构甲/ }).click()
+    await wait(async () => (await serverRead(page, managementLink)).data.guests.find(g => g.name === '虚构甲').seatIndex === 1)
+    const seatingBeforeRestore = (await serverRead(page, managementLink)).data.guests.map(g => [g.id, g.tableId, g.seatIndex])
+    const targetSeating = target.data.guests.map(g => [g.id, g.tableId, g.seatIndex])
+    assert.notDeepEqual(seatingBeforeRestore, targetSeating)
+
     await navigate('住宿安排')
     await button('虚构甲住宿2026-12-31').click()
     await wait(async () => !(await serverRead(page, managementLink)).data.guests.find(g => g.name === '虚构甲').stayDates.includes('2026-12-31'))
@@ -401,7 +433,7 @@ try {
     const committed = await serverRead(page, managementLink)
     assert.notEqual(committed.dataEpoch, target.dataEpoch)
     assert.equal(committed.data.tables[0].label, target.data.tables[0].label)
-    assert.deepEqual(committed.data.guests.map(g => [g.id, g.attendance, g.stayDates, g.tableId, g.roomId]), target.data.guests.map(g => [g.id, g.attendance, g.stayDates, g.tableId, g.roomId]))
+    assert.deepEqual(committed.data.guests.map(g => [g.id, g.attendance, g.stayDates, g.tableId, g.seatIndex, g.roomId]), target.data.guests.map(g => [g.id, g.attendance, g.stayDates, g.tableId, g.seatIndex, g.roomId]))
     assert.equal(committed.notes[0].content, target.notes[0].content)
     const receipt = await action(page, managementLink, 'receipt', { dataEpoch: restoreCommand.dataEpoch, operationId: restoreCommand.operationId })
     assert.equal(receipt.ok, true)
@@ -416,6 +448,7 @@ try {
     await wait(async () => (await queueSummary()).length === 0)
     const reconfirmed = await serverRead(page, managementLink)
     assert.equal(reconfirmed.dataEpoch, committed.dataEpoch)
+    assert.deepEqual(reconfirmed.data.guests.map(g => [g.id, g.tableId, g.seatIndex]), targetSeating)
     const afterVersions = await action(page, managementLink, 'history.list', { cursor: null, day: null })
     assert.equal(afterVersions.ok, true)
     assert.equal(afterVersions.value.versions.filter(v => v.name === '整项目恢复前的安全版本').length, 1)
@@ -432,7 +465,7 @@ try {
     await button('核对云端并保留，开始重新编辑', other).click()
     await wait(async () => (await queueSummary(other)).length === 0)
     await other.getByRole('dialog', { name: '本机草稿' }).getByRole('button', { name: '关闭', exact: true }).click()
-    report.restore = { targetVersionId: versionId, originalOperationId: restoreCommand.operationId, oldDraftOperationId: oldCommand.operationId, fourModulesMatchTarget: true, confirmedNewEpochNotRepeated: true, safetyVersionCount: 1, oldDraftPreservedAndNotExecuted: true, mode: 'real cloud + client lost-response injection' }
+    report.restore = { targetVersionId: versionId, originalOperationId: restoreCommand.operationId, oldDraftOperationId: oldCommand.operationId, fourModulesMatchTarget: true, realSeatChange: { target: targetSeating, beforeRestore: seatingBeforeRestore, restored: reconfirmed.data.guests.map(g => [g.id, g.tableId, g.seatIndex]) }, confirmedNewEpochNotRepeated: true, safetyVersionCount: 1, oldDraftPreservedAndNotExecuted: true, mode: 'real cloud + client lost-response injection' }
     await screenshot('cloud-collaboration')
     await navigate('宾客名单', other)
     await independent.setOffline(true)
@@ -516,9 +549,13 @@ try {
   report.status = 'passed'
 } catch (error) {
   report.failureType = error.name
+  report.executionContextDestroyed = String(error.message).includes('Execution context was destroyed')
   report.strictLocatorViolation = String(error.message).includes('strict mode violation')
   if (error.name === 'AssertionError') report.assertion = { actualType: typeof error.actual, expectedType: typeof error.expected, ...(typeof error.actual === 'number' ? { actual: error.actual, expected: error.expected } : {}) }
-  if (page) report.headerStatuses = await page.locator('header [role=status]').allTextContents().catch(() => [])
+  if (page) {
+    report.headerStatuses = await page.locator('header [role=status]').allTextContents().catch(() => [])
+    report.visibleStatuses = await page.getByRole('status').allTextContents().catch(() => [])
+  }
   if (otherPage) report.otherHeaderStatuses = await otherPage.locator('header [role=status]').allTextContents().catch(() => [])
   if (otherPage) await otherPage.screenshot({ path: resolve(output, 'cloud-failure-other.png'), fullPage: true, mask: [otherPage.getByRole('region', { name: '协作链接管理' })] }).catch(() => {})
   if (page && stage !== 'startup') await screenshot('failure').catch(() => {})

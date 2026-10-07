@@ -1,9 +1,11 @@
 // Explicit localhost-only recovery fixture: real App/IndexedDB/gateway, fictitious memory data.
 // node --experimental-strip-types scripts/fusion/review-main-flow-recovery.mjs
-import { createServer } from 'vite'
+import { build, preview } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
-import { readFile } from 'node:fs/promises'
+import { readFile, mkdtemp } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { MemoryStore } from '../../tests/fusion/memoryStore.ts'
 import { probeGateway } from '../../server/fusion/probeGateway.ts'
 const store = new MemoryStore(), gateway = probeGateway(store, [])
@@ -17,10 +19,10 @@ for (const name of ['Guest', 'Note', 'Field']) {
   const path = `/src/fusion/${name.toLowerCase()}Drafts.ts`
   const source = (await readFile(new URL(`../../${path.slice(1)}`, import.meta.url), 'utf8'))
     .replace(`export async function open${name}DraftVault(`, `async function openActual${name}DraftVault(`)
-  draftModules.set(path, `${source}\nexport async function open${name}DraftVault(factory = indexedDB) { const vault = await openActual${name}DraftVault(factory); return {...vault, save: async (...args) => { if (localStorage.getItem('recovery-storage-fail') === 'yes' || (args[0]?.handoff && localStorage.getItem('recovery-handoff-fail') === 'yes')) throw Error('INJECTED_LOCAL_SAVE_FAILURE'); const saved = await vault.save(...args); if (args[0]?.handoff && localStorage.getItem('recovery-handoff-pause') === 'yes') { localStorage.setItem('recovery-handoff-paused', 'yes'); await new Promise(() => {}) }; return saved }, remove: async (...args) => { if (localStorage.getItem('recovery-cleanup-fail') === 'yes') throw Error('INJECTED_LOCAL_CLEANUP_FAILURE'); if (localStorage.getItem('recovery-cleanup-pause') === 'yes') { localStorage.setItem('recovery-cleanup-paused', 'yes'); await new Promise(() => {}) }; return vault.remove(...args) }} }`)
+  draftModules.set(path, `${source}\nexport async function open${name}DraftVault(factory = indexedDB) { const vault = await openActual${name}DraftVault(factory); return {...vault, save: async (...args) => { if (localStorage.getItem('recovery-storage-fail') === 'yes' || (args[0]?.handoff && localStorage.getItem('recovery-handoff-fail') === 'yes')) throw Error('INJECTED_LOCAL_SAVE_FAILURE'); const saved = await vault.save(...args); if (args[0]?.handoff && localStorage.getItem('recovery-handoff-pause') === 'yes') { localStorage.setItem('recovery-handoff-paused', 'yes'); await new Promise(() => {}) }; return saved }, remove: async (...args) => { if (localStorage.getItem('recovery-cleanup-fail') === 'yes') throw Error('INJECTED_LOCAL_CLEANUP_FAILURE'); if (localStorage.getItem('recovery-cleanup-pause') === 'yes') { localStorage.setItem('recovery-cleanup-paused', 'yes'); await new Promise(() => {}) }; return vault.remove(...args) }} }\n(globalThis as any).__recoveryVaults ??= {}; (globalThis as any).__recoveryVaults.${name} = open${name}DraftVault;`)
 }
 const toolbar = `<script type="module">
-const bar=document.createElement('aside');bar.setAttribute('aria-label','本地故障验收控制');bar.style='padding:8px;background:#fff8dc;display:flex;gap:8px;flex-wrap:wrap';
+const bar=document.createElement('aside');bar.setAttribute('aria-label','本地故障验收控制');bar.style='position:relative;z-index:100;padding:8px;background:#fff8dc;display:flex;gap:8px;flex-wrap:wrap';
 const status=document.createElement('p');status.setAttribute('role','status');status.setAttribute('data-recovery-stats','');status.style='width:100%;font-size:12px';bar.append(status);
 async function update(mode){const r=await fetch('${control}',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode})});const v=await r.json();status.textContent='仅本地虚构：项目 '+v.projects+'，宾客 '+v.guests+'，回执 '+v.receipts+'，丢响应 '+v.lostResponses+'，网络 '+(v.offline?'离线':'在线')+'，待丢 '+(v.loseNext||'无');}
 for(const [label,mode] of [['模拟断网','offline'],['恢复网络','online'],['下一次创建丢响应','lose-create'],['下一次轮换丢响应','lose-rotate'],['下一次恢复丢响应','lose-restore'],['下一次宾客修改丢响应','lose-guest-update'],['读取验收计数','stats']]){const b=document.createElement('button');b.textContent=label;b.onclick=()=>update(mode);bar.append(b)}
@@ -28,17 +30,24 @@ for(const [label,failed] of [['模拟表单保存失败',true],['恢复表单存
 for(const [label,key,failed] of [['模拟交接保存失败','recovery-handoff-fail',true],['恢复交接保存','recovery-handoff-fail',false],['模拟表单清理失败','recovery-cleanup-fail',true],['恢复表单清理','recovery-cleanup-fail',false],['冻结已落盘后暂停','recovery-handoff-pause',true],['恢复交接暂停','recovery-handoff-pause',false],['清理前暂停','recovery-cleanup-pause',true],['恢复清理暂停','recovery-cleanup-pause',false]]){const b=document.createElement('button');b.textContent=label;b.onclick=()=>{if(failed)localStorage.setItem(key,'yes');else localStorage.removeItem(key);status.textContent=label;};bar.append(b)}
 document.body.prepend(bar);await update('stats');
 </script>`
-const server = await createServer({ configFile: false, envDir: false,
+const outDir = await mkdtemp(join(tmpdir(), 'planner-recovery-build-'))
+const options = { configFile: false, envDir: false, build: { outDir, emptyOutDir: true },
   define: { 'import.meta.env.VITE_FUSION_ENV_ID': JSON.stringify('recovery-local-fictional-env'), 'import.meta.env.VITE_FUSION_PUBLISHABLE_KEY': JSON.stringify('recovery-local-fictional-key') },
-  cacheDir: '/private/tmp/planner-main-flow-recovery-vite', server: { host: '127.0.0.1', port, strictPort: true },
   plugins: [{ name: 'main-flow-recovery', enforce: 'pre',
     load(id) {
       const path = id.split('?')[0]
-      if (path.endsWith('/src/fusion/cloudClient.ts')) return `export async function connectGateway(){return async event=>{const r=await fetch('${route}',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(event)});if(!r.ok)throw Error('LOCAL_TRANSPORT_INTERRUPTED');return r.json()}}`
+      if (path.endsWith('/src/fusion/cloudClient.ts')) return `export async function connectGateway(){return async event=>{const r=await fetch('${route}',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(event)});if(!r.ok)throw Error('LOCAL_TRANSPORT_INTERRUPTED');return r.json()}}; (globalThis as any).__recoveryConnectGateway = connectGateway;`
       for (const [suffix, source] of draftModules) if (path.endsWith(suffix)) return source
     },
-    transformIndexHtml(html) { return html.replace('</body>', `${toolbar}</body>`) },
-    configureServer(s) { s.middlewares.use(async (req, res, next) => {
+    transformIndexHtml: { order: 'post', handler(html) { return html.replace('</body>', `${toolbar}</body>`) } },
+    configurePreviewServer(s) { s.middlewares.use(async (req, res, next) => {
+      const modulePath = req.url?.split('?')[0]
+      if (modulePath === '/src/fusion/cloudClient.ts' || draftModules.has(modulePath)) {
+        res.setHeader('Content-Type', 'text/javascript'); res.setHeader('Cache-Control', 'no-store')
+        if (modulePath === '/src/fusion/cloudClient.ts') res.end('export const connectGateway = globalThis.__recoveryConnectGateway;')
+        else { const name = ['Guest', 'Note', 'Field'].find(name => modulePath.endsWith('/' + name.toLowerCase() + 'Drafts.ts')); res.end(`export const open${name}DraftVault = globalThis.__recoveryVaults.${name};`) }
+        return
+      }
       if (![route, control].includes(req.url)) return next()
       const reply = (code, value) => { res.statusCode = code; res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify(value)) }
       if (req.method !== 'POST') return reply(405, { error: 'INVALID_INPUT' })
@@ -63,6 +72,8 @@ const server = await createServer({ configFile: false, envDir: false,
       } catch { return reply(400, { error: 'LOCAL_REQUEST_FAILED' }) }
     }) },
   }, react(), tailwindcss()],
-})
-await server.listen()
+}
+await build(options)
+const server = await preview({ ...options, preview: { host: '127.0.0.1', port, strictPort: true } })
+for (const signal of ['SIGINT', 'SIGTERM']) process.on(signal, async () => { await server.httpServer.close(); process.exit(0) })
 console.log(`Recovery fictitious fixture: http://127.0.0.1:${port}/fusion (no cloud; memory resets on process stop)`)

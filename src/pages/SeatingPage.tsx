@@ -134,7 +134,7 @@ export default function SeatingPage() {
   }
 
   return (
-    <div className="h-full min-h-0 min-w-0 relative flex flex-col md:flex-row">
+    <div className={`${fusion ? 'planner-page ' : ''}h-full min-h-0 min-w-0 relative flex flex-col md:flex-row`}>
       <div className="md:hidden shrink-0 bg-white border-b p-2 space-y-2" aria-label="排座工具">
         <div className="flex flex-wrap gap-2">
           {TABLE_PRESETS.map(preset => <button key={preset.seats} onClick={() => handleAddTable(preset.seats)} className="border rounded px-3 py-2 text-sm">添加{preset.seats}人桌</button>)}

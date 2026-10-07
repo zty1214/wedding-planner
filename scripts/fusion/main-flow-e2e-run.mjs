@@ -1,14 +1,20 @@
 // Real App + disposable local fixture; no cloud credentials, CDP, traces or HAR.
 import assert from 'node:assert/strict'
 import { spawn, execFileSync } from 'node:child_process'
-import { mkdir, writeFile, copyFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, writeFile } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
 import { createServer } from 'node:net'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
 const port = 4196
 const origin = `http://127.0.0.1:${port}`
-const output = resolve('docs/validation')
+const output = process.env.MAIN_FLOW_ARTIFACT_DIR
+  ? resolve(process.env.MAIN_FLOW_ARTIFACT_DIR)
+  : await mkdtemp(resolve(tmpdir(), 'planner-main-flow-e2e-'))
+// An explicit directory must be fresh: never upload or overwrite prior-run evidence.
+if (process.env.MAIN_FLOW_ARTIFACT_DIR) await mkdir(output, { recursive: false })
+console.log('Artifacts: ' + output)
 const results = []
 let stage = 'startup', failureCode = 'BROWSER_ASSERTION_FAILED', browser, fixture, context, page
 const report = { scope: 'real App + local fictitious gateway; isolated Chromium', baseline: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(), startedAt: new Date().toISOString(), results }
@@ -91,13 +97,6 @@ async function verifyNights(target = page) {
   await target.getByRole('button', { name: '全部', exact: true }).first().click()
 }
 try {
-  await mkdir(output, { recursive: true })
-  // Preserve prior reports (including failures) before a repeat run.
-  const archiveSuffix = `${Date.now()}-${process.pid}`
-  for (const [name, archived] of [['main-flow-e2e-report.json', `main-flow-e2e-history-${archiveSuffix}.json`], ['main-flow-e2e-failure.png', `main-flow-e2e-failure-${archiveSuffix}.png`]]) {
-    try { await copyFile(resolve(output, name), resolve(output, archived)) }
-    catch (error) { if (error.code !== 'ENOENT') throw Error('ARTIFACT_ARCHIVE_FAILED') }
-  }
   // Never attach to or stop a pre-existing 4196 service.
   await new Promise((res, rej) => {
     const probe = createServer()

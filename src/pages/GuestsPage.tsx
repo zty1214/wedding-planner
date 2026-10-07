@@ -70,10 +70,10 @@ export default function GuestsPage() {
   const filterGroups = ['全部', ...allGroups]
 
   return (
-    <div className="h-full min-w-0 [overflow-wrap:anywhere] overflow-y-auto sm:flex sm:flex-col p-3 sm:p-6 max-w-4xl mx-auto">
+    <div className={`${fusion ? 'planner-page ' : ''}h-full min-w-0 [overflow-wrap:anywhere] overflow-y-auto sm:flex sm:flex-col p-3 sm:p-6 max-w-4xl mx-auto`}>
       {/* Header with export */}
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-base font-semibold text-gray-800">宾客名单</h2>
+        <div><h2 className="text-base font-semibold text-gray-800">宾客名单</h2>{fusion && <p className="planner-description">记录每一位重要的人，确认出席与安排。</p>}</div>
         <button
           onClick={() => openExport ? openExport('guests') : exportGuestsToExcel(guests, tables)}
           disabled={guests.length === 0}

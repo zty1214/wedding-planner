@@ -68,7 +68,7 @@ export default function DraftPanel({ repo, onClose }: { repo: ReturnType<typeof 
       setConfirming(false)
     } finally { setBusy(false) }
   }
-  return <section role="dialog" aria-label="本机草稿" className="border-b bg-amber-50 p-4 max-h-[65vh] overflow-auto space-y-3">
+  return <section aria-label="本机草稿" className="border-b bg-amber-50 p-4 max-h-[65vh] overflow-auto space-y-3">
     <div className="flex flex-wrap gap-3 items-center"><h2 className="font-semibold">本机草稿{drafts ? `（${drafts.length} 项）` : ''}</h2>
       <button disabled={busy} onClick={() => void load()}>刷新列表</button><button disabled={busy || !drafts?.length} onClick={() => download()}>导出草稿</button><button disabled={busy} onClick={onClose}>关闭</button></div>
     <p className="text-sm">以下是已点击保存但尚未确认完成的操作。后续操作可能依赖前面的新增记录；放弃会处理本次列表的整组草稿。已同步修改不会撤销。</p>

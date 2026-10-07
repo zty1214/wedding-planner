@@ -32,7 +32,7 @@ export default function ExportPanel({ repo, initialKind, onClose }: { repo: Retu
     catch { setError('文件生成失败，请保留页面并重试。') }
   }
   if (!state.snapshot) return <section className="p-4 border-b"><p>当前无权访问或项目未加载，不能导出。</p><button onClick={onClose}>关闭</button></section>
-  return <section role="dialog" aria-label="导出固定版本" className="p-4 border-b bg-blue-50 space-y-2">
+  return <section aria-label="导出固定版本" className="p-4 border-b bg-blue-50 space-y-2">
     <div className="flex gap-4"><strong>导出安排</strong><button onClick={onClose}>关闭</button></div>
     <p className="text-sm">默认使用最近一次从云端读回的确认版本。打开此面板后内容固定，后续编辑不会改变本次文件。</p>
     <div className="flex flex-wrap gap-3"><button disabled={!!rendering || capturing} onClick={() => capture('confirmed')}>选取云端已确认版本</button><button disabled={!!rendering || capturing} onClick={() => capture('draft')}>明确选择本机草稿</button></div>

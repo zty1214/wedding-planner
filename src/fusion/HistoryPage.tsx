@@ -64,7 +64,7 @@ export default function HistoryPage() {
     link.href = url; link.download = `婚礼版本-${version.businessDate}.json`; link.click()
     setTimeout(() => URL.revokeObjectURL(url), 1000)
   }
-  return <main className="h-full overflow-auto max-w-4xl mx-auto p-6 space-y-4">
+  return <main className="planner-page h-full overflow-auto max-w-4xl mx-auto p-6 space-y-4">
     <h1 className="text-xl font-semibold">历史版本</h1>
     <p className="text-sm text-gray-600">手动版本保存已同步的宾客、座位布局、住宿和文本笔记，长期保留。当前不提供逐次修改日志。</p>
     <div className="flex gap-2"><FusionFieldEditor kind="version" entityId="current" label="版本名称" value="" submitLabel="保存当前版本" disabled={busy || state.status !== 'synced' || state.pending > 0} onSaved={() => setReload(v => v + 1)} />

@@ -67,7 +67,7 @@ export default function RecyclePage() {
     const link = document.createElement('a'); link.href = url; link.download = `回收记录-${record.createdAt.slice(0, 10)}.json`; link.click()
     setTimeout(() => URL.revokeObjectURL(url), 1000)
   }
-  return <main className="h-full overflow-auto max-w-4xl mx-auto p-6 space-y-4">
+  return <main className="planner-page h-full overflow-auto max-w-4xl mx-auto p-6 space-y-4">
     <h1 className="text-xl font-semibold">回收站</h1>
     <p className="text-sm text-gray-600">删除内容及相关安排保留 30 天。恢复前会核对当前数据，有冲突时不会抢占座位或覆盖新安排。</p>
     <button className="border rounded px-3 py-1" disabled={loading} onClick={() => setReload(value => value + 1)}>刷新回收站</button>

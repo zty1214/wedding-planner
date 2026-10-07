@@ -3,7 +3,7 @@ import { RepositoryContext } from '../fusion/RepositoryContext'
 import { ExportContext } from '../fusion/ExportContext'
 import { useContext, useMemo, useState } from 'react'
 import { BedDouble, Bed, DoorOpen, Plus, Download, Trash2, Search, X, UserPlus, Pencil, CalendarPlus } from 'lucide-react'
-import { useWeddingStore } from '../fusion/PageContext'
+import { useWeddingStore, useFusionMode } from '../fusion/PageContext'
 import { ROOM_CAPACITY, type Guest, type Room } from '../types'
 import { exportRoomsToExcel } from '../utils/exportRooms'
 import { formatNight } from '../utils/date'
@@ -72,7 +72,7 @@ export default function AccommodationPage() {
   }
 
   return (
-    <div className="h-full [overflow-wrap:anywhere] overflow-y-auto">
+    <div className={`${fusion ? 'planner-page ' : ''}h-full [overflow-wrap:anywhere] overflow-y-auto`}>
       <div className="max-w-7xl mx-auto p-3 sm:p-6">
         {/* 顶部：标题 + 操作 */}
         <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
@@ -329,9 +329,12 @@ function Seg({ active, onClick, children }: { active: boolean; onClick: () => vo
 
 function StatCard({ value, label, color, names }: { value: number; label: string; color: string; names?: string[] }) {
   const hoverable = !!names && names.length > 0
+  const fusion = useFusionMode()
+  const palette: Record<string, string> = { '#d4728a': '#a44861', '#7c9ec9': '#426791', '#5fae8f': '#36734f', '#d99a4e': '#8b5e16', '#b07cc6': '#77518b', '#9ca3af': '#746870' }
+  const visualColor = fusion ? palette[color] ?? color : color
   return (
     <div className={`bg-white rounded-xl p-4 flex-1 min-w-[110px] border border-gray-100 relative group ${hoverable ? 'cursor-help' : ''}`}>
-      <div className="text-2xl font-bold" style={{ color }}>{value}</div>
+      <div className="text-2xl font-bold" style={{ color: visualColor }}>{value}</div>
       <div className="text-sm text-gray-500">{label}{hoverable && <span className="ml-1 text-gray-300">ⓘ</span>}</div>
       {names && (
         <div className="hidden group-hover:block fixed z-20 left-4 right-4 top-1/2 sm:absolute sm:left-0 sm:right-auto sm:top-full mt-1 sm:w-64 [overflow-wrap:anywhere] max-h-64 overflow-y-auto bg-white rounded-xl border border-gray-100 shadow-lg p-3">

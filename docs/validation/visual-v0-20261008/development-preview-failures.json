@@ -1,0 +1,54 @@
+{
+  "scope": "earlier failed dev-preview attempts retained locally; superseded by production cloud pass, never counted as passes",
+  "attempts": [
+    {
+      "attempt": "cloud-restore",
+      "status": "failed",
+      "stage": "create-project",
+      "code": null,
+      "executionContextDestroyed": false
+    },
+    {
+      "attempt": "cloud-restore-recheck",
+      "status": "failed",
+      "stage": "create-project",
+      "code": null,
+      "executionContextDestroyed": false
+    },
+    {
+      "attempt": "cloud-restore-frozen",
+      "status": "failed",
+      "stage": "create-project",
+      "code": null,
+      "executionContextDestroyed": false
+    },
+    {
+      "attempt": "cloud-restore-sdk-ready",
+      "status": "failed",
+      "stage": "create-project",
+      "code": null,
+      "executionContextDestroyed": false
+    },
+    {
+      "attempt": "cloud-restore-sdk-stable",
+      "status": "failed",
+      "stage": "seating-visible-canvas",
+      "code": null,
+      "executionContextDestroyed": false
+    },
+    {
+      "attempt": "cloud-restore-prebundled",
+      "status": "failed",
+      "stage": "create-project",
+      "code": null,
+      "executionContextDestroyed": false
+    },
+    {
+      "attempt": "cloud-restore-final",
+      "status": "failed",
+      "stage": "create-project",
+      "code": null,
+      "executionContextDestroyed": false
+    }
+  ]
+}

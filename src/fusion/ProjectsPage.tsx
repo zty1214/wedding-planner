@@ -1,3 +1,4 @@
+import './fusion-theme.css'
 import { useEffect, useState } from 'react'
 import { newCreation, projectLinks, creationProjectId } from './projectCreation'
 import type { CreationRequest } from './projectCreation'
@@ -33,18 +34,20 @@ export default function ProjectsPage() {
   async function copy(url: string) {
     try { await navigator.clipboard.writeText(url); setMessage('链接已复制。管理链接只交给项目负责人保管。') } catch { setMessage('复制失败，请检查浏览器剪贴板权限。') }
   }
-  return <main className="max-w-3xl mx-auto p-6 space-y-5">
+  return <main className="planner-projects planner-page max-w-3xl mx-auto p-6 space-y-5">
+    <p className="planner-eyebrow">喜事 · A LITTLE FOREVER</p>
     <h1 className="text-xl font-semibold">我的备婚项目</h1>
     <p className="text-gray-600">每个项目的数据独立。协作链接供家人一起编辑，管理链接由负责人保管。</p>
-    <div className="flex gap-3"><input aria-label="新项目名称" className="border rounded px-3 py-2 flex-1" value={title} onChange={e => setTitle(e.target.value)} disabled={busy} />
-      <button className="bg-rose-500 text-white rounded px-4 disabled:opacity-40" disabled={!vault || busy || !title.trim() || entries.some(e => !e.confirmed)} onClick={() => void create()}>新建独立项目</button></div>
+    <div className="flex flex-wrap gap-3"><input aria-label="新项目名称" className="border rounded px-3 py-2 flex-1 min-w-0" value={title} onChange={e => setTitle(e.target.value)} disabled={busy} />
+      <button className="bg-[#a44861] text-white rounded px-4 disabled:opacity-40" disabled={!vault || busy || !title.trim() || entries.some(e => !e.confirmed)} onClick={() => void create()}>新建独立项目</button></div>
     <p role="status">{message}</p>
+    {entries.length === 0 && <section className="planner-empty"><h2>从一个婚礼项目开始</h2><p>填写名称后创建，邀请家人共同完成宾客、座位与住宿安排。</p></section>}
     {entries.map(entry => {
       const links = projectLinks(window.location.origin, entry.request)
       return <section key={entry.request.requestId} className="bg-white border rounded-xl p-4 space-y-3">
         <h2 className="font-semibold">{entry.request.title}</h2>
         {!entry.confirmed ? <button disabled={busy} onClick={() => void create(entry.request)}>重试并确认创建结果</button> : <div className="flex flex-wrap gap-4">
-          <button className="text-rose-600" onClick={() => {
+          <button className="text-[#a44861]" onClick={() => {
             const projectId = creationProjectId(entry.request.requestId)
             sessionStorage.setItem(`planner-access:${projectId}`, entry.request.managementSecret)
             window.location.assign(`/fusion/p/${projectId}/seating`)

@@ -1,0 +1,80 @@
+{
+  "baseline": "2ac4a5ed43b43cdc53f6a2c9d5993bfb9c9c5832",
+  "mode": "real App + IndexedDB + local MemoryStore gateway; handoff/cleanup/lost-response injection",
+  "startedAt": "2026-10-07T17:05:44.708Z",
+  "results": [
+    {
+      "name": "guest-edit-handoff-save-failure",
+      "status": "passed",
+      "operationId": "57facede-8424-4025-b226-3f1ff19663de",
+      "noDispatch": true,
+      "inputAndOriginalIdAfterReload": true
+    },
+    {
+      "name": "guest-edit-cleanup-failure",
+      "status": "passed",
+      "operationId": "57facede-8424-4025-b226-3f1ff19663de",
+      "receiptsAdded": 1,
+      "repeatCheckAddedReceipts": 0,
+      "formsAfterCleanup": 0
+    },
+    {
+      "name": "note-edit-handoff-save-failure",
+      "status": "passed",
+      "operationId": "b8c85313-474d-4253-b59b-5c3cbcce97bc",
+      "noDispatch": true,
+      "contentAndOriginalIdAfterReload": true
+    },
+    {
+      "name": "note-edit-cleanup-failure",
+      "status": "passed",
+      "operationId": "b8c85313-474d-4253-b59b-5c3cbcce97bc",
+      "receiptsAdded": 1,
+      "repeatCheckAddedReceipts": 0,
+      "formsAfterCleanup": 0
+    },
+    {
+      "name": "unknown-result-discard-denied",
+      "status": "passed",
+      "operationId": "e325e416-3d73-4aa6-8e71-545783681f60",
+      "queuePreserved": true
+    },
+    {
+      "name": "known-conflict-permanent-discard",
+      "status": "passed",
+      "operationId": "e325e416-3d73-4aa6-8e71-545783681f60",
+      "queueAfterReopen": 0,
+      "otherValuePreserved": true,
+      "extraReceipts": 0
+    },
+    {
+      "name": "committed-result-discard-does-not-undo",
+      "status": "passed",
+      "operationId": "031214d5-bee0-4f5a-a025-095c53240a74",
+      "queueAfterReopen": 0,
+      "serverValuePreserved": true,
+      "extraReceipts": 0
+    },
+    {
+      "name": "mixed-conflict-batch-retained-and-downloaded",
+      "status": "passed",
+      "operationIds": [
+        "ad4ddb83-fdf3-4e18-9712-ab2bc6f03489",
+        "dd7e69ac-7b66-47f4-82c2-95719107d714"
+      ],
+      "commandTypes": [
+        "guest.update",
+        "note.update"
+      ],
+      "queueAfterReopen": 0,
+      "archivedWholeBatchAndDownloaded": true,
+      "retainAndDownloadAddedReceipts": 0,
+      "reeditAddedReceipts": 1,
+      "pausedNoteNotSent": true
+    }
+  ],
+  "browserVersion": "151.0.7922.34",
+  "projectId": "fusion-created-065da672-d38f-4064-a63b-7cb44560ccc3",
+  "status": "passed",
+  "finishedAt": "2026-10-07T17:05:51.233Z"
+}

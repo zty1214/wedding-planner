@@ -1,4 +1,6 @@
+import FusionDialog from './FusionDialog'
 import FusionFieldEditor from './FusionFieldEditor'
+import FusionShell from './FusionShell'
 import AccessPanel from './AccessPanel'
 import type { ProjectTransport } from './repository'
 import { refreshSignals } from './refreshSignals'
@@ -6,7 +8,7 @@ import ExportPanel from './ExportPanel'
 import { ExportContext } from './ExportContext'
 import DraftPanel from './DraftPanel'
 import { useEffect, useState, useSyncExternalStore } from 'react'
-import { NavLink, Outlet, useParams } from 'react-router-dom'
+import { Outlet, useParams } from 'react-router-dom'
 import { connectGateway } from './cloudClient'
 import { PageStoreContext } from './PageContext'
 import { createPageStore } from './pageStore'
@@ -30,19 +32,16 @@ function ProjectView({ session, projectId, notice }: { session: Session; project
   const editingPaused = !state.snapshot || ['loading', 'saving_local', 'syncing', 'resume_required', 'conflict', 'forbidden', 'failed'].includes(state.status)
   const errorLabels: Record<string, string> = { REJECTED_CURRENT_CONFIRMED: '修改未提交，已重新读取云端安排。', CONFIRMED_READ_FAILED: '修改未提交，暂未读到最新云端安排。', REQUEST_TOO_LARGE: '内容超出当前单次保存大小，请缩短或拆分；输入尚未提交。', INVALID_INPUT: '此操作当前不可用或输入不符合要求', CONFLICT: '数据已被更新，请先处理冲突', SEAT_OCCUPIED: '座位已被占用', NETWORK_ERROR: '暂时无法连接云端', EDITING_PAUSED: '请先处理未完成的保存', PROJECT_REPLACED: '项目已恢复到另一版本，旧草稿未提交' }
   return <RepositoryContext.Provider value={session.repo}><PageStoreContext.Provider value={session.page.store}><ExportContext.Provider value={setExportKind}>
-    <div className="flex flex-col h-dvh">
-      <header className="bg-white border-b px-4 py-3 flex gap-3 items-center flex-wrap shrink-0">
-        {state.snapshot && <FusionFieldEditor kind="project" entityId="config" label="项目标题" value={state.snapshot.data.config.title} disabled={editingPaused} />}
-        <a href="/fusion" className="text-sm text-gray-500">我的项目</a>
-        <nav className="flex flex-wrap gap-x-3 gap-y-2" aria-label="项目页面">{[['guests', '宾客名单'], ['seating', '座位安排'], ['stay', '住宿安排'], ['notes', '备婚笔记'], ['recycle', '回收站'], ['history', '历史版本']].map(([path, label]) =>
-          <NavLink key={path} to={`/fusion/p/${projectId}/${path}`} className={({ isActive }) => `whitespace-nowrap ${isActive ? 'text-rose-600 font-semibold' : 'text-gray-600'}`}>{label}</NavLink>)}</nav>
-        <span role="status" className="text-sm ml-auto">{labels[state.status]}{state.pending ? `（${state.pending} 项）` : ''}</span>
-        {(['resume_required', 'unknown', 'local'].includes(state.status) || state.error === 'PROJECT_REPLACED') && <button className="border rounded px-3 py-1" onClick={() => void session.repo.resume()}>确认并继续同步</button>}
-        {state.snapshot?.role === 'management' && <button className="border rounded px-3 py-1" onClick={() => setShowAccess(value => !value)}>协作链接</button>}
-        <button disabled={!state.snapshot} className="border rounded px-3 py-1" onClick={() => setExportKind('guests')}>导出表格</button>
-        <button className="border rounded px-3 py-1" onClick={() => setShowDrafts(value => !value)}>查看本机草稿</button>
-        <button className="border rounded px-3 py-1" onClick={() => void session.repo.refresh()}>刷新项目</button>
-      </header>
+    <FusionShell projectId={projectId} state={state.status}
+      title={state.snapshot && <FusionFieldEditor kind="project" entityId="config" label="项目标题" value={state.snapshot.data.config.title} disabled={editingPaused} />}
+      status={<>{labels[state.status]}{state.pending ? `（${state.pending} 项）` : ''}</>}
+      resume={(['resume_required', 'unknown', 'local'].includes(state.status) || state.error === 'PROJECT_REPLACED') && <button className="border rounded px-3 py-1" onClick={() => void session.repo.resume()}>确认并继续同步</button>}
+      actions={<>
+        {state.snapshot?.role === 'management' && <button onClick={() => setShowAccess(value => !value)}>协作链接</button>}
+        <button disabled={!state.snapshot} onClick={() => setExportKind('guests')}>导出表格</button>
+        <button onClick={() => setShowDrafts(value => !value)}>查看本机草稿</button>
+        <button onClick={() => void session.repo.refresh()}>刷新项目</button>
+      </>}>
       {state.cacheError && <p role="alert" className="bg-amber-50 text-amber-900 px-4 py-2">{state.cacheError === 'CACHE_CLEAR_FAILED'
         ? '本机参考快照清理失败，页面已停止展示；请保留自己的草稿后清理此站点缓存。'
         : '云端读取已完成，但参考快照未能保存在本机。原有草稿仍保留，暂不能保证重开后的参考版本可用。'}</p>}
@@ -51,12 +50,12 @@ function ProjectView({ session, projectId, notice }: { session: Session; project
         {state.error === 'CONFIRMED_READ_FAILED' ? '暂未读到最新云端安排，页面显示最近确认的副本。' : '页面显示云端确认的安排。'}
         被拒绝的修改及后续操作保留在本机草稿，后续发送已暂停；请查看草稿核对。
       </p>}
-      {exportKind && <ExportPanel key={exportKind} repo={session.repo} initialKind={exportKind} onClose={() => setExportKind(null)} />}
-      {showAccess && state.snapshot?.role === 'management' && <AccessPanel projectId={projectId} transport={session.transport} repo={session.repo} onClose={() => setShowAccess(false)} />}
-      {showDrafts && <DraftPanel repo={session.repo} onClose={() => setShowDrafts(false)} />}
+      {exportKind && <FusionDialog label="导出固定版本" onClose={() => setExportKind(null)}><ExportPanel key={exportKind} repo={session.repo} initialKind={exportKind} onClose={() => setExportKind(null)} /></FusionDialog>}
+      {showAccess && state.snapshot?.role === 'management' && <FusionDialog label="协作链接管理" onClose={() => setShowAccess(false)}><AccessPanel projectId={projectId} transport={session.transport} repo={session.repo} onClose={() => setShowAccess(false)} /></FusionDialog>}
+      {showDrafts && <FusionDialog label="本机草稿" onClose={() => setShowDrafts(false)}><DraftPanel repo={session.repo} onClose={() => setShowDrafts(false)} /></FusionDialog>}
       {!state.snapshot ? <p className="p-8">{labels[state.status]}。请使用包含访问凭证的项目链接。</p>
         : <fieldset disabled={editingPaused} className="flex-1 overflow-hidden min-h-0 min-w-0 w-full border-0 p-0 m-0" inert={editingPaused || undefined}><Outlet /></fieldset>}
-    </div>
+    </FusionShell>
   </ExportContext.Provider></PageStoreContext.Provider></RepositoryContext.Provider>
 }
 

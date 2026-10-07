@@ -8,22 +8,22 @@ import type { Table, Guest } from '../../types'
 
 // Softer rose palette
 const COLORS = {
-  primary: '#d4728a',
-  primaryDark: '#b85a72',
+  primary: '#a44861',
+  primaryDark: '#87384f',
   primaryLight: '#fdf5f7',
   primaryBorder: '#f0c4d0',
-  confirmedFill: '#d4728a',
-  confirmedStroke: '#b85a72',
+  confirmedFill: '#a44861',
+  confirmedStroke: '#87384f',
   assignedFill: '#fdf5f7',
   assignedStroke: '#f0c4d0',
   assignedText: '#a34d63',
   emptyFill: '#f7f6f5',
   emptyStroke: '#ddd9d5',
-  emptyText: '#b0aaa4',
+  emptyText: '#746870',
   tableFill: '#fffef9',
   tableStroke: '#ddd9d5',
   tableLabel: '#5a4a3e',
-  tableSub: '#b0a498',
+  tableSub: '#746870',
 }
 
 interface Viewport {
@@ -260,7 +260,7 @@ export default function SeatingCanvas({ selectedTableId, onSelectTable, stageRef
       <div className="absolute bottom-4 right-4 z-20 flex items-center gap-1 bg-white rounded-lg border border-gray-200 shadow-sm px-1.5 py-1">
         <button
           onClick={() => zoomBy(1 / 1.25)}
-          className="p-1.5 text-gray-500 hover:text-[#d4728a] hover:bg-[#fdf5f7] rounded transition-colors"
+          className="p-1.5 text-gray-500 hover:text-[#a44861] hover:bg-[#fdf5f7] rounded transition-colors"
           title="缩小"
         >
           <ZoomOut className="w-4 h-4" />
@@ -268,7 +268,7 @@ export default function SeatingCanvas({ selectedTableId, onSelectTable, stageRef
         <span className="text-xs text-gray-500 w-10 text-center select-none">{Math.round(stageScale * 100)}%</span>
         <button
           onClick={() => zoomBy(1.25)}
-          className="p-1.5 text-gray-500 hover:text-[#d4728a] hover:bg-[#fdf5f7] rounded transition-colors"
+          className="p-1.5 text-gray-500 hover:text-[#a44861] hover:bg-[#fdf5f7] rounded transition-colors"
           title="放大"
         >
           <ZoomIn className="w-4 h-4" />
@@ -276,7 +276,7 @@ export default function SeatingCanvas({ selectedTableId, onSelectTable, stageRef
         <div className="w-px h-4 bg-gray-200 mx-0.5" />
         <button
           onClick={fitToView}
-          className="flex items-center gap-1 px-2 py-1.5 text-xs text-gray-500 hover:text-[#d4728a] hover:bg-[#fdf5f7] rounded transition-colors"
+          className="flex items-center gap-1 px-2 py-1.5 text-xs text-gray-500 hover:text-[#a44861] hover:bg-[#fdf5f7] rounded transition-colors"
           title="定位所有桌子"
         >
           <Locate className="w-3.5 h-3.5" /> 定位

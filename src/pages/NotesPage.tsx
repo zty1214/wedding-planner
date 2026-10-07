@@ -44,7 +44,8 @@ export default function NotesPage() {
   }
 
   return (
-    <div className="h-full min-w-0 [overflow-wrap:anywhere] overflow-y-auto sm:flex sm:flex-col p-3 sm:p-6 max-w-3xl mx-auto">
+    <div className={`${fusion ? 'planner-page ' : ''}h-full min-w-0 [overflow-wrap:anywhere] overflow-y-auto sm:flex sm:flex-col p-3 sm:p-6 max-w-3xl mx-auto`}>
+      {fusion && <div className="mb-6"><h2>备婚笔记</h2><p className="planner-description">记下灵感、决定与待办，让准备有条不紊。</p></div>}
       {/* Tabs */}
       <div className="flex flex-wrap items-center gap-1 mb-6">
         {NOTE_CATEGORIES.map((cat) => (

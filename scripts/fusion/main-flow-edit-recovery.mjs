@@ -159,6 +159,7 @@ try {
   report.status = 'passed'
 } catch (error) {
   report.status = 'failed'; report.failedStage = stage; report.failureType = error.name
+  report.failureDetail = String(error.message).replace(/[a-f0-9]{64}/g, '[redacted]').slice(0, 1500)
   if (page) await snapshot('failure').catch(() => {})
   process.exitCode = 1; console.error('FAIL ' + stage + ' (details redacted)')
 } finally {
