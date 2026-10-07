@@ -1,0 +1,347 @@
+
+> wedding-planner@0.0.0 check
+> npm run test && npm run test:scale && npm run typecheck:fusion && npm run lint && npm run build && npm run build:fusion-check
+
+
+> wedding-planner@0.0.0 test
+> npm run test:fusion
+
+
+> wedding-planner@0.0.0 test:fusion
+> node --experimental-strip-types --test tests/fusion/*.test.ts tests/fusion/*.test.mjs
+
+✔ management rotates collaboration access atomically; old readers and writers are rejected (49.325041ms)
+✔ receipt failure rolls rotation back and original collaboration credential still works (1.17175ms)
+✔ competing rotations cannot replace a newer link and changed operation ID payload is refused (0.60425ms)
+✔ rotation refuses raw secrets, management-secret reuse, no-op hash and restored epoch (0.465125ms)
+✔ gateway limits access metadata and rotation to the requested project management credential (1.159166ms)
+✔ old open client stops after rotation and retains its original unsynced draft (172.749417ms)
+✔ candidate confirmation is management-only and reveals no stored digest (0.36625ms)
+✔ restoring a pre-rotation version never resurrects the revoked link or rolls access revision back (46.409583ms)
+✔ access secrets and stored digests never enter shared versions, receipts, activity or export models (9.843333ms)
+✔ downloaded XLSX bytes and workbook metadata exclude link secrets after rotation (34.584666ms)
+✔ rotation storage failure prevents all network requests (23.387958ms)
+✔ lost response survives vault reopen and confirms original operation without executing twice (27.793333ms)
+✔ vault binds immutable operation to its secret and rejects changed requests (17.358458ms)
+✔ later rotation prevents old receipt from advertising a superseded link (11.555167ms)
+✔ failure during access confirmation retains recoverable secret and mismatched receipt is refused (20.024542ms)
+✔ room warnings use per-night occupancy, not total assigned people; undated guests stay visible (2.410958ms)
+✔ lodging todos separate need, room and dates independently from attendance (0.32ms)
+✔ night statistics and exported matrices agree for staggered arrivals and partial nights (123.042625ms)
+✔ cross-year room exports keep identically numbered days in separate columns (5.99725ms)
+✔ activity uses commit day, counts changed commands once, preserves categories through recycle restoration (84.602625ms)
+✔ failed daily generation is reported and a successful retry clears the failure marker (16.30025ms)
+✔ legacy totals stay explicitly unclassified and malformed totals are rejected (0.569334ms)
+✔ activity month gateway validates scope and month while returning only daily summaries (5.330208ms)
+✔ activity increments roll back together with a failed business receipt (1.155834ms)
+✔ encrypted backup restores exact source bytes, metadata and old attachment references without leaking records (3.392584ms)
+✔ wrong key, corrupted ciphertext and authentication tag cannot be restored (1.748708ms)
+✔ incomplete, altered and falsely frozen source manifests are rejected before encryption (0.224375ms)
+✔ backup collector covers server-capped pages with exact offsets and rejects missing or duplicate rows (1.309416ms)
+✔ CLI defaults to verification, uses separate private keys and never overwrites output or enters a Git checkout (1683.922375ms)
+✔ business gateway explicit creation preserves idempotence, configured quota and management/collaboration access (6.232291ms)
+✔ unknown or cross-project credentials cannot create/grant access; migrated project requires stored access (1.095542ms)
+✔ business gateway has no probe handlers or image routes and uses the original core command/receipt path (27.725958ms)
+✔ candidate configuration rejects source environment, probe collections and implicit production quota (4.175125ms)
+✔ offline business packages bind source/config/content and expose only configured entrypoints without deploying (1702.878958ms)
+✔ installed CloudBase SDK adapter returns receipts and separates scoped collections (52.697458ms)
+✔ SDK code-valued read failures are errors, never interpreted as missing documents (1.728833ms)
+✔ receipt write failure aborts actual SDK transaction including prior business write (3.772833ms)
+✔ SDK persists note tombstones and retirement across transactions (17.804084ms)
+✔ SDK retention deletion is transactional and scoped to version or recycle body keys (1.416584ms)
+✔ SDK access decoder preserves credential revision across transactions (1.475958ms)
+✔ installed SDK keeps explicit business collections separate from the original probe namespace (0.964584ms)
+✔ installed SDK restores project documents with permission roots withheld until verified atomic publication (10.363ms)
+✔ concurrent duplicate delivery commits one result and one activity increment (7.049292ms)
+✔ business, receipt, and activity all roll back when receipt write fails (10.004708ms)
+✔ two independent contenders cannot claim the same fixture seat (0.2845ms)
+✔ cross-project, management commands and revoked credentials are denied including receipt reads (2.953209ms)
+✔ changed request reusing operation ID rejected; unknown version and malformed values fail (0.429167ms)
+✔ old epoch receipt remains queryable but old epoch writes are rejected (0.188333ms)
+✔ no-op has a receipt without increasing revision or heatmap (0.092917ms)
+✔ business date switches at Shanghai midnight (0.0435ms)
+✔ confirmed baseline survives reopen, stays separate from optimistic drafts and is never offline authorization (77.054625ms)
+✔ revocation removes shared cache but preserves original private intents (62.380458ms)
+✔ restored epoch cannot expose an old cache as its own reference (30.371125ms)
+✔ cache write failure is reported independently of a successful cloud read (1.915875ms)
+✔ version 1 outbox upgrade preserves existing commands and adds an empty cache (2.914166ms)
+✔ pending queue pins old baseline while latest confirmed copy advances, then releases it after resolution (11.505625ms)
+✔ failed cache purge never restores display or authorization, and successful purge stays project-scoped (7.048458ms)
+✔ Planner conversion preserves references, zeroes, different nights, raw text and original layout without inferring attendance from seats (15.071041ms)
+✔ stable namespace IDs survive repeat batches and never merge same people or cross-project/source IDs (1.369ms)
+✔ invalid references, duplicate seats, source ownership and unknown attendance block trial without dropping source rows (1.285958ms)
+✔ duplicate source ID is unresolved rather than silently overwriting a guest; numeric telephone is not stringified (0.671ms)
+✔ reconciled browser config is scoped to its source project and no dates are invented (8.87ms)
+✔ Seating uses a dedicated mapping, preserves explicit side/attendance and requires a source-bound layout decision (2.164958ms)
+✔ local date disagreement is explicit and supplemental source config is retained, not silently ignored (1.1925ms)
+✔ conversion CLI writes only an explicit private dry-run artifact and keeps stdout redacted (1070.513375ms)
+✔ main flow persists seating, table coordinates and independent per-person nights through durable queue (44.880709ms)
+✔ same-seat concurrency has one winner; independent edits succeed and attendance survives moves (2.62275ms)
+✔ invalid references, invalid dates and arbitrary patch fields cannot bypass business commands (0.551125ms)
+✔ shared side is preserved; malformed stored core cannot produce successful no-op receipts (0.589333ms)
+✔ clearing accommodation is refused until recovery material exists; no partial transaction (0.986166ms)
+✔ receipt for reused operation ID cannot acknowledge a different draft (30.50175ms)
+✔ explicit entity order survives JSON persistence even for numeric-looking IDs (1.491125ms)
+✔ seat swap is atomic, preserves attendance and rejects stale peers without partial writes (3.41875ms)
+✔ daily scan advances past a full failed batch and later retries failures without starving healthy projects (19.364208ms)
+✔ daily scan advances over unauthorized candidates without touching their project (10.679083ms)
+✔ Shanghai midnight seals final core and notes before next-day mutation; timer is idempotent (12.94025ms)
+✔ failed rollover blocks next-day business write and retry cannot duplicate history (1.094333ms)
+✔ cross-day project restoration seals prior state before switching epoch (1.219375ms)
+✔ offline guest.delete projects dependent changes and matches atomic server replay (26.222833ms)
+✔ offline table.deleteWithGuests projects dependent changes and matches atomic server replay (18.176334ms)
+✔ offline room.deleteWithAssignments projects dependent changes and matches atomic server replay (22.822959ms)
+✔ offline guest.clearRoom projects dependent changes and matches atomic server replay (41.322083ms)
+✔ offline guest.clearStayNeed projects dependent changes and matches atomic server replay (28.933834ms)
+✔ offline stayDate.remove projects dependent changes and matches atomic server replay (20.207833ms)
+✔ offline note deletion preserves other notes and uses the server notes revision (25.069167ms)
+✔ failed local deletion persistence preserves the displayed arrangement and creates no queue (7.47675ms)
+✔ a remotely edited guest blocks table deletion and its dependent edits without erasing drafts (26.238209ms)
+✔ retaining a reviewed batch atomically removes only that project queue and survives reopen (18.304042ms)
+✔ changed batch cannot be archived or partially removed (9.256958ms)
+✔ archive write failure aborts queue removal (5.084041ms)
+✔ version 2 upgrade preserves the existing queue and confirmed cache (5.3105ms)
+✔ draft target labels are resolved within entity kind and never from a new epoch (0.928542ms)
+✔ current values include actual dependencies and preserve leading zeros without changing frozen intent (0.855292ms)
+✔ deleted records and unavailable note content are distinguished from empty values (0.08675ms)
+✔ all three field drafts survive reopen with original revision and preserve project isolation (61.35225ms)
+✔ concurrent draft edits and cleanup cannot overwrite a newer local copy (4.609709ms)
+✔ restored fields reject cloud revision changes, deleted targets and restored epochs without changing saved intent (8.521ms)
+✔ new group and version names survive reopen and retain config and notes bindings (6.168666ms)
+✔ successful guest handoff is recoverable after form cleanup crash and later entity changes (26.976208ms)
+✔ queued handoff reconciliation neither executes nor approves a reopened queue (8.021ms)
+✔ binding persistence failure prevents dispatch and receipt lookup errors preserve the form (34.044375ms)
+✔ same operation with changed request cannot clear a form, including a queued mismatch (18.470875ms)
+✔ unexecuted old epoch binding is retained and never sent (6.839583ms)
+✔ historical receipt can be reconciled after epoch replacement without projecting or sending (9.410042ms)
+✔ freeze-only crash retries the same command and CAS cleanup preserves a newer form (12.608208ms)
+✔ guest update, project title and group fields retain their original receipt after cleanup failure (20.992333ms)
+✔ note add and update recover frozen handoffs through the authenticated gateway (45.374084ms)
+✔ whole-project encrypted recovery preserves permission/epoch/note/receipt fields across hundreds of documents with bounded transactions (164.846542ms)
+✔ recovery interruption resumes without duplicates; incomplete or unverified copies never open (2.992ms)
+✔ manual changes, extra target documents, foreign batches and same-environment restore are rejected without overwrite (1.72625ms)
+✔ corrupt envelopes and structurally incomplete notes are refused before target writes (4.267958ms)
+✔ recovery CLI authenticates private input first and requires explicit apply; default does not connect (773.673375ms)
+✔ unsubmitted guest form survives reopen with leading zeros, original epoch and stable identity (8.87375ms)
+✔ guest draft CAS preserves another tab edits and rejects stale removal (3.456125ms)
+✔ failed form writes cannot report persistence and leave prior saved input intact (1.717416ms)
+✔ recovered guest edits retain their original revision and refuse newer cloud values or restored epochs (3.724042ms)
+✔ guest Excel preserves seven columns, text phones, distinct people and explicit attendance/side (10.996667ms)
+✔ manual version freezes core and all notes with no credentials or per-edit versions (6.77925ms)
+✔ stale version group and receipt failure never publish partial snapshots (0.523334ms)
+✔ version list pages metadata with stable cursor when new versions are added (3.207583ms)
+✔ repository saves versions through durable gateway and refuses mixing unsynced drafts (116.075291ms)
+✔ manager restoration atomically switches core and notes, retaining safety version and current credentials (1.534875ms)
+✔ lost restore response reconciles old receipt after reopen without replaying old drafts (36.779542ms)
+✔ pre-restore recycle entries remain readable but cannot restore into new epoch (1.627667ms)
+✔ keeps distinct people and different nights, reporting only redacted aggregates (9.157209ms)
+✔ detects project mismatch, dangling references, duplicate seats and unknown statuses (0.217584ms)
+✔ pagination handles server cap smaller than requested size (1.099625ms)
+✔ incomplete or changing count is rejected instead of reporting complete inventory (0.231916ms)
+✔ missing cloud config flags reconciliation without classifying valid guest dates as malformed (0.127959ms)
+✔ dry-run never touches store; prepare/import/verify/publish keeps project unavailable until complete and is idempotent (6.364708ms)
+✔ partial import resumes after failure and cannot publish before readback verification (3.39625ms)
+✔ manual edits before and after publication reject overwrite, including note body changes (3.754417ms)
+✔ different source/batch/access hashes cannot reuse reservation; explicit separate actual DB environment is required (0.907834ms)
+✔ concurrent same-batch retries stay idempotent and backup rebuild in a fresh target preserves all fields (5.450042ms)
+✔ CloudBase adapter uses gateway-compatible scoped document keys, sequential transactions and rollback on publication failure (3.710667ms)
+✔ batch CLI requires explicit action, apply and isolated target; default does not acquire credentials (825.760459ms)
+✔ two hundred notes migrate completely with fewer than twenty operations in every adapter transaction (180.032ms)
+✔ large trial interrupted near the end resumes without opening an incomplete project or duplicating notes (184.56725ms)
+✔ unpublished text survives database close/reopen and remains isolated by project (7.884041ms)
+✔ two tabs cannot silently overwrite or delete each other's newer form draft (26.915542ms)
+✔ editing drafts retain original epoch and note revision instead of silently rebasing (3.597958ms)
+✔ text notes have server timestamps and independent revisions; retry is idempotent (4.085833ms)
+✔ stale edits and extra attachment fields rejected; note and receipt failure roll back together (1.556375ms)
+✔ notes traverse page adapter, durable queue and gateway, then reread without touching core revision (203.595209ms)
+✔ note deletion and restoration preserve content/order and advance only notes revision (10.300834ms)
+✔ request and unknown-result state are committed before network begins (28.229958ms)
+✔ lost response and database reopen confirm original receipt without another write (38.143416ms)
+✔ failed local persistence cannot send a network request (22.211334ms)
+✔ duplicate prepare cannot replace frozen request or reset a failure state (3.899417ms)
+✔ project and epoch isolate persisted requests; denial retains local draft and pauses (14.112209ms)
+✔ receipt for another project does not discard the local pending operation (3.027416ms)
+✔ seat contention retains the draft as a conflict requiring user resolution (2.765292ms)
+✔ project restore preserves and exposes all old forms even if target entities no longer exist (32.02575ms)
+✔ gateway rejects missing/cross-project credentials and nested project substitution (2.508375ms)
+✔ gateway recovers lost response through receipt and retry without double increment (0.844416ms)
+✔ gateway bounds requests and sanitizes backend errors (0.181667ms)
+✔ image gateway refuses cross-project/file substitution and invalid content before storage I/O (6.111125ms)
+✔ revocation during file read prevents content delivery (0.803292ms)
+✔ returned storage error or partial deletion never produces success (0.210917ms)
+✔ lost creation response and browser reopen deliver the same project and original two links (27.214542ms)
+✔ request substitution and creation quota are transactional; retries do not consume quota (0.711042ms)
+✔ local creation save failure prevents network; two links have distinct permissions (3.662292ms)
+✔ development creation limit is configurable and invalid configuration never disables the bound (0.506083ms)
+✔ raising development gateway quota retains consumed count, retry identity and the new bound (1.269291ms)
+✔ late old-project read cannot publish or cache after switch, even with identical epochs (35.307875ms)
+✔ same guest ID in a different project cannot consume, display or submit original drafts (38.894333ms)
+✔ switch during lost acknowledgement leaves original request recoverable and never targets the new project (15.929584ms)
+✔ independent reconciliation covers every source row, fields, layout, full text and nightly occupancy with redacted report (5.076709ms)
+✔ equal aggregate counts cannot hide wrong phone, seat, notes, coordinates, dates, ordering or extra records (2.590666ms)
+✔ candidate artifact hashes and complete stable mapping are checked even if attacker recomputes target hash (1.026417ms)
+✔ Seating readback validates original state and source-bound layout decision; unresolved duplicates remain blocked (1.068541ms)
+✔ reconciliation CLI defaults to read-only and optional private output is exclusive (703.808292ms)
+✔ invalid date strings cannot leak personal data into reconciliation output (0.579833ms)
+✔ reopened queue exports dependent edits without sending or modifying the original commands (25.754917ms)
+✔ recovered export skips a committed lost-response request before projecting its dependent edit (6.442875ms)
+✔ recovered export refuses concurrent edits and old epochs without rebasing or deleting drafts (6.985791ms)
+✔ recovered export refuses offline authorization and changed local batches (2.986167ms)
+✔ recovered export refuses missing recovery records and legacy ordering, and hides data on revoked access (2.43775ms)
+✔ reopened table recycling projects the complete arrangement without consuming the recovery record (9.010125ms)
+✔ reopened note recycling projects the complete arrangement without consuming the recovery record (14.143333ms)
+✔ whole-project recovery export handles unsubmitted target without writing (14.80175ms)
+✔ whole-project recovery export handles lost successful response without writing (10.15075ms)
+✔ reopened mixed four-module queue export matches explicit ordered server replay without submitting during export (19.74175ms)
+✔ delete table and affected associations are atomic and restore once with higher revisions (7.541209ms)
+✔ changed affected set, receipt failure and expired restore cannot partially alter data (1.419292ms)
+✔ restoring deleted guest never takes an occupied seat from another person (0.946375ms)
+✔ removing a stay night checks affected guests and restores dates atomically (6.664167ms)
+✔ stay-date restore refuses subsequent guest edits without overwriting them (7.416708ms)
+✔ not needing accommodation is independent of seating and can recover existing stay (0.981292ms)
+✔ online and foreground hints coalesce while refresh runs; cleanup removes all wakeups (29.584042ms)
+✔ stopping immediately after an online event cancels its queued refresh (1.546625ms)
+✔ project session preserves offline edits in insertion order and only resumes on confirmation (24.157209ms)
+✔ local persistence failure does not change displayed state or submit the command (1.724334ms)
+✔ old-epoch drafts remain visible and never replay into a restored project (11.708584ms)
+✔ repository through authenticated gateway handles full response envelopes and refuses cross-project transport (10.606042ms)
+✔ existing page actions save through repository and preserve attendance independently of seating (89.685667ms)
+✔ page forms receive durable-save result and can retry after local storage failure (12.519584ms)
+✔ recycle list and restore traverse authenticated gateway and durable repository (11.734625ms)
+✔ successful refresh after initial network failure initializes the editable session (2.808ms)
+✔ another tab cannot silently submit a reopened draft and refresh discovers shared pending work (5.848375ms)
+✔ permission loss clears visible state, stops polling requests, and explicit reauthorization preserves operation ID (5.383542ms)
+✔ offline consecutive note edits project revisions locally and synchronize without self-conflict (5.011333ms)
+✔ oversized UTF-8 input is rejected before persistence and does not poison the project queue (2.253833ms)
+✔ a foreign draft inserted between flush reads still requires explicit approval (2.470209ms)
+✔ denial from history reads also clears all visible remote state immediately (1.53625ms)
+✔ discarding a conflict reloads cloud state and unblocks new edits without undoing another client (8.532209ms)
+✔ discard refuses an unresolved result but clears a confirmed lost response without undoing the write (6.750292ms)
+✔ discard is atomic and refuses drafts added during remote verification (3.332791ms)
+✔ discard only touches the reviewed project, keeps stale-epoch drafts until explicit discard, and propagates persistence failure (3.1435ms)
+✔ queued form commands keep their original epoch when refresh observes a restored project (1.079166ms)
+✔ page attendance and side are independent: declining releases seating but keeps lodging (16.858375ms)
+✔ exports freeze confirmed data separately from local optimistic edits and retain provenance (93.314708ms)
+✔ same-session deletion is projected but reopened queues still require review (3.394625ms)
+✔ authorization denial clears access to both confirmed and draft exports (1.235791ms)
+✔ same-page reconnect auto-flushes approved drafts in order using original operation IDs (3.747916ms)
+✔ auto reconnect resolves a lost response by receipt without reexecuting the write (2.577625ms)
+✔ refresh never grants approval to reopened drafts or retries terminal conflicts (4.867208ms)
+✔ rejected offline batch shows confirmed cloud state and retains frozen dependent drafts (6.61125ms)
+✔ definitive rejection with failed refresh falls back to confirmed copy, never optimistic data (1.694583ms)
+✔ authorization lost while refreshing a rejected command hides confirmed and optimistic copies (1.674792ms)
+✔ reopened offline counts durable drafts without showing cached arrangements or sending (1.538708ms)
+✔ paused reopened drafts recheck access and hide arrangements on revocation without replay (1.790625ms)
+✔ conflicted paused queue still checks authorization and detects a restored epoch (2.687833ms)
+✔ explicit current-value comparison reads cloud without replaying paused drafts (1.802375ms)
+✔ current-value comparison rechecks authorization and cannot return a retained shared cache after revocation (0.87675ms)
+✔ retain-before-reedit preserves original conflicts and submits new intent with a new ID (7.642583ms)
+✔ retain-before-reedit cannot bypass unknown results (1.385125ms)
+✔ a retained version-name form uses its original operation ID after command success and failed form cleanup (3.705416ms)
+✔ retention boundary deletes only expired body, preserves calendar metadata, manual versions and live state (5.41ms)
+✔ expired recycle cleanup removes old epoch index entry and rolls back on index failure (0.464709ms)
+✔ batch stays bounded, advances past failures and later retries without deleting unapproved projects (0.261459ms)
+✔ expiry scan skips matching history-index arrays while advancing the bounded cursor (0.26975ms)
+✔ seating export keeps geometry, attendance totals and provenance in one detached snapshot (3.86425ms)
+✔ seat labels never drop numeric suffixes, whitespace or Unicode characters (2.308584ms)
+✔ Planner adapter enforces explicit project, exact counts, stable order, capped pagination and never mutates (3.972042ms)
+✔ Seating full document backup decrypts into conversion without stripping scope, timestamps or original unknown fields (4.036292ms)
+✔ Seating adapters and converter reject wrong ownership, mismatched timestamps, missing and duplicate documents (0.682458ms)
+✔ source backup CLI defaults to no network and rejects unsafe key/output before acquiring cloud credentials (245.337625ms)
+✔ actual Supabase client CLI encrypts a scoped localhost response and verifies the saved envelope without plaintext output (186.132209ms)
+✔ Fusion independent backup includes complete permission/epoch/note/history/recycle/receipt data and capped exact-count pages (2.201792ms)
+ℹ tests 240
+ℹ suites 0
+ℹ pass 240
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3239.279875
+
+> wedding-planner@0.0.0 test:scale
+> node --experimental-strip-types scripts/fusion/validate-scale.ts
+
+{
+  "evidence": "local-memory-store-only",
+  "fixture": {
+    "guests": 150,
+    "tables": 15,
+    "rooms": 30,
+    "notes": 12,
+    "noteCharactersEach": 2002,
+    "changedDays": 90,
+    "firstDay": "2026-07-07",
+    "lastDay": "2026-10-04"
+  },
+  "serializedBytes": {
+    "currentCore": 46516,
+    "notes": 73997,
+    "singleDailyBody": 120884,
+    "dailyBodies90": 10879722,
+    "historyIndex90": 33832,
+    "maximumHistoryPage": 7566,
+    "largestCommandEnvelope": 6366,
+    "exports": {
+      "guests": 64930,
+      "rooms": 25030
+    }
+  },
+  "checks": {
+    "dailyVersions": 90,
+    "metadataPages": 5,
+    "restoreCoreAndNotesEqual": true,
+    "safetyVersionCreated": true,
+    "credentialsUnchanged": true,
+    "workbookRowsAndLeadingZerosAndCrossYearDates": true,
+    "seated": 150
+  }
+}
+
+> wedding-planner@0.0.0 typecheck:fusion
+> tsc -p tsconfig.fusion.json
+
+
+> wedding-planner@0.0.0 lint
+> oxlint
+
+
+> wedding-planner@0.0.0 build
+> tsc -b && vite build
+
+vite v8.1.5 building client environment for production...
+[2Ktransforming...✓ 1994 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                     0.46 kB │ gzip:   0.29 kB
+dist/assets/index-COvXgv2Y.css     42.82 kB │ gzip:   9.03 kB
+dist/assets/index-C0fxFWo4.js   1,950.08 kB │ gzip: 551.55 kB
+
+✓ built in 349ms
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+
+> wedding-planner@0.0.0 build:fusion-check
+> node scripts/fusion/validate-build.mjs
+
+vite v8.1.5 building client environment for production...
+[2Ktransforming...✓ 1994 modules transformed.
+
+(!) outDir /var/folders/z6/ljnwhkp957n5fbs4qsyvr5dc0000gn/T/planner-fusion-build-aHJXuf is not inside project root and will not be emptied.
+Use --emptyOutDir to override.
+
+rendering chunks...
+computing gzip size...
+../../../../../../var/folders/z6/ljnwhkp957n5fbs4qsyvr5dc0000gn/T/planner-fusion-build-aHJXuf/index.html                     0.46 kB │ gzip:   0.30 kB
+../../../../../../var/folders/z6/ljnwhkp957n5fbs4qsyvr5dc0000gn/T/planner-fusion-build-aHJXuf/assets/index-COvXgv2Y.css     42.82 kB │ gzip:   9.03 kB
+../../../../../../var/folders/z6/ljnwhkp957n5fbs4qsyvr5dc0000gn/T/planner-fusion-build-aHJXuf/assets/index-BF3gmGd4.js   1,984.76 kB │ gzip: 561.78 kB
+
+✓ built in 413ms
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.

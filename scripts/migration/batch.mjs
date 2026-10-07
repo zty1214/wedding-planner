@@ -10,10 +10,7 @@ const digest = value => createHash('sha256').update(canonicalJson(value)).digest
 export async function migrationBatch(store, artifact, target, action = 'dry-run') {
   const reconciliation = reconcileConversion(artifact)
   if (!reconciliation.passed) throw Error('CONVERSION_NOT_RECONCILED')
-  // Full transactional readback is bounded by the platform's 100-operation limit.
-  const withinTransactionBudget = artifact.candidate.notes.length <= 40
-  if (action === 'dry-run') return { mode: 'dry-run', reconciliation, withinTransactionBudget, maximumNotes: 40 }
-  if (!withinTransactionBudget) throw Error('MIGRATION_NOTE_TRANSACTION_LIMIT')
+  if (action === 'dry-run') return { mode: 'dry-run', reconciliation, transactionMode: 'bounded-units-closed-target', totalUnits: artifact.candidate.notes.length + 1 }
   if (!['prepare', 'import', 'verify', 'publish'].includes(action)) throw Error('INVALID_MIGRATION_ACTION')
   if (!target?.environmentId || !acceptsBusinessProject(target.projectId ?? '') || !target.sourceEnvironmentId || target.environmentId === target.sourceEnvironmentId
     || store.environmentId !== target.environmentId || target.isolated !== true || !target.access || !/^[a-f0-9]{64}$/.test(target.access.managementHash)
@@ -23,48 +20,71 @@ export async function migrationBatch(store, artifact, target, action = 'dry-run'
     supplementalConfigHash: artifact.supplementalConfigHash, targetHash: artifact.targetHash, access: target.access }
   const bindingHash = digest(binding), epoch = 'migration_' + bindingHash, units = [['core', artifact.candidate.data], ...artifact.candidate.notes.map(n => [n.id, n])]
   const scoped = body => store.run(target.projectId, epoch, body)
-  async function guard(tx, metadata) {
+  async function guard(tx, metadata, selected = []) {
     if (!metadata || metadata.bindingHash !== bindingHash) throw Error('MIGRATION_BINDING_MISMATCH')
     const published = await tx.published()
     if (metadata.state === 'published') {
       if (!published || digest(published) !== digest({ dataEpoch: epoch, snapshotRevision: 0, data: artifact.candidate.data, access: target.access, notesOrder: artifact.candidate.notes.map(n => n.id) })) throw Error('TARGET_MODIFIED')
     } else if (published) throw Error('TARGET_NOT_EMPTY')
-    for (const [key, value] of units) {
+    for (const [key, value] of selected) {
       const existing = await tx.unit(key)
       if (existing !== null && digest(existing) !== digest(value)) throw Error('TARGET_MODIFIED')
       if (metadata.completed.includes(key) && existing === null) throw Error('TARGET_UNIT_MISSING')
+      if (!metadata.completed.includes(key) && existing !== null) throw Error('TARGET_NOT_EMPTY')
     }
   }
   const summary = metadata => ({ mode: 'trial-migration', state: metadata.state, completedUnits: metadata.completed.length,
     totalUnits: units.length, bindingHash, sourceHash: artifact.sourceHash, targetHash: artifact.targetHash })
-  if (action === 'prepare') return scoped(async tx => {
-    const old = await tx.metadata()
-    if (old) { await guard(tx, old); return summary(old) }
-    if (await tx.published()) throw Error('TARGET_NOT_EMPTY')
-    for (const [key] of units) if (await tx.unit(key) !== null) throw Error('TARGET_NOT_EMPTY')
-    const metadata = { bindingHash, state: 'prepared', completed: [], failureCode: null }
-    await tx.putMetadata(metadata); return summary(metadata)
-  })
+  // No browser ACL exists while staging. Operators must exclude concurrent direct
+  // administrative writes, as with isolated disaster recovery. Each transaction
+  // rechecks the reservation and publication roots; all units are read back.
+  async function inspect() {
+    const actual = { data: null, notes: [] }
+    for (const [key, value] of units) {
+      const existing = await scoped(async tx => {
+        const metadata = await tx.metadata(); await guard(tx, metadata, [[key, value]])
+        return tx.unit(key)
+      })
+      if (key === 'core') actual.data = existing
+      else if (existing !== null) actual.notes.push(existing)
+    }
+    return actual
+  }
   try {
+    if (action === 'prepare') {
+      await scoped(async tx => {
+        const old = await tx.metadata()
+        if (old) { await guard(tx, old); return }
+        if (await tx.published() || await tx.unit('core') !== null) throw Error('TARGET_NOT_EMPTY')
+        await tx.putMetadata({ bindingHash, state: 'prepared', completed: [], failureCode: null })
+      })
+      await inspect()
+      return scoped(async tx => { const metadata = await tx.metadata(); await guard(tx, metadata); return summary(metadata) })
+    }
     if (action === 'import') {
+      // Check the complete existing target before writing any new unit.
+      await inspect()
       for (const [key, value] of units) await scoped(async tx => {
-        const metadata = await tx.metadata(); await guard(tx, metadata)
+        const metadata = await tx.metadata(); await guard(tx, metadata, [[key, value]])
         if (['verified', 'published'].includes(metadata.state)) return
         if (!metadata.completed.includes(key)) {
           await tx.putUnit(key, value); metadata.completed.push(key)
         }
         metadata.state = 'importing'; metadata.failureCode = null; await tx.putMetadata(metadata)
       })
+      return scoped(async tx => { const metadata = await tx.metadata(); await guard(tx, metadata); return summary(metadata) })
     }
+    const before = await scoped(async tx => {
+      const metadata = await tx.metadata(); await guard(tx, metadata)
+      if (metadata.completed.length !== units.length) throw Error('INCOMPLETE_MIGRATION')
+      return metadata
+    })
+    const actual = await inspect(), report = reconcileConversion(artifact, actual)
+    if (!report.passed) throw Error('READBACK_RECONCILIATION_FAILED')
     return await scoped(async tx => {
       const metadata = await tx.metadata(); await guard(tx, metadata)
-      if (metadata.state === 'published') return summary(metadata)
-      if (action === 'import') return summary(metadata)
-      if (metadata.completed.length !== units.length) throw Error('INCOMPLETE_MIGRATION')
-      const actual = { data: await tx.unit('core'), notes: [] }
-      for (const n of artifact.candidate.notes) actual.notes.push(await tx.unit(n.id))
-      const report = reconcileConversion(artifact, actual)
-      if (!report.passed) throw Error('READBACK_RECONCILIATION_FAILED')
+      if (digest(metadata) !== digest(before)) throw Error('MIGRATION_STATE_CHANGED')
+      if (metadata.state === 'published') return { ...summary(metadata), reconciliation: report }
       if (action === 'verify') { metadata.state = 'verified'; metadata.failureCode = null }
       else {
         if (metadata.state !== 'verified') throw Error('VERIFIED_BATCH_REQUIRED')

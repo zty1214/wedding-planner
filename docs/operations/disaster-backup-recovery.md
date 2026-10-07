@@ -24,7 +24,7 @@
 
 prepared/importing/failed/verified/published批次绑定目标环境/集合、来源哈希和批次。导入逐文档事务，已写内容不同则拒绝，中断可核对续做；prepare要求项目范围为空。verify扫描全部四类目标，并排除唯一内部恢复控制记录，按ID和全部JSON字段与源文档核对。publish再次全量回读后，原子安装current和access两根记录；未完成时没有访问入口。目标在导入/核对期间保持关闭，管理员不能并发直接改集合；所有支持的恢复写入都通过同一批次。正常浏览器无法修改未开放项目，已开放项目的人工编辑会使再次导入/发布拒绝，不回写源库。
 
-[平台事务限制](https://docs.cloudbase.net/database/transaction)为100操作/30秒且仅doc，恢复扫描位于事务外，写入逐文档，最终根记录原子提交。本地209文档演练每次事务不足20操作；这不是目标云端时延证明。另一个Supabase/Seating试迁工具保留原子内容对账，当前限制40条笔记，dry-run明确报告预算；超过时完整数据保留并拒绝写入，必须另处理分批对账，不丢弃笔记，也不因此宣称所有规模都可迁移。
+[平台事务限制](https://docs.cloudbase.net/database/transaction)为100操作/30秒且仅doc，恢复扫描位于事务外，写入逐文档，最终根记录原子提交。本地209文档演练每次事务不足20操作；这不是目标云端时延证明。Supabase/Seating试迁工具同样改为有界单元事务与分批完整对账，取消旧40条笔记限制；200条笔记完整回读测试每事务不足20操作，仍须在关闭且排除其他管理员直写的隔离目标执行。不声称本地规模测试已证明云端时延或所有数据库文档大小边界。
 
 ```sh
 node --experimental-strip-types scripts/migration/fusion-recovery-cli.mjs --input /CONTROLLED_BACKUPS/fusion.encrypted.json --key-file /CONTROLLED_KEYS/key

@@ -116,17 +116,8 @@ test('batch CLI requires explicit action, apply and isolated target; default doe
   } finally { await rm(dir, { recursive: true, force: true }) }
 })
 
-test('trial migration refuses notes beyond the atomic transaction budget while dry-run preserves the complete candidate', async () => {
-  const a = artifact()
-  const source = JSON.parse(a.provenance.rawJson); source.notes = Array.from({ length: 41 }, (_, i) => ({ ...source.notes[0], id: 'long-note-' + i }))
-  const many = convertPlannerSource(JSON.stringify(source), { sourceProjectId: a.sourceProjectId, batchId: a.batchId })
-  assert.equal(many.candidate.notes.length, 41)
-  const dry = await migrationBatch(null, many); assert.equal(dry.withinTransactionBudget, false); assert.equal(dry.maximumNotes, 40)
-  await assert.rejects(run(memory(), many, 'prepare'), /MIGRATION_NOTE_TRANSACTION_LIMIT/)
-})
-
-test('forty-note trial stays below the documented 100 operations in every adapter transaction', async () => {
-  const source = JSON.parse(artifact().provenance.rawJson); source.notes = Array.from({ length: 40 }, (_, i) => ({ ...source.notes[0], id: 'bounded-note-' + i }))
+test('two hundred notes migrate completely with fewer than twenty operations in every adapter transaction', async () => {
+  const source = JSON.parse(artifact().provenance.rawJson); source.notes = Array.from({ length: 200 }, (_, i) => ({ ...source.notes[0], id: 'bounded-note-' + i }))
   const a = convertPlannerSource(JSON.stringify(source), { sourceProjectId: 'fictional', batchId: 'bounded-batch' })
   let docs = new Map(), maximum = 0
   const db = { config: { envName: target.environmentId }, async runTransaction(body) {
@@ -138,5 +129,25 @@ test('forty-note trial stays below the documented 100 operations in every adapte
   } }
   const store = cloudBaseMigrationStore(db, { access: 'fictional_access', current: 'fictional_current' })
   for (const action of ['prepare', 'import', 'verify', 'publish']) await run(store, a, action)
-  assert.ok(maximum <= 92); assert.ok(maximum >= 80)
+  assert.ok(maximum < 20);
+  const root = docs.get('fictional_current:' + documentKey(target.projectId)).payload
+  const index = docs.get('fictional_current:' + documentKey(target.projectId, 'notes', root.dataEpoch)).payload
+  assert.equal(index.order.length, 200)
+  for (const note of a.candidate.notes) assert.deepEqual(docs.get('fictional_current:' + documentKey(target.projectId, 'note', root.dataEpoch, note.id)).payload, note)
+  assert.equal((await migrationBatch(null, a)).totalUnits, 201)
+})
+
+test('large trial interrupted near the end resumes without opening an incomplete project or duplicating notes', async () => {
+  const source = JSON.parse(artifact().provenance.rawJson)
+  source.notes = Array.from({ length: 150 }, (_, i) => ({ ...source.notes[0], id: 'resume-note-' + i, content: '完整正文' + i }))
+  const a = convertPlannerSource(JSON.stringify(source), { sourceProjectId: 'fictional', batchId: 'large-resume-batch' }), store = memory()
+  await run(store, a, 'prepare'); store.control.failUnit = a.candidate.notes[140].id
+  await assert.rejects(run(store, a, 'import'), /SIMULATED_FAILURE/)
+  assert.equal(store.state.get(target.projectId).published, null)
+  assert.equal(store.state.get(target.projectId).metadata.completed.length, 141)
+  await assert.rejects(run(store, a, 'publish'), /INCOMPLETE_MIGRATION/)
+  await run(store, a, 'import'); assert.equal(store.control.writes, 151)
+  await run(store, a, 'verify'); await run(store, a, 'publish')
+  assert.equal(store.state.get(target.projectId).published.notesOrder.length, 150)
+  await run(store, a, 'import'); assert.equal(store.control.writes, 151)
 })

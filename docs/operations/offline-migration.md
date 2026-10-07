@@ -31,7 +31,7 @@ Seating使用source-system=cloudbase-wedding，config-file提供layoutDecision�
 
 批次保留prepared/importing/failed/verified/published状态。绑定环境、目标项目、来源/配置/目标哈希、批次及双链接摘要；不同绑定拒绝复用目标。每个core/笔记单元分别提交，记录已完成单元；恢复先核对已提交内容，重复运行不新增单元。目标已有人改动、缺失已提交单元或已有项目入口时拒绝覆盖。失败标记只写脱敏代码，不写源内容。
 
-verify读取完整core及所有笔记进行独立对账。publish再次核对全部内容，只有verified批次可原子安装current、笔记索引及access；未完成目标没有access，浏览器不可读。目标项目ID必须使用业务入口支持的fusion-created/fusion-migrated UUID。试迁当前受单事务100操作预算约束，最多40条笔记；超过时dry-run标出预算失败，写入拒绝并保留完整源，不截断。published只表示**试迁副本完成受控开放**，不表示正式发布。已发布副本发生修改后禁止重新覆盖；如需恢复，使用已认证解密的原始备份、重新转换，在全新目标项目和批次重建。
+verify读取完整core及所有笔记进行独立对账。publish再次核对全部内容，只有verified批次可原子安装current、笔记索引及access；未完成目标没有access，浏览器不可读。目标项目ID必须使用业务入口支持的fusion-created/fusion-migrated UUID。试迁已改为逐单元小事务与完整分批回读，不再有40条笔记上限。每次事务重新核对批次绑定和权限根；prepare保留关闭目标，import前全量检查已有单元，verify/publish逐项完整对账，最终事务原子安装current/笔记索引/access。目标数据库须保持普通客户端直接拒绝，操作者必须在prepare至publish期间排除其他管理员直接写入；跨事务回读不提供对并发管理员写入的原子快照保证，不能在有人直接改库时开放目标。published只表示**试迁副本完成受控开放**，不表示正式发布。已发布副本发生修改后禁止重新覆盖；如需恢复，使用已认证解密的原始备份、重新转换，在全新目标项目和批次重建。
 
 `cloudbase-batch-store.mjs`按现有网关文档键与payload结构实现，事务内串行操作；数据库SDK的实际envName必须与指定目标相同，目标环境必须与源环境分离。集合名称必须显式填写。生产网关当前仍为探针集合实现，独立预发的集合/函数配置和资源限额必须实际验证后才能使用，不能把适配器模拟测试当作云端通过。
 
