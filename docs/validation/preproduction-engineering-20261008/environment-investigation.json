@@ -1,0 +1,52 @@
+{
+  "observedAt": "2026-10-07T18:13:02.647867+00:00",
+  "sourceEnvironmentId": "dev-d1gh3jw1gdf06af22",
+  "region": "ap-shanghai",
+  "sourceGateway": {
+    "name": "planner-fusion-gateway-probe",
+    "runtime": "Nodejs20.19",
+    "memoryMb": 256,
+    "timeoutSeconds": 20,
+    "handler": "index.main",
+    "status": "Active",
+    "creationDailyLimit": 200,
+    "eventLogFlags": {
+      "LOG_CONTENT_ENABLED": "false",
+      "LOG_EVENT_CONTEXT": "false",
+      "LOG_HEADER_BODY": "false"
+    }
+  },
+  "trialQuote": {
+    "package": "baas_trial",
+    "periodMonths": 1,
+    "totalFen": 0,
+    "realTotalFen": 0
+  },
+  "trialCreation": {
+    "requestedAlias": "wedding-preprod",
+    "renewFlag": "NOTIFY_AND_MANUAL_RENEW",
+    "enableOverrun": "FALSE",
+    "code": "InvalidParameter",
+    "reason": "CreateDealError: state check failed",
+    "confirmedCreated": false,
+    "lastRequestId": "7c1c38c5-f5ad-4f69-839f-e9ea81a98d85",
+    "specificFailingState": "NOT_DETERMINED"
+  },
+  "personalQuote": {
+    "package": "baas_personal",
+    "periodMonths": 1,
+    "totalFen": 3990,
+    "realTotalFen": 1990,
+    "currency": "CNY",
+    "paymentAuthorized": false
+  },
+  "environmentQuotaReadback": {
+    "CurrentEnvNum": 1,
+    "MaxEnvNum": 50,
+    "CurrentFreeTrialNum": 0,
+    "MaxFreeTrialNum": 0,
+    "CurrentFreeEnvNum": 0,
+    "MaxFreeEnvNum": 1
+  },
+  "productionChange": false
+}

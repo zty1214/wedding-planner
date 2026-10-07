@@ -91,7 +91,15 @@ export function convertPlannerSource(rawJson, options) {
   return finish(c)
 }
 export function convertSeatingSource(rawJson, options) {
-  const c = begin(rawJson, 'cloudbase-wedding', options), { source, data } = c
+  const c = begin(rawJson, 'cloudbase-wedding', options), { data } = c
+  let source = c.source
+  if (Object.hasOwn(source, 'weddings')) {
+    const row = source.weddings?.[0]
+    if (!Array.isArray(source.weddings) || source.weddings.length !== 1 || row?._id !== options.sourceProjectId
+      || row.projectId !== options.sourceProjectId || row.schemaVersion !== 1 || !row.wedding
+      || typeof row.updatedAt !== 'number' || !Number.isFinite(row.updatedAt) || row.wedding.updatedAt !== row.updatedAt) throw Error('SOURCE_PROJECT_OR_VERSION_MISMATCH')
+    source = row.wedding
+  }
   if (source.version !== 1 || !source.tables || !source.guests || !source.canvas) throw Error('UNSUPPORTED_SEATING_SCHEMA')
   c.register('wedding', options.sourceProjectId, 0)
   const tables = Object.entries(source.tables), guests = Object.entries(source.guests)

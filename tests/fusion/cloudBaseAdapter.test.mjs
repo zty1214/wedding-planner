@@ -10,14 +10,14 @@ const { EJSON } = createRequire(require.resolve('@cloudbase/database'))('bson')
 
 // Actual installed SDK serialization/transaction machinery; only its HTTP requester is replaced.
 // This checks the SDK boundary, not the remote service or security rules.
-async function withTransport(run, failure) {
+async function withTransport(run, failure, collections = PROBE_COLLECTIONS) {
   const db = cloudbase.init({ env: 'local-fixture-only' }).database()
   const original = Db.reqClass
   const committed = new Map()
   const calls = []
   let working
   function seed(kind, payload) {
-    committed.set(`${PROBE_COLLECTIONS[kind]}/${documentKey('a')}`, { _id: documentKey('a'), projectId: 'a', payload })
+    committed.set(`${collections[kind]}/${documentKey('a')}`, { _id: documentKey('a'), projectId: 'a', payload })
   }
   seed('access', { collaborationHash: hashSecret('collab-fixture'), managementHash: hashSecret('manager-fixture') })
   seed('current', { dataEpoch: 'e1', snapshotRevision: 0, data: 0 })
@@ -31,7 +31,7 @@ async function withTransport(run, failure) {
         return {}
       }
       assert.equal(args.transactionId, 'fixture-tx')
-      assert.ok(Object.values(PROBE_COLLECTIONS).includes(args.collectionName))
+      assert.ok(Object.values(collections).includes(args.collectionName))
       if (failure?.(api, args)) return { code: 'FIXTURE_DATABASE_FAILURE', message: 'must not become a missing record' }
       const id = EJSON.parse(args.query)._id
       const key = `${args.collectionName}/${id}`
@@ -47,7 +47,7 @@ async function withTransport(run, failure) {
       throw Error(`UNEXPECTED_SDK_API:${api}`)
     }
   }
-  try { await run({ store: cloudBaseTransactionStore(db), committed, calls }) }
+  try { await run({ store: cloudBaseTransactionStore(db, collections), committed, calls }) }
   finally { Db.reqClass = original }
 }
 const command = { projectId: 'a', dataEpoch: 'e1', operationId: 'o1', commandVersion: 1, type: 'increment', payload: null, expectedRevisions: {} }
@@ -120,4 +120,16 @@ test('SDK access decoder preserves credential revision across transactions', asy
     await store.run('a', async tx => { const access = await tx.access(); await tx.putAccess({ ...access, revision: 3 }) })
     assert.equal(await store.run('a', async tx => (await tx.access()).revision), 3)
   })
+})
+
+test('installed SDK keeps explicit business collections separate from the original probe namespace', async () => {
+  const collections = Object.fromEntries(Object.keys(PROBE_COLLECTIONS).map(k => [k, 'fictional_business_' + k]))
+  await withTransport(async ({ store, committed }) => {
+    await serviceFor(store).execute(command, 'collab-fixture')
+    assert.ok([...committed.keys()].every(key => key.startsWith('fictional_business_')))
+    assert.equal(committed.get(collections.current + '/' + documentKey('a')).payload.data, 1)
+  }, undefined, collections)
+  const db = cloudbase.init({ env: 'local-fixture-only' }).database()
+  assert.throws(() => cloudBaseTransactionStore(db, { ...collections, access: collections.current }), /INVALID_FUSION_COLLECTIONS/)
+  assert.throws(() => cloudBaseTransactionStore(db, { extra: 'x', current: 'y', receipts: 'z', activity: 'a' }), /INVALID_FUSION_COLLECTIONS/)
 })

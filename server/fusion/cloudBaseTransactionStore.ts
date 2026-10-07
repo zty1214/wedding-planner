@@ -63,12 +63,16 @@ export const documentKey = (...parts: string[]) => hashSecret(canonicalJson(part
 /** Isolated P1a collections only; never reads/writes the source project's weddings collection.
  * Keep operations inside a transaction sequential: live parallel reads fail with TransactionBusy.
  */
-export function cloudBaseTransactionStore(db: Database): TransactionStore {
+export type FusionCollections = Record<keyof typeof PROBE_COLLECTIONS, string>
+export function cloudBaseTransactionStore(db: Database, collections: FusionCollections = PROBE_COLLECTIONS): TransactionStore {
+  if (['access', 'current', 'receipts', 'activity'].some(key => typeof collections[key as keyof FusionCollections] !== 'string')
+    || Object.values(collections).length !== 4 || new Set(Object.values(collections)).size !== 4
+    || Object.values(collections).some(name => !/^[A-Za-z][A-Za-z0-9_]{0,100}$/.test(name))) throw Error('INVALID_FUSION_COLLECTIONS')
   return {
     async run<T>(projectId: string, body: (tx: Transaction) => Promise<T>): Promise<T> {
       return db.runTransaction(async (sdkTransaction: SDKDatabase.Transaction) => {
         const ref = (kind: keyof typeof PROBE_COLLECTIONS, parts: string[]) =>
-          sdkTransaction.collection(PROBE_COLLECTIONS[kind]).doc(documentKey(projectId, ...parts))
+          sdkTransaction.collection(collections[kind]).doc(documentKey(projectId, ...parts))
         async function get(kind: keyof typeof PROBE_COLLECTIONS, parts: string[]): Promise<unknown | null> {
           const result = response(await ref(kind, parts).get())
           // Document get INSIDE node-sdk transaction returns one document or null.
@@ -128,7 +132,7 @@ export function cloudBaseTransactionStore(db: Database): TransactionStore {
           removeRecycle: async (epoch, id) => { response(await ref('current', ['recycle', epoch, id]).remove()) },
           putAccess: value => put('access', [], value),
           reserveCreation: async (day, limit) => {
-            const quota = sdkTransaction.collection(PROBE_COLLECTIONS.access).doc(documentKey('__creation_quota__', day))
+            const quota = sdkTransaction.collection(collections.access).doc(documentKey('__creation_quota__', day))
             const r = response(await quota.get())
             const doc = r.data === null ? null : record(r.data)
             if (doc && doc.projectId !== '__creation_quota__') throw Error('INVALID_CREATION_QUOTA')

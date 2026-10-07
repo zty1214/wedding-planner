@@ -1,0 +1,12 @@
+
+> wedding-planner@0.0.0 test:e2e
+> node scripts/fusion/main-flow-e2e-run.mjs
+
+Artifacts: /var/folders/z6/ljnwhkp957n5fbs4qsyvr5dc0000gn/T/planner-main-flow-e2e-HrvGV0
+PASS create-project
+PASS guests-leading-zero
+PASS seating-visible-canvas
+PASS stay-different-nights
+PASS notes-and-refresh
+PASS same-context-shared-queue
+PASS independent-context-local-collaboration

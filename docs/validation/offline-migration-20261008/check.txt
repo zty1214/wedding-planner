@@ -290,7 +290,8 @@
 > tsc -b && vite build
 
 vite v8.1.5 building client environment for production...
-[2Ktransforming...✓ 1994 modules transformed.
+[2K
+transforming...✓ 1994 modules transformed.
 rendering chunks...
 computing gzip size...
 dist/index.html                     0.46 kB │ gzip:   0.29 kB
@@ -298,7 +299,7 @@ dist/assets/index-COvXgv2Y.css     42.82 kB │ gzip:   9.03 kB
 dist/assets/index-C0fxFWo4.js   1,950.08 kB │ gzip: 551.55 kB
 
 ✓ built in 346ms
-[plugin builtin:vite-reporter] 
+[plugin builtin:vite-reporter]
 (!) Some chunks are larger than 500 kB after minification. Consider:
 - Using dynamic import() to code-split the application
 - Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
@@ -308,7 +309,8 @@ dist/assets/index-C0fxFWo4.js   1,950.08 kB │ gzip: 551.55 kB
 > node scripts/fusion/validate-build.mjs
 
 vite v8.1.5 building client environment for production...
-[2Ktransforming...✓ 1994 modules transformed.
+[2K
+transforming...✓ 1994 modules transformed.
 
 (!) outDir /var/folders/z6/ljnwhkp957n5fbs4qsyvr5dc0000gn/T/planner-fusion-build-4JG1SZ is not inside project root and will not be emptied.
 Use --emptyOutDir to override.
@@ -320,7 +322,7 @@ computing gzip size...
 ../../../../../../var/folders/z6/ljnwhkp957n5fbs4qsyvr5dc0000gn/T/planner-fusion-build-4JG1SZ/assets/index-BF3gmGd4.js   1,984.76 kB │ gzip: 561.78 kB
 
 ✓ built in 350ms
-[plugin builtin:vite-reporter] 
+[plugin builtin:vite-reporter]
 (!) Some chunks are larger than 500 kB after minification. Consider:
 - Using dynamic import() to code-split the application
 - Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting

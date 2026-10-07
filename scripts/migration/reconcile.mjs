@@ -21,7 +21,15 @@ export function reconcileConversion(artifact, actual = artifact.candidate) {
   const issues = [], add = (code, entityType = 'project', index = null, field = null) => issues.push({ code, entityType, index, field })
   if (artifact.format !== 'planner-offline-conversion-v1' || !artifact.sourceProjectId || !artifact.batchId
     || !['supabase-planner', 'cloudbase-wedding'].includes(artifact.sourceSystem)) throw Error('INVALID_CONVERSION_ARTIFACT')
-  const raw = artifact.provenance.rawJson, source = JSON.parse(raw), config = artifact.provenance.supplementalConfig
+  const raw = artifact.provenance.rawJson, config = artifact.provenance.supplementalConfig
+  let source = JSON.parse(raw)
+  if (artifact.sourceSystem === 'cloudbase-wedding' && Object.hasOwn(source, 'weddings')) {
+    const row = source.weddings?.[0]
+    if (!Array.isArray(source.weddings) || source.weddings.length !== 1 || row?._id !== artifact.sourceProjectId
+      || row.projectId !== artifact.sourceProjectId || row.schemaVersion !== 1 || !row.wedding
+      || typeof row.updatedAt !== 'number' || !Number.isFinite(row.updatedAt) || row.updatedAt !== row.wedding.updatedAt) throw Error('SOURCE_PROJECT_OR_VERSION_MISMATCH')
+    source = row.wedding
+  }
   if (hash(raw) !== artifact.sourceHash) add('SOURCE_HASH_MISMATCH')
   if (hash(JSON.stringify(config)) !== artifact.supplementalConfigHash) add('SUPPLEMENTAL_HASH_MISMATCH')
   if (hash(JSON.stringify(artifact.candidate)) !== artifact.targetHash) add('CANDIDATE_HASH_MISMATCH')
