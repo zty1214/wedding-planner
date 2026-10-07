@@ -70,7 +70,7 @@ export default function GuestsPage() {
   const filterGroups = ['全部', ...allGroups]
 
   return (
-    <div className="h-full flex flex-col p-6 max-w-4xl mx-auto">
+    <div className="h-full min-w-0 [overflow-wrap:anywhere] overflow-y-auto sm:flex sm:flex-col p-3 sm:p-6 max-w-4xl mx-auto">
       {/* Header with export */}
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-base font-semibold text-gray-800">宾客名单</h2>
@@ -84,7 +84,7 @@ export default function GuestsPage() {
       </div>
 
       {/* Stats */}
-      <div className="flex gap-4 mb-6">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6">
         <div className="bg-white rounded-xl p-4 flex-1 border border-gray-100">
           <div className="text-2xl font-bold text-gray-800">{guests.length}</div>
           <div className="text-sm text-gray-500">总宾客数</div>
@@ -115,7 +115,7 @@ export default function GuestsPage() {
       </section>}
 
       {/* Add form */}
-      <div className="bg-white rounded-xl p-4 border border-gray-100 mb-4">
+      <div className="bg-white rounded-xl p-4 border border-gray-100 mb-4 [&_input]:min-w-0 [&_input]:max-w-full [&_select]:min-w-0 [&_select]:max-w-full">
         {fusion ? <FusionGuestForm key={editingId ?? 'new'} guestId={editingId ?? undefined} onClose={editingId ? () => setEditingId(null) : undefined} groups={allGroups} onAddGroup={() => setShowAddGroup(true)} /> : (
         <div className="flex gap-3 flex-wrap items-center">
           <input
@@ -160,7 +160,7 @@ export default function GuestsPage() {
         )}
 
         {/* Custom group input */}
-        {showAddGroup && fusion && <div className="flex gap-2 mt-3 pt-3 border-t">
+        {showAddGroup && fusion && <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t">
           <FusionFieldEditor kind="group" entityId="config" label="新类别名称" value="" submitLabel="添加类别" />
           <button onClick={() => setShowAddGroup(false)} className="text-sm text-gray-500">关闭</button>
         </div>}
@@ -192,7 +192,7 @@ export default function GuestsPage() {
 
       {/* Filters */}
       <div className="flex items-center gap-3 mb-4 flex-wrap">
-        <div className="relative flex-1 max-w-xs">
+        <div className="relative flex-1 min-w-[160px] max-w-xs">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           <input
             value={search}
@@ -201,12 +201,12 @@ export default function GuestsPage() {
             className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-200"
           />
         </div>
-        <div className="flex gap-1 flex-wrap">
+        <div className="min-w-0 max-w-full flex gap-1 flex-wrap">
           {filterGroups.map((g) => (
             <button
               key={g}
               onClick={() => setFilterGroup(g)}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+              className={`max-w-full break-words [overflow-wrap:anywhere] px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
                 filterGroup === g
                   ? 'bg-[#d4728a] text-white'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -228,7 +228,7 @@ export default function GuestsPage() {
         {filtered.map((guest) => (
           <div
             key={guest.id}
-            className="bg-white rounded-lg px-4 py-3 border border-gray-100 flex items-center gap-3 group"
+            className="bg-white rounded-lg px-4 py-3 border border-gray-100 flex flex-wrap sm:flex-nowrap items-center gap-3 group"
           >
             {!fusion && editingId === guest.id ? (
               /* Edit mode */
@@ -272,8 +272,8 @@ export default function GuestsPage() {
             ) : (
               /* Display mode */
               <>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
+                <div className="flex-1 min-w-0 basis-full sm:basis-auto">
+                  <div className="flex flex-wrap items-center gap-2 [overflow-wrap:anywhere]">
                     <span className="font-medium text-gray-800 text-sm">{guest.name}</span>
                     <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">
                       {guest.group}
@@ -292,7 +292,7 @@ export default function GuestsPage() {
                       </span>
                     )}
                     {guest.roomId && (
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-[#eef3fa] text-[#7c9ec9] flex items-center gap-0.5">
+                      <span className="min-w-0 text-xs px-2 py-0.5 rounded-full bg-[#eef3fa] text-[#7c9ec9] flex items-center gap-0.5">
                         <BedDouble className="w-3 h-3" />
                         {rooms.find((r) => r.id === guest.roomId)?.label || '已安排住宿'}
                       </span>
@@ -320,20 +320,20 @@ export default function GuestsPage() {
                     </select>
                   </label>}
                   {guest.phone && (
-                    <div className="text-xs text-gray-400 mt-0.5">{guest.phone}</div>
+                    <div className="text-xs text-gray-400 mt-0.5 [overflow-wrap:anywhere]">{guest.phone}</div>
                   )}
                 </div>
                 <button
                   data-guest-form-switch
                   onClick={() => startEdit(guest.id)}
-                  className="opacity-0 group-hover:opacity-100 p-1.5 text-gray-400 hover:text-[#d4728a] transition-all"
+                  className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100 p-1.5 text-gray-400 hover:text-[#d4728a] transition-all"
                   title="编辑"
                 >
                   <Pencil className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => { if (confirm(`删除宾客“${guest.name}”？其座位、房间和住宿晚次安排也会一并移除。`)) removeGuest(guest.id) }}
-                  className="opacity-0 group-hover:opacity-100 p-1.5 text-gray-400 hover:text-red-500 transition-all"
+                  className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100 p-1.5 text-gray-400 hover:text-red-500 transition-all"
                   title="删除"
                 >
                   <Trash2 className="w-4 h-4" />

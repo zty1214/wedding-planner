@@ -72,15 +72,15 @@ export default function AccommodationPage() {
   }
 
   return (
-    <div className="h-full overflow-y-auto">
-      <div className="max-w-7xl mx-auto p-6">
+    <div className="h-full [overflow-wrap:anywhere] overflow-y-auto">
+      <div className="max-w-7xl mx-auto p-3 sm:p-6">
         {/* 顶部：标题 + 操作 */}
         <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
           <div>
             <h2 className="text-lg font-semibold text-gray-800">住宿安排</h2>
             <p className="text-sm text-gray-400 mt-0.5">为宾客安排房间，按个人住宿晚次统计用房；请先在名单中确认住宿需求</p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => addRoom('大床房')}
               className="flex items-center gap-1.5 px-3 py-2 text-sm rounded-lg border border-[#f0c4d0] text-[#d4728a] hover:bg-[#fdf5f7] transition-colors"
@@ -131,10 +131,12 @@ export default function AccommodationPage() {
               {addingDate && (
                 <>
                   <div className="fixed inset-0 z-30" onClick={() => setAddingDate(false)} />
-                  <DatePicker
-                    onSelect={(iso) => addStayDate(iso)}
-                    onClose={() => setAddingDate(false)}
-                  />
+                  <div className="fixed inset-x-4 top-1/2 -translate-y-1/2 z-40 flex justify-center sm:absolute sm:inset-auto sm:top-full sm:left-0 sm:translate-y-0 [&>div]:static">
+                    <DatePicker
+                      onSelect={(iso) => addStayDate(iso)}
+                      onClose={() => setAddingDate(false)}
+                    />
+                  </div>
                 </>
               )}
             </span>
@@ -239,7 +241,7 @@ export default function AccommodationPage() {
                         {occupants.map((g) => (
                           <li key={g.id} className="px-2.5 py-2 bg-[#faf9f7] rounded-lg">
                             <div className="flex items-center justify-between">
-                              <span className="text-sm text-gray-700 truncate">{g.name}</span>
+                              <span className="min-w-0 [overflow-wrap:anywhere] text-sm text-gray-700">{g.name}</span>
                               <button
                                 onClick={() => { if (confirm(`将“${g.name}”移出房间？其已选住宿晚次也会清除。`)) assignGuestToRoom(g.id, null) }}
                                 className="text-gray-300 hover:text-red-400 transition-colors shrink-0"
@@ -278,7 +280,7 @@ export default function AccommodationPage() {
                   </div>
 
                   {/* 容量 + 添加 */}
-                  <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-50">
+                  <div className="flex flex-wrap items-center justify-between gap-2 mt-3 pt-3 border-t border-gray-50">
                     <span className={`text-xs ${over ? 'text-red-400' : 'text-gray-400'}`}>
                       每晚建议 {capacity} 人 · {dateFilter === ALL ? `共安排 ${occupants.length} 人，单晚最多 ${occupancy.peak} 人` : `当晚 ${occupants.length} 人`}
                       {over && `（超员：${overNights.map(n => `${formatNight(n.date)} ${n.people}人`).join('、')}）`}
@@ -286,7 +288,7 @@ export default function AccommodationPage() {
                     </span>
                     <button
                       onClick={() => setPickerRoomId(room.id)}
-                      className="flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-lg border border-[#f0c4d0] text-[#d4728a] hover:bg-[#fdf5f7] transition-colors"
+                      className="flex shrink-0 items-center gap-1 text-xs px-2.5 py-1.5 rounded-lg border border-[#f0c4d0] text-[#d4728a] hover:bg-[#fdf5f7] transition-colors"
                     >
                       <UserPlus className="w-3.5 h-3.5" /> 添加宾客
                     </button>
@@ -332,7 +334,7 @@ function StatCard({ value, label, color, names }: { value: number; label: string
       <div className="text-2xl font-bold" style={{ color }}>{value}</div>
       <div className="text-sm text-gray-500">{label}{hoverable && <span className="ml-1 text-gray-300">ⓘ</span>}</div>
       {names && (
-        <div className="hidden group-hover:block absolute z-20 left-0 top-full mt-1 w-64 max-h-64 overflow-y-auto bg-white rounded-xl border border-gray-100 shadow-lg p-3">
+        <div className="hidden group-hover:block fixed z-20 left-4 right-4 top-1/2 sm:absolute sm:left-0 sm:right-auto sm:top-full mt-1 sm:w-64 [overflow-wrap:anywhere] max-h-64 overflow-y-auto bg-white rounded-xl border border-gray-100 shadow-lg p-3">
           <p className="text-xs text-gray-400 mb-1.5">{label}（{names.length} 人）</p>
           {names.length === 0 ? (
             <p className="text-xs text-gray-300">暂无</p>
@@ -378,15 +380,15 @@ function GuestPicker({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4" onClick={onClose}>
       <div className="bg-white rounded-2xl w-full max-w-lg max-h-[80vh] flex flex-col shadow-xl" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-          <div className="flex items-center gap-2">
+        <div className="flex items-start justify-between gap-2 px-5 py-4 border-b border-gray-100">
+          <div className="min-w-0 flex flex-wrap items-center gap-2 [overflow-wrap:anywhere]">
             <DoorOpen className="w-4 h-4 text-[#d4728a]" />
             <span className="font-semibold text-gray-800">添加到「{targetRoom.label}」</span>
             <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">
               已安排 {occupantCount} 人，按晚核对容量
             </span>
           </div>
-          <button onClick={onClose} className="p-1.5 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-50">
+          <button aria-label="关闭宾客选择" onClick={onClose} className="shrink-0 p-1.5 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-50">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -398,7 +400,7 @@ function GuestPicker({
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="搜索姓名 / 分组 / 电话"
-              className="flex-1 text-sm outline-none"
+              className="min-w-0 flex-1 text-sm outline-none"
               autoFocus
             />
           </div>
@@ -414,8 +416,8 @@ function GuestPicker({
                 const inThisRoom = g.roomId === targetRoom.id
                 const state = roomState(g.roomId)
                 return (
-                  <li key={g.id} className="flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-[#fdf5f7]">
-                    <div className="min-w-0">
+                  <li key={g.id} className="flex items-center justify-between gap-2 px-3 py-2.5 rounded-lg hover:bg-[#fdf5f7]">
+                    <div className="min-w-0 [overflow-wrap:anywhere]">
                       <span className="text-sm text-gray-800">{g.name}</span>
                       <span className="text-xs text-gray-400 ml-2">{g.group}</span>
                       {g.status === 'confirmed' && <span className="text-[11px] text-emerald-500 ml-2">已确认</span>}

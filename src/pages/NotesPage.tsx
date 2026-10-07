@@ -44,9 +44,9 @@ export default function NotesPage() {
   }
 
   return (
-    <div className="h-full flex flex-col p-6 max-w-3xl mx-auto">
+    <div className="h-full min-w-0 [overflow-wrap:anywhere] overflow-y-auto sm:flex sm:flex-col p-3 sm:p-6 max-w-3xl mx-auto">
       {/* Tabs */}
-      <div className="flex items-center gap-1 mb-6">
+      <div className="flex flex-wrap items-center gap-1 mb-6">
         {NOTE_CATEGORIES.map((cat) => (
           <button
             key={cat}
@@ -63,7 +63,7 @@ export default function NotesPage() {
         <button
           data-note-editor-switch
           onClick={() => { setEditingId(null); setTitle(''); setContent(''); setImages([]); setShowEditor(true) }}
-          className="ml-auto flex items-center gap-1.5 px-4 py-2 bg-[#d4728a] text-white rounded-lg text-sm font-medium hover:bg-[#b85a72] transition-colors"
+          className="ml-auto flex shrink-0 items-center gap-1.5 px-4 py-2 bg-[#d4728a] text-white rounded-lg text-sm font-medium hover:bg-[#b85a72] transition-colors"
         >
           <Plus className="w-4 h-4" /> 写笔记
         </button>
@@ -95,7 +95,7 @@ export default function NotesPage() {
                   <img src={img} className="w-full h-full object-cover" />
                   <button
                     onClick={() => setImages(images.filter((_, idx) => idx !== i))}
-                    className="absolute top-1 right-1 p-0.5 bg-black/50 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="absolute top-1 right-1 p-0.5 bg-black/50 rounded-full text-white opacity-100 sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100 transition-opacity"
                   >
                     <X className="w-3 h-3" />
                   </button>
@@ -104,7 +104,7 @@ export default function NotesPage() {
             </div>
           )}
 
-          <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-100">
+          <div className="flex flex-wrap items-center gap-2 mt-3 pt-3 border-t border-gray-100">
             <button
               disabled={fusion}
               title={fusion ? '当前主流程保存文本笔记，图片附件暂未接入' : '添加图片'}
@@ -152,21 +152,21 @@ export default function NotesPage() {
         )}
         {filteredNotes.map((note) => (
           <div key={note.id} className="bg-white rounded-xl border border-gray-100 p-4 group">
-            <div className="flex items-start justify-between">
+            <div className="flex items-start justify-between gap-2">
               {note.title && (
-                <h3 className="text-sm font-semibold text-gray-800 mb-1">{note.title}</h3>
+                <h3 className="min-w-0 flex-1 [overflow-wrap:anywhere] text-sm font-semibold text-gray-800 mb-1">{note.title}</h3>
               )}
-              {fusion && <button data-note-editor-switch className="ml-auto text-sm text-rose-600 px-2" onClick={() => { setEditingId(note.id); setTitle(note.title); setContent(note.content); setImages([]); setShowEditor(true) }}>编辑</button>}
+              {fusion && <button data-note-editor-switch className="shrink-0 ml-auto text-sm text-rose-600 px-2" onClick={() => { setEditingId(note.id); setTitle(note.title); setContent(note.content); setImages([]); setShowEditor(true) }}>编辑</button>}
               <button
                 aria-label="删除笔记"
                 onClick={() => { if (confirm(`删除笔记“${note.title || '无标题'}”？正文将一并移除。`)) removeNote(note.id) }}
-                className="opacity-0 group-hover:opacity-100 p-1 text-gray-300 hover:text-red-500 transition-all ml-auto shrink-0"
+                className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100 p-1 text-gray-300 hover:text-red-500 transition-all ml-auto shrink-0"
               >
                 <Trash2 className="w-4 h-4" />
               </button>
             </div>
             {note.content && (
-              <p className="text-sm text-gray-600 whitespace-pre-wrap leading-relaxed">{note.content}</p>
+              <p className="[overflow-wrap:anywhere] text-sm text-gray-600 whitespace-pre-wrap leading-relaxed">{note.content}</p>
             )}
             {note.images.length > 0 && (
               <div className="flex gap-2 mt-3 flex-wrap">
