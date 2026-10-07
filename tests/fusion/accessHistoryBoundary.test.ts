@@ -1,6 +1,10 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { randomBytes, randomUUID } from 'node:crypto'
+import { mkdtemp, readFile, rm } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+import * as XLSX from 'xlsx'
 import { MemoryStore } from './memoryStore.ts'
 import { emptyCore } from '../../src/fusion/core.ts'
 import { hashSecret } from '../../server/fusion/commandService.ts'
@@ -59,4 +63,37 @@ test('access secrets and stored digests never enter shared versions, receipts, a
     assert.equal(text.includes(secret), false)
     assert.equal(text.includes(hashSecret(secret)), false)
   }
+})
+
+
+test('downloaded XLSX bytes and workbook metadata exclude link secrets after rotation', async () => {
+  const { manager, old, next, admin, collaborator, command } = fixture()
+  await collaborator.execute(command('guest.add', { id: 'g', name: '文件审计宾客', group: '', phone: '00123' }))
+  await admin.execute(command('access.rotateCollaboration', { collaborationHash: hashSecret(next) }, { access: 0 }))
+  const snapshot = await admin.read()
+  const directory = await mkdtemp(join(tmpdir(), 'planner-export-boundary-'))
+  try {
+    for (const kind of ['guests', 'rooms'] as const) {
+      const artifact = buildExportWorkbook({ projectId: 'a', source: 'confirmed', capturedAt: new Date().toISOString(), snapshot }, kind)
+      const path = join(directory, artifact.filename)
+      // Same writeFile defaults as ExportPanel. ZIP entries are uncompressed by default.
+      XLSX.writeFile(artifact.workbook, path)
+      const bytes = await readFile(path), raw = bytes.toString('utf8')
+      assert.ok(raw.includes('docProps/core.xml'))
+      assert.ok(raw.includes('<dc:subject>'), 'audit includes serialized provenance metadata')
+      const parsed = XLSX.read(bytes, { type: 'buffer' })
+      assert.ok(parsed.Props?.Subject?.includes('项目 a'))
+      if (kind === 'guests') {
+        assert.equal(parsed.Sheets['宾客名单'].A2.v, '文件审计宾客')
+        assert.equal(parsed.Sheets['宾客名单'].B2.v, '00123')
+      }
+      for (const secret of [manager, old, next]) {
+        for (const forbidden of [secret, hashSecret(secret)]) {
+          assert.equal(raw.includes(forbidden), false, 'serialized XLSX must not contain access credentials')
+          assert.equal(JSON.stringify(parsed).includes(forbidden), false)
+          assert.equal(artifact.filename.includes(forbidden), false)
+        }
+      }
+    }
+  } finally { await rm(directory, { recursive: true, force: true }) }
 })
