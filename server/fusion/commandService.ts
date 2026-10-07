@@ -11,7 +11,7 @@ import { createHash, timingSafeEqual } from 'node:crypto'
 import { assertCommand, canonicalJson, CommandError } from '../../src/fusion/protocol.ts'
 import type { Json, Receipt } from '../../src/fusion/protocol.ts'
 
-export interface Access { creationDigest?: string; collaborationHash: string; managementHash: string }
+export interface Access { creationDigest?: string; revision?: number; collaborationHash: string; managementHash: string }
 export interface Current { dataEpoch: string; snapshotRevision: number; data: Json }
 export interface StoredReceipt { digest: string; receipt: Receipt }
 export interface Transaction {
@@ -21,10 +21,12 @@ export interface Transaction {
   version(id: string): Promise<ProjectVersion | null>
   putHistoryIndex(value: VersionMeta[]): Promise<void>
   putVersion(value: ProjectVersion): Promise<void>
+  removeVersion(id: string): Promise<void>
   recycleIndex(epoch: string): Promise<string[]>
   recycle(epoch: string, id: string): Promise<RecycleRecord | null>
   putRecycleIndex(epoch: string, ids: string[]): Promise<void>
   putRecycle(epoch: string, value: RecycleRecord): Promise<void>
+  removeRecycle(epoch: string, id: string): Promise<void>
   putAccess(value: Access): Promise<void>
   reserveCreation(day: string, limit: number): Promise<void>
   noteIndex(epoch: string): Promise<NoteIndex | null>

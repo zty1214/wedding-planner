@@ -36,6 +36,10 @@ async function withTransport(run, failure) {
       const id = EJSON.parse(args.query)._id
       const key = `${args.collectionName}/${id}`
       if (api === 'database.getDocument') return { data: { list: working.has(key) ? [EJSON.stringify(working.get(key))] : [] } }
+      if (api === 'database.removeDocument') {
+        const deleted = Number(working.delete(key))
+        return { data: { deleted } }
+      }
       if (api === 'database.modifyDocument') {
         working.set(key, { _id: id, ...EJSON.parse(args.data) })
         return { data: { updated: 1, upserted: [] } }
@@ -91,5 +95,29 @@ test('SDK persists note tombstones and retirement across transactions', async ()
     await recycle.execute({ ...command, operationId: 'restore', type: 'recycle.restore', payload: { id: 'delete' } }, 'collab-fixture')
     const result = await notes.read('a', 'collab-fixture')
     assert.equal(result.notes[0].content, '正文'); assert.equal(result.notes[0].revision, 1)
+  })
+})
+
+
+test('SDK retention deletion is transactional and scoped to version or recycle body keys', async () => {
+  await withTransport(async ({ store, committed, calls }) => {
+    const key = `${PROBE_COLLECTIONS.current}/${documentKey('a', 'version', 'expired')}`
+    committed.set(key, { projectId: 'a', payload: { fixture: true } })
+    await store.run('a', tx => tx.removeVersion('expired'))
+    assert.equal(committed.has(key), false)
+    assert.equal(committed.size, 2)
+    assert.ok(calls.includes('database.removeDocument'))
+    const recycleKey = `${PROBE_COLLECTIONS.current}/${documentKey('a', 'recycle', 'old', 'r')}`
+    committed.set(recycleKey, { projectId: 'a', payload: { fixture: true } })
+    await assert.rejects(store.run('a', async tx => { await tx.removeRecycle('old', 'r'); throw Error('ROLLBACK') }))
+    assert.equal(committed.has(recycleKey), true)
+    assert.equal(committed.size, 3)
+  })
+})
+
+test('SDK access decoder preserves credential revision across transactions', async () => {
+  await withTransport(async ({ store }) => {
+    await store.run('a', async tx => { const access = await tx.access(); await tx.putAccess({ ...access, revision: 3 }) })
+    assert.equal(await store.run('a', async tx => (await tx.access()).revision), 3)
   })
 })

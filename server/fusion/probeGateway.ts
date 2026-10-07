@@ -1,4 +1,5 @@
 import { activityService } from './activityService.ts'
+import { accessService } from './accessService.ts'
 import { historyService } from './historyService.ts'
 import { recycleService } from './recycleService.ts'
 import { projectService } from './projectService.ts'
@@ -38,6 +39,10 @@ export function probeGateway(store: TransactionStore, projectIds: readonly strin
         return { ok: true, value }
       }
       if (e.action === 'activity.month' && typeof e.month === 'string') return { ok: true, value: await activityService(store).month(e.projectId, e.secret, e.month) }
+      if (e.action === 'access.read') {
+        if (e.candidateHash !== undefined && typeof e.candidateHash !== 'string') throw new CommandError('INVALID_INPUT')
+        return { ok: true, value: await accessService(store).read(e.projectId, e.secret, e.candidateHash) }
+      }
       if (e.action === 'history.list') {
         if (e.day !== undefined && e.day !== null && typeof e.day !== 'string') throw new CommandError('INVALID_INPUT')
         if (e.cursor !== undefined && e.cursor !== null && typeof e.cursor !== 'string') throw new CommandError('INVALID_INPUT')
@@ -56,6 +61,7 @@ export function probeGateway(store: TransactionStore, projectIds: readonly strin
         if (!e.command || typeof e.command !== 'object'
           || (e.command as Record<string, unknown>).projectId !== e.projectId) throw new CommandError('FORBIDDEN')
         const type = (e.command as Record<string, unknown>).type
+        if (type === 'access.rotateCollaboration') return { ok: true, value: await accessService(store).execute(e.command, e.secret) }
         return { ok: true, value: await ((type === 'version.save' || type === 'version.restore') ? historyService(store) : ['stayDate.remove', 'note.delete', 'guest.delete', 'table.deleteWithGuests', 'room.deleteWithAssignments', 'guest.clearRoom', 'guest.clearStayNeed', 'recycle.restore'].includes(String(type)) ? recycleService(store) : typeof type === 'string' && type.startsWith('note.') ? notes : service).execute(e.command, e.secret) }
       }
       if (e.action === 'receipt' && typeof e.dataEpoch === 'string' && e.dataEpoch.length > 0

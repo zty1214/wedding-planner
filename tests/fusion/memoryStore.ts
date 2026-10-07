@@ -28,10 +28,12 @@ export class MemoryStore implements TransactionStore {
         version: async id => copy.versions.get(id) ?? null,
         putHistoryIndex: async value => { copy.history = value },
         putVersion: async value => { copy.versions.set(value.id, value) },
+        removeVersion: async id => { copy.versions.delete(id) },
         recycleIndex: async epoch => copy.recycleIndexes.get(epoch) ?? [],
         recycle: async (epoch, id) => copy.recycled.get(JSON.stringify([epoch, id])) ?? null,
         putRecycleIndex: async (epoch, ids) => { copy.recycleIndexes.set(epoch, ids) },
         putRecycle: async (epoch, value) => { copy.recycled.set(JSON.stringify([epoch, value.id]), value) },
+        removeRecycle: async (epoch, id) => { copy.recycled.delete(JSON.stringify([epoch, id])) },
         putAccess: async value => { copy.access = value },
         reserveCreation: async (day, limit) => {
           const count = counts.get(day) ?? 0

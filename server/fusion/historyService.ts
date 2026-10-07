@@ -29,6 +29,7 @@ export function historyService(store: TransactionStore, now = () => new Date()) 
         const version = await tx.version(id)
         if (!version) throw new CommandError('NOT_FOUND')
         assertProjectVersion(version)
+        if (version.expiresAt && Date.parse(version.expiresAt) <= now().getTime()) throw new CommandError('NOT_FOUND')
         return version
       })
     },

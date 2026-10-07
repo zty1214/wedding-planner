@@ -32,7 +32,8 @@ function decodeAccess(value: unknown): Access {
   if (typeof v.collaborationHash !== 'string' || typeof v.managementHash !== 'string'
     || !/^[a-f0-9]{64}$/.test(v.collaborationHash) || !/^[a-f0-9]{64}$/.test(v.managementHash)) throw Error('INVALID_ACCESS_DOCUMENT')
   if (v.creationDigest !== undefined && (typeof v.creationDigest !== 'string' || !/^[a-f0-9]{64}$/.test(v.creationDigest))) throw Error('INVALID_ACCESS_DOCUMENT')
-  return { ...(v.creationDigest === undefined ? {} : { creationDigest: String(v.creationDigest) }), collaborationHash: v.collaborationHash, managementHash: v.managementHash }
+  if (v.revision !== undefined && !nonnegative(v.revision)) throw Error('INVALID_ACCESS_DOCUMENT')
+  return { ...(v.revision === undefined ? {} : { revision: Number(v.revision) }), ...(v.creationDigest === undefined ? {} : { creationDigest: String(v.creationDigest) }), collaborationHash: v.collaborationHash, managementHash: v.managementHash }
 }
 function decodeCurrent(value: unknown): Current {
   const v = record(value)
@@ -107,6 +108,7 @@ export function cloudBaseTransactionStore(db: Database): TransactionStore {
           },
           putHistoryIndex: value => put('current', ['history-index'], value),
           putVersion: value => put('current', ['version', value.id], value),
+          removeVersion: async id => { response(await ref('current', ['version', id]).remove()) },
           recycleIndex: async epoch => {
             const v = await get('current', ['recycle-index', epoch])
             if (v === null) return []
@@ -123,6 +125,7 @@ export function cloudBaseTransactionStore(db: Database): TransactionStore {
           },
           putRecycleIndex: (epoch, ids) => put('current', ['recycle-index', epoch], ids),
           putRecycle: (epoch, value) => put('current', ['recycle', epoch, value.id], value),
+          removeRecycle: async (epoch, id) => { response(await ref('current', ['recycle', epoch, id]).remove()) },
           putAccess: value => put('access', [], value),
           reserveCreation: async (day, limit) => {
             const quota = sdkTransaction.collection(PROBE_COLLECTIONS.access).doc(documentKey('__creation_quota__', day))
