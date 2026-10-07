@@ -1,0 +1,22 @@
+{
+  "source": "actual-browser-download",
+  "path": "/Users/baojie/Downloads/婚礼本机草稿.json",
+  "bytes": 610,
+  "sha256": "a643ec5f4e9faaa1d101f735cf9171ebbcaee3a7451a83f11f697ed2a0aeee8a",
+  "exportedAt": "2026-10-07T06:55:09.001Z",
+  "projectId": "browser-main-flow-fixture",
+  "format": "planner-local-drafts-v1",
+  "count": 1,
+  "operationId": "c8807c47-c59f-43c9-9fc3-08eaef71e578",
+  "expectedRevisions": {
+    "table:t": 4
+  },
+  "payload": {
+    "id": "t",
+    "patch": {
+      "label": "重开后保留的虚构桌名"
+    }
+  },
+  "status": "result_unknown",
+  "limitation": "Browser download event timed out; actual file verified independently. Synthetic local service; not cloud acceptance."
+}
