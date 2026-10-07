@@ -1,5 +1,7 @@
 # B05 本轮集成检查
 
+当前工程状态：目标代码提交 `0bba82732fb0ecfe1187db0c3aba8b413a879157` 同提交远端CI通过，完整check及七组浏览器成功。以下早期未运行/失败记录按阶段保留；不据此关闭B02/B03或正式发布。
+
 日期2026-10-07，业务基线709f265；独立实施工作树main-flow-acceptance。开发探针仅只读核对，未部署、未迁移、未改权限。
 
 固定playwright@1.62.1与锁文件，新增npm run test:e2e。CI在npm run check后安装Chromium并执行自动浏览器回归，always上传脱敏JSON/截图；实际远端CI尚未触发，不以配置修改当作远端成功。
@@ -29,3 +31,11 @@ Chromium151本地对照：冻结代码首次notes/publish失败，后续三次�
 混合队列补验阶段：八组实际浏览器、四模块七条请求重开导出/顺序重放通过；最新完整check192项/0失败及规模、类型、lint、两构建通过，见[集成日志](main-flow-mixed-retention-20261007/integration-check.txt)。CI失败原因仍未确认，不能由本地通过关闭。
 
 登录后已获取原CI脱敏产物并核对ZIP摘要，远端失败为创建阶段空白页，与本机笔记阶段偶发失败不同。不可写缓存权限对照复现空白页，夹具由硬编码/private/tmp改用系统tmpdir后对照及七组主流程通过，详见[缓存诊断](main-flow-ci-20261007/README.md)。原始stderr未保留，需Ubuntu复跑确认修正；未改业务代码。
+
+## 修正后远端CI闭环
+
+[Check planner #2](https://github.com/zty1214/wedding-planner/actions/runs/37642290159)：提交 `0bba82732fb0ecfe1187db0c3aba8b413a879157`，completed/success；npm ci、npm run check、Chromium安装、npm run test:e2e、脱敏产物上传全部成功。[实际API终态与逐步骤](main-flow-ci-20261007/ci-fixed-report.json)。Ubuntu实际复跑确认系统临时目录修正解决本次创建空白页；B04/B05工程回归关闭。
+
+本次CI包含此前6f3f691混合队列阶段；192项本地完整check、八组故障浏览器及该同提交CI分别绑定证据。CI终态、混合队列覆盖映射及本轮验收范围统一整理为阶段性交付；测试过的代码SHA保持0bba827，文档提交不改变业务代码。没有合并、部署、真实数据迁移或权限变更。剩余原生配额/云端轮换终点/真机条件不受这次工程关单替代。
+
+2026-10-07范围调整：用户确认Excel/WPS专项视觉验证延期，不阻塞本轮主流程。上文早期记录中的桌面专项待验为历史状态；实际下载和内容回读证据保留，真机流程与手机文件保存/打开仍待验。

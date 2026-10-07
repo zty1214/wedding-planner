@@ -16,3 +16,7 @@ GitHub日志登录待配合；本机Docker CLI存在但daemon未运行，未自�
 真实页面权限对照：只允许自建TMPDIR写入的Node25夹具，原 `/private/tmp/planner-sol-s03-vite-4208` 不可写时HTML仍200，但Vite优化依赖失败、创建表单不可见；[修正前](cache-permission-before.json)。夹具改用 `join(tmpdir(), ...)` 后，相同权限条件下表单可见且无缓存权限错误；[修正后](cache-permission-after.json)。[诊断脚本](diagnostic-cache-permission.py)仅本机Node25/Playwright诊断，不纳入Node22标准CI命令，不连接云端；4208占用时退出，不接管已有服务。该对照证明硬编码目录可造成相同症状，CI原始记录没有被丢弃的Vite stderr，精确归因仍以修正后的Ubuntu CI复跑确认。
 
 [修正后本机七组报告](cache-fix-local-e2e.json)通过：冻结6f3f691加最小夹具修正、Chromium151。没有业务src/server变化，192项完整check沿用上一阶段，另执行本阶段脚本语法/lint及差异检查。远端复跑尚待本阶段提交与推送，不将本地通过当作CI关单。
+
+## 修正后Ubuntu实测
+
+`0bba827` [运行#2](https://github.com/zty1214/wedding-planner/actions/runs/37642290159)已完成且success；完整check、Chromium安装、七组test:e2e和产物上传均成功。[终态报告](ci-fixed-report.json)。本次实际Ubuntu对照确认原缓存路径修正解决创建阶段空白页，首轮失败记录保留，不将其覆盖为通过。

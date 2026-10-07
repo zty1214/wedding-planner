@@ -62,3 +62,7 @@ S03_PORT=4196 node --experimental-strip-types scripts/fusion/sol-s03-main-flow.m
 - 本任务不执行完整npm check；主会话负责最终集成回归、完整检查及相同提交远端CI。
 
 主会话在main-flow-acceptance集成后使用项目内playwright及已有Chromium路径复验，七组再次通过，退出0。完整npm run check通过191项；未将本机结果视为远端CI。
+
+## 远端自动化闭环（2026-10-07）
+
+目标代码 `0bba82732fb0ecfe1187db0c3aba8b413a879157` 的[GitHub CI #2](https://github.com/zty1214/wedding-planner/actions/runs/37642290159) completed/success：锁文件安装、完整check、Chromium安装、七组实际浏览器和脱敏产物上传通过。B04自动化交付闭环；首轮b6dc15e空白页及系统临时目录修正见[B05](main-flow-b05-integration.md)。此结论仅覆盖真实App＋虚构本机网关，不替代B01云端或B03真机。
