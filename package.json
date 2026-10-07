@@ -10,7 +10,11 @@
     "preview": "vite preview",
     "test:fusion": "node --experimental-strip-types --test tests/fusion/*.test.ts tests/fusion/*.test.mjs",
     "typecheck:fusion": "tsc -p tsconfig.fusion.json",
-    "inventory:planner": "node --env-file=.env.local scripts/fusion/read-supabase.mjs"
+    "inventory:planner": "node --env-file=.env.local scripts/fusion/read-supabase.mjs",
+    "test": "npm run test:fusion",
+    "check": "npm run test && npm run test:scale && npm run typecheck:fusion && npm run lint && npm run build && npm run build:fusion-check",
+    "test:scale": "node --experimental-strip-types scripts/fusion/validate-scale.ts",
+    "build:fusion-check": "node scripts/fusion/validate-build.mjs"
   },
   "dependencies": {
     "@cloudbase/js-sdk": "3.6.3",

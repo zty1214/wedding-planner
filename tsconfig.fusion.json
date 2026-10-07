@@ -21,6 +21,7 @@
   "include": [
     "src/fusion/**/*.ts",
     "server/fusion/**/*.ts",
-    "tests/fusion/**/*.ts"
+    "tests/fusion/**/*.ts",
+    "scripts/fusion/validate-scale.ts"
   ]
 }

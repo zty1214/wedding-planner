@@ -1,26 +1,66 @@
 name: Deploy to GitHub Pages
 on:
-  push:
-    branches: [main]
+  workflow_dispatch:
+    inputs:
+      confirmed_sha:
+        description: Full main commit SHA reviewed for this release
+        required: true
+        type: string
 permissions:
   contents: read
-  pages: write
-  id-token: write
+concurrency:
+  group: pages-production
+  cancel-in-progress: false
 jobs:
-  build-and-deploy:
+  build:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
+      - name: Verify explicitly selected release
+        env:
+          CONFIRMED_SHA: ${{ inputs.confirmed_sha }}
+        run: test "$CONFIRMED_SHA" = "$GITHUB_SHA"
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: npm install --silent
-      - run: npm run build
+          cache: npm
+      - run: npm ci
+      - name: Validate and build the configured release
         env:
-          VITE_SUPABASE_URL: https://bycqtxpugybcyhuixauc.supabase.co
-          VITE_SUPABASE_ANON_KEY: sb_publishable_aYCHRB21lXbyxhP6vJ97UQ_hlbxu0j1
-      - uses: actions/configure-pages@v4
+          VITE_FUSION_ENV_ID: ${{ vars.VITE_FUSION_ENV_ID }}
+          VITE_FUSION_FUNCTION: ${{ vars.VITE_FUSION_FUNCTION }}
+          VITE_FUSION_PUBLISHABLE_KEY: ${{ vars.VITE_FUSION_PUBLISHABLE_KEY }}
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
+        run: |
+          for name in VITE_FUSION_ENV_ID VITE_FUSION_FUNCTION VITE_FUSION_PUBLISHABLE_KEY VITE_SUPABASE_URL VITE_SUPABASE_ANON_KEY; do
+            if [ -z "${!name}" ]; then
+              echo "Missing required deployment variable: $name"
+              exit 1
+            fi
+          done
+          npm run check
+      - name: Record build identity
+        env:
+          FUSION_ENV: ${{ vars.VITE_FUSION_ENV_ID }}
+          FUSION_FUNCTION: ${{ vars.VITE_FUSION_FUNCTION }}
+        run: |
+          node --input-type=module -e 'import fs from "node:fs"; fs.writeFileSync("dist/build-info.json", JSON.stringify({commit:process.env.GITHUB_SHA,run:process.env.GITHUB_RUN_ID,environment:process.env.FUSION_ENV,gateway:process.env.FUSION_FUNCTION},null,2))'
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
       - uses: actions/deploy-pages@v4
+        id: deployment
