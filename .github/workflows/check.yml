@@ -13,8 +13,6 @@ jobs:
   check:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    env:
-      MAIN_FLOW_ARTIFACT_DIR: ${{ runner.temp }}/main-flow-e2e-${{ github.run_id }}-${{ github.run_attempt }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -25,11 +23,13 @@ jobs:
       - run: npm run check
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
+        env:
+          MAIN_FLOW_ARTIFACT_DIR: ${{ runner.temp }}/main-flow-e2e-${{ github.run_id }}-${{ github.run_attempt }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: main-flow-e2e
           path: |
-            ${{ env.MAIN_FLOW_ARTIFACT_DIR }}/main-flow-e2e-report.json
-            ${{ env.MAIN_FLOW_ARTIFACT_DIR }}/main-flow-e2e-*.png
+            ${{ runner.temp }}/main-flow-e2e-${{ github.run_id }}-${{ github.run_attempt }}/main-flow-e2e-report.json
+            ${{ runner.temp }}/main-flow-e2e-${{ github.run_id }}-${{ github.run_attempt }}/main-flow-e2e-*.png
           if-no-files-found: ignore

@@ -27,3 +27,7 @@
 2. 真机触摸/软键盘/切后台/重开/文件保存尚未验收，桌面窄屏截图不替代真机；原生QuotaExceededError仍未闭环，不据此破坏浏览器存储填盘。
 3. D1/D2真实备份与试迁前按方案§12确认项目归属、冲突裁决人、受控加密备份位置/保管人和隔离恢复目标；当前无真实数据改写；已准备[备份试迁执行单](../../operations/2026-10-08-backup-migration-execution-sheet.md)，列明已有盘点工具、离线工具缺口及待确认信息。
 4. R1候选部署、R2正式冻结迁移切换和R3旧系统退役分别确认具体执行单。每日定时业务快照、图片上传及Excel/WPS专项验证继续延期。
+
+## 候选CI修复
+
+首个阶段提交269d211已推送候选分支，但[首次远端运行](https://github.com/zty1214/wedding-planner/actions/runs/37656837191)在创建job前失败，没有执行测试。产物目录表达式错误地在job级env引用runner.temp；[GitHub上下文限制](https://docs.github.com/en/actions/reference/workflows-and-actions/contexts)仅允许步骤级env使用runner。现将e2e环境变量移到步骤，并在upload的with中使用同一run/attempt路径，仍不匹配仓库旧报告。修复阶段另行提交并验证，不能把首次失败算作通过。
