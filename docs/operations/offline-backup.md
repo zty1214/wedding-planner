@@ -19,6 +19,6 @@ node scripts/migration/backup-cli.mjs --input /CONTROLLED_BACKUPS/source.encrypt
 node scripts/migration/backup-cli.mjs --mode restore --input /CONTROLLED_BACKUPS/source.encrypted.json --key-file /CONTROLLED_KEYS/backup-key --output /CONTROLLED_RECOVERY/source.json
 ```
 
-不指定mode时仅verify，不写解密文件；restore只产生离线原始文件，不执行云端导入。真实备份前按[执行单](2026-10-08-backup-migration-execution-sheet.md)确认来源、位置和责任人。还需完成来源适配器、稳定ID转换、冲突裁决、批次续做/拒绝覆盖以及隔离目标全量回读与恢复演练。
+不指定mode时仅verify，不写解密文件；restore只产生离线原始文件，不执行云端导入。真实备份前按[执行单](2026-10-08-backup-migration-execution-sheet.md)确认来源、位置和责任人。离线稳定ID转换、独立对账与批次续做/拒绝覆盖工具见[迁移说明](offline-migration.md)。还需完成实际来源适配器、冲突裁决、隔离云端全量回读与恢复演练。
 
 验证见[阶段记录](../validation/offline-backup-20261008/README.md)。

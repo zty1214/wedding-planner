@@ -1,24 +1,11 @@
+import { controlledPath } from './privatePaths.mjs'
 // Default verifies only. An explicit restore produces a private offline file,
 // never a live database restore. Keys and raw backups stay outside Git worktrees.
 import { parseArgs } from 'node:util'
-import { readFile, writeFile, realpath, stat, access } from 'node:fs/promises'
-import { basename, dirname, join, parse, resolve } from 'node:path'
+import { readFile, writeFile, stat } from 'node:fs/promises'
 import { randomBytes } from 'node:crypto'
 import { sealBackup, openBackup, backupSummary } from './backup.mjs'
-async function controlledPath(path) {
-  if (!path) throw Error('EXPLICIT_PRIVATE_PATH_REQUIRED')
-  const target = resolve(path), parent = await realpath(dirname(target))
-  let existing
-  try { existing = await realpath(target) } catch (error) { if (error.code !== 'ENOENT') throw error }
-  let current = existing ? dirname(existing) : parent
-  while (true) {
-    try { await access(join(current, '.git')); throw Error('GIT_WORKTREE_PATH_FORBIDDEN') }
-    catch (error) { if (error.code !== 'ENOENT') throw error }
-    if (current === parse(current).root) break
-    current = dirname(current)
-  }
-  return join(parent, basename(target))
-}
+
 try {
   const { values } = parseArgs({ options: Object.fromEntries(['mode', 'input', 'metadata', 'key-file', 'output'].map(k => [k, { type: 'string' }])) })
   const mode = values.mode ?? 'verify'
