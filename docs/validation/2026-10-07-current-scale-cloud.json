@@ -1,0 +1,77 @@
+{
+  "observedAt": "2026-10-07T07:06:42.181Z",
+  "env": "dev-d1gh3jw1gdf06af22",
+  "functionName": "planner-fusion-gateway-probe",
+  "manifestSha256": "2052a7b9707af47598741c2d1c5263700a93d936b558cde0cebe1a228ac19f12",
+  "status": "PASS",
+  "stage": "manual-version",
+  "commands": 480,
+  "checks": [
+    "guests_export_roundtrip_pass",
+    "rooms_export_roundtrip_pass",
+    "150_guests_15_tables_30_rooms_12_notes_exact_readback",
+    "manual_version_exact_core_and_note_count"
+  ],
+  "timings": {
+    "table.add": {
+      "count": 15,
+      "p50Ms": 608,
+      "p95Ms": 780,
+      "maxMs": 780
+    },
+    "room.add": {
+      "count": 30,
+      "p50Ms": 522,
+      "p95Ms": 840,
+      "maxMs": 882
+    },
+    "stayDate.add": {
+      "count": 2,
+      "p50Ms": 503,
+      "p95Ms": 503,
+      "maxMs": 503
+    },
+    "guest.add": {
+      "count": 150,
+      "p50Ms": 519,
+      "p95Ms": 767,
+      "maxMs": 1888
+    },
+    "guest.assign": {
+      "count": 150,
+      "p50Ms": 521,
+      "p95Ms": 824,
+      "maxMs": 1393
+    },
+    "guest.assignRoom": {
+      "count": 60,
+      "p50Ms": 522,
+      "p95Ms": 713,
+      "maxMs": 824
+    },
+    "guest.setStayDates": {
+      "count": 60,
+      "p50Ms": 520,
+      "p95Ms": 623,
+      "maxMs": 767
+    },
+    "note.add": {
+      "count": 12,
+      "p50Ms": 620,
+      "p95Ms": 1310,
+      "maxMs": 1310
+    },
+    "version.save": {
+      "count": 1,
+      "p50Ms": 888,
+      "p95Ms": 888,
+      "maxMs": 888
+    }
+  },
+  "fixtureProjectId": "fusion-created-53f3f2f3-cdd7-47e8-b3ff-c2422bf1f1d5",
+  "readDurationMs": 963,
+  "snapshotJsonBytes": 114197,
+  "calls": 485,
+  "elapsedMs": 265837,
+  "scope": "Fresh synthetic project only; sequential Node SDK real gateway commands. JSON payload bytes are not database billed storage. No daily history, browser/mobile, concurrency load or SLA proof."
+}
