@@ -1,5 +1,7 @@
 // Local fictitious browser fixture. No CloudBase SDK, credentials, or .env files.
 import { createServer } from 'vite'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { MemoryStore } from '../../tests/fusion/memoryStore.ts'
@@ -12,7 +14,7 @@ const maxBytes = 1024 * 1024
 const server = await createServer({
   configFile: false, envDir: false,
   define: { 'import.meta.env.VITE_FUSION_ENV_ID': JSON.stringify('sol-s03-local-fictitious-env'), 'import.meta.env.VITE_FUSION_PUBLISHABLE_KEY': JSON.stringify('sol-s03-local-fictitious-key') },
-  cacheDir: `/private/tmp/planner-sol-s03-vite-${port}`,
+  cacheDir: join(tmpdir(), `planner-sol-s03-vite-${port}`),
   server: { host: '127.0.0.1', port, strictPort: true },
   plugins: [{
     name: 'sol-s03-local-gateway', enforce: 'pre',
