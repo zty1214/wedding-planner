@@ -8,7 +8,9 @@ const store = new MemoryStore()
 const gateway = probeGateway(store, [])
 const maxBytes = 1024 * 1024
 const server = await createServer({
-  configFile: false, envDir: false, cacheDir: '/private/tmp/planner-sol-s03-vite',
+  configFile: false, envDir: false,
+  define: { 'import.meta.env.VITE_FUSION_ENV_ID': JSON.stringify('sol-s03-local-fictitious-env'), 'import.meta.env.VITE_FUSION_PUBLISHABLE_KEY': JSON.stringify('sol-s03-local-fictitious-key') },
+  cacheDir: '/private/tmp/planner-sol-s03-vite',
   server: { host: '127.0.0.1', port: 4192, strictPort: true },
   plugins: [{
     name: 'sol-s03-local-gateway', enforce: 'pre',
