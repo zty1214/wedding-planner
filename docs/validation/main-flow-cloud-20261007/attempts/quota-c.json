@@ -1,0 +1,38 @@
+{
+  "mode": "isolated Chromium native IndexedDB quota rejection; local fictitious gateway",
+  "startedAt": "2026-10-07T08:42:35.351Z",
+  "browserVersion": "149.0.7827.55",
+  "before": {
+    "usage": 0,
+    "quota": 1659523630,
+    "overrideActive": false,
+    "usageBreakdown": [
+      {
+        "storageType": "file_systems",
+        "usage": 0
+      },
+      {
+        "storageType": "indexeddb",
+        "usage": 0
+      },
+      {
+        "storageType": "cache_storage",
+        "usage": 0
+      },
+      {
+        "storageType": "service_workers",
+        "usage": 0
+      }
+    ]
+  },
+  "override": {
+    "active": true,
+    "requestedQuotaBytes": 0,
+    "effectiveQuotaBytes": 0
+  },
+  "nativeError": "WRITE_SUCCEEDED",
+  "status": "failed",
+  "failedStage": "native-quota-before-origin-initialization",
+  "failureType": "AssertionError",
+  "finishedAt": "2026-10-07T08:42:36.638Z"
+}

@@ -1,0 +1,41 @@
+{
+  "scope": "real App + real dev CloudBase gateway; two isolated Chromium storage contexts",
+  "baseline": "9514d31e14abc3e4382a1defcb683867d860c204",
+  "startedAt": "2026-10-07T08:39:57.140Z",
+  "results": [
+    {
+      "name": "create-project",
+      "status": "passed",
+      "elapsedMs": 3637
+    },
+    {
+      "name": "guests-leading-zero",
+      "status": "passed",
+      "elapsedMs": 8001
+    },
+    {
+      "name": "seating/assign-guest",
+      "status": "failed",
+      "reason": "BROWSER_ASSERTION_FAILED"
+    }
+  ],
+  "deployment": {
+    "env": "dev-d1gh3jw1gdf06af22",
+    "functionName": "planner-fusion-gateway-probe",
+    "active": true,
+    "eventLoggingDisabled": true,
+    "manifestBundleSha256": "2052a7b9707af47598741c2d1c5263700a93d936b558cde0cebe1a228ac19f12",
+    "bundleContentRehashed": false
+  },
+  "browserVersion": "149.0.7827.55",
+  "status": "failed",
+  "currentStage": "seating-visible-canvas",
+  "fixtureProjectId": "fusion-created-463ed33a-de88-41e2-b59c-e21eda3d1889",
+  "failureType": "TimeoutError",
+  "strictLocatorViolation": false,
+  "headerStatuses": [
+    "已同步到云端"
+  ],
+  "failedStage": "seating/assign-guest",
+  "finishedAt": "2026-10-07T08:40:59.590Z"
+}

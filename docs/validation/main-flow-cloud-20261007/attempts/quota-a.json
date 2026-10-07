@@ -1,0 +1,8 @@
+{
+  "mode": "isolated Chromium native IndexedDB quota rejection; local fictitious gateway",
+  "startedAt": "2026-10-07T08:37:42.755Z",
+  "status": "failed",
+  "failedStage": "startup",
+  "failureType": "TimeoutError",
+  "finishedAt": "2026-10-07T08:38:04.440Z"
+}

@@ -1,0 +1,90 @@
+{
+  "scope": "real App + real dev CloudBase gateway; two isolated Chromium storage contexts",
+  "baseline": "9514d31e14abc3e4382a1defcb683867d860c204",
+  "startedAt": "2026-10-07T08:45:21.693Z",
+  "results": [
+    {
+      "name": "create-project",
+      "status": "passed",
+      "elapsedMs": 1518
+    },
+    {
+      "name": "guests-leading-zero",
+      "status": "passed",
+      "elapsedMs": 4587
+    },
+    {
+      "name": "seating-visible-canvas",
+      "status": "passed",
+      "elapsedMs": 4304
+    },
+    {
+      "name": "stay-different-nights",
+      "status": "passed",
+      "elapsedMs": 12418
+    },
+    {
+      "name": "notes-and-refresh",
+      "status": "passed",
+      "elapsedMs": 2385
+    },
+    {
+      "name": "independent-browser-cloud-four-modules",
+      "status": "passed",
+      "elapsedMs": 31874
+    }
+  ],
+  "deployment": {
+    "env": "dev-d1gh3jw1gdf06af22",
+    "functionName": "planner-fusion-gateway-probe",
+    "active": true,
+    "eventLoggingDisabled": true,
+    "manifestBundleSha256": "2052a7b9707af47598741c2d1c5263700a93d936b558cde0cebe1a228ac19f12",
+    "bundleContentRehashed": false
+  },
+  "browserVersion": "149.0.7827.55",
+  "status": "passed",
+  "currentStage": "independent-browser-cloud-four-modules",
+  "fixtureProjectId": "fusion-created-c4760324-7c3d-4fa3-a527-7fbff0397925",
+  "identitiesDistinct": true,
+  "conflict": {
+    "operationId": "9afee655-092f-4769-a87b-e9ec5e55091f",
+    "currentCloudValuePreserved": true,
+    "archiveSurvivesReload": true,
+    "actualDownloadReadback": true,
+    "archiveAddedCloudWrites": false,
+    "reeditPassed": true
+  },
+  "restore": {
+    "targetVersionId": "c4760324-7c3d-4fa3-a527-7fbff0397925:ffea50dc-5156-4f05-b994-b1fd23b891c0",
+    "originalOperationId": "358601bf-e7d6-4794-80fa-d4afbd4080df",
+    "oldDraftOperationId": "b88c2c6d-bcdf-4d10-9f3f-ad442de49d89",
+    "fourModulesMatchTarget": true,
+    "confirmedNewEpochNotRepeated": true,
+    "safetyVersionCount": 1,
+    "oldDraftPreservedAndNotExecuted": true,
+    "mode": "real cloud + client lost-response injection"
+  },
+  "rotation": {
+    "copiedThroughProduct": true,
+    "oldSessionReadDenied": true,
+    "oldLinkWriteDenied": true,
+    "oldDraftOperationId": "50c9a2fc-fb08-43f9-95ad-38c74061f388",
+    "oldDraftSurvivesNewLinkAndReopen": true,
+    "newLinkReopenPassed": true
+  },
+  "serverFinal": {
+    "guests": 3,
+    "tables": 1,
+    "rooms": 1,
+    "notes": 1,
+    "dataEpoch": "29f2a7f8-a8f2-491b-a0ec-81b01af9000c"
+  },
+  "switchProjectId": "fusion-created-bd3f6dc4-b5ce-42e0-bacb-659ed921755b",
+  "projectSwitch": {
+    "cloudDataIsolated": true,
+    "privateDraftAbsentFromOtherProject": true,
+    "originalPrivateInputRecoverable": true
+  },
+  "finishedAt": "2026-10-07T08:46:21.141Z"
+}

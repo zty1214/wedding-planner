@@ -1,0 +1,26 @@
+{
+  "format": "planner-local-drafts-v1",
+  "exportedAt": "2026-10-07T08:45:56.870Z",
+  "drafts": [
+    {
+      "command": {
+        "projectId": "fusion-created-c4760324-7c3d-4fa3-a527-7fbff0397925",
+        "dataEpoch": "c4760324-7c3d-4fa3-a527-7fbff0397925",
+        "operationId": "9afee655-092f-4769-a87b-e9ec5e55091f",
+        "commandVersion": 1,
+        "type": "table.update",
+        "payload": {
+          "id": "2b8b3d2c-34a3-4961-bd40-4cd4710f9f42",
+          "patch": {
+            "label": "冲突的虚构原桌名"
+          }
+        },
+        "expectedRevisions": {
+          "table:2b8b3d2c-34a3-4961-bd40-4cd4710f9f42": 1
+        }
+      },
+      "status": "conflict",
+      "sequence": 1
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "scope": "real App + real dev CloudBase gateway; two isolated Chromium storage contexts",
+  "baseline": "9514d31e14abc3e4382a1defcb683867d860c204",
+  "startedAt": "2026-10-07T08:32:36.941Z",
+  "results": [
+    {
+      "name": "create-project",
+      "status": "passed",
+      "elapsedMs": 1459
+    },
+    {
+      "name": "guests-leading-zero",
+      "status": "passed",
+      "elapsedMs": 4380
+    },
+    {
+      "name": "seating-visible-canvas",
+      "status": "passed",
+      "elapsedMs": 4403
+    },
+    {
+      "name": "stay-different-nights",
+      "status": "passed",
+      "elapsedMs": 14244
+    },
+    {
+      "name": "notes-and-refresh",
+      "status": "passed",
+      "elapsedMs": 2371
+    },
+    {
+      "name": "cloud/verify-nights",
+      "status": "failed",
+      "reason": "BROWSER_ASSERTION_FAILED"
+    }
+  ],
+  "deployment": {
+    "env": "dev-d1gh3jw1gdf06af22",
+    "functionName": "planner-fusion-gateway-probe",
+    "active": true,
+    "eventLoggingDisabled": true,
+    "manifestBundleSha256": "2052a7b9707af47598741c2d1c5263700a93d936b558cde0cebe1a228ac19f12",
+    "bundleContentRehashed": false
+  },
+  "browserVersion": "149.0.7827.55",
+  "status": "failed",
+  "currentStage": "independent-browser-cloud-four-modules",
+  "fixtureProjectId": "fusion-created-280b249c-1a05-4206-bbe3-4a1eb5fb1a7d",
+  "identitiesDistinct": true,
+  "conflict": {
+    "operationId": "7805f69f-b8e3-48b6-aedb-2b1ebaefd2f7",
+    "currentCloudValuePreserved": true,
+    "archiveSurvivesReload": true,
+    "actualDownloadReadback": true,
+    "archiveAddedCloudWrites": false,
+    "reeditPassed": true
+  },
+  "restore": {
+    "targetVersionId": "280b249c-1a05-4206-bbe3-4a1eb5fb1a7d:1ad51c65-58ab-4183-a17b-917d9ab578d8",
+    "originalOperationId": "b275fcea-f671-4a8a-a664-1b45859740cb",
+    "oldDraftOperationId": "d36a4e36-156d-47fe-9c18-08126337ca2f",
+    "fourModulesMatchTarget": true,
+    "confirmedNewEpochNotRepeated": true,
+    "safetyVersionCount": 1,
+    "oldDraftPreservedAndNotExecuted": true,
+    "mode": "real cloud + client lost-response injection"
+  },
+  "failureType": "TimeoutError",
+  "strictLocatorViolation": false,
+  "headerStatuses": [
+    "已同步到云端"
+  ],
+  "otherHeaderStatuses": [
+    "发现本地草稿，请确认后继续同步（1 项）"
+  ],
+  "failedStage": "cloud/verify-nights",
+  "finishedAt": "2026-10-07T08:34:02.782Z"
+}

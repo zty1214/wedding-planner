@@ -1,0 +1,78 @@
+{
+  "scope": "real App + real dev CloudBase gateway; two isolated Chromium storage contexts",
+  "baseline": "9514d31e14abc3e4382a1defcb683867d860c204",
+  "startedAt": "2026-10-07T08:30:14.682Z",
+  "results": [
+    {
+      "name": "create-project",
+      "status": "passed",
+      "elapsedMs": 1540
+    },
+    {
+      "name": "guests-leading-zero",
+      "status": "passed",
+      "elapsedMs": 4410
+    },
+    {
+      "name": "seating-visible-canvas",
+      "status": "passed",
+      "elapsedMs": 4516
+    },
+    {
+      "name": "stay-different-nights",
+      "status": "passed",
+      "elapsedMs": 13360
+    },
+    {
+      "name": "notes-and-refresh",
+      "status": "passed",
+      "elapsedMs": 2772
+    },
+    {
+      "name": "cloud/revoked-session-refresh",
+      "status": "failed",
+      "reason": "BROWSER_ASSERTION_FAILED"
+    }
+  ],
+  "deployment": {
+    "env": "dev-d1gh3jw1gdf06af22",
+    "functionName": "planner-fusion-gateway-probe",
+    "active": true,
+    "eventLoggingDisabled": true,
+    "manifestBundleSha256": "2052a7b9707af47598741c2d1c5263700a93d936b558cde0cebe1a228ac19f12",
+    "bundleContentRehashed": false
+  },
+  "browserVersion": "149.0.7827.55",
+  "status": "failed",
+  "currentStage": "independent-browser-cloud-four-modules",
+  "fixtureProjectId": "fusion-created-328c68f4-1a99-4d2e-8107-3730cb190f56",
+  "identitiesDistinct": true,
+  "conflict": {
+    "operationId": "f6b9ef03-b403-4fb8-9503-73cc31773597",
+    "currentCloudValuePreserved": true,
+    "archiveSurvivesReload": true,
+    "actualDownloadReadback": true,
+    "archiveAddedCloudWrites": false,
+    "reeditPassed": true
+  },
+  "restore": {
+    "targetVersionId": "328c68f4-1a99-4d2e-8107-3730cb190f56:dfe1e591-4ed7-45fb-afdf-ba1c9a1ad489",
+    "originalOperationId": "c8030819-a919-407c-9bf1-009a796c3053",
+    "oldDraftOperationId": "9fedc144-c175-47f8-9918-0465081cef9a",
+    "fourModulesMatchTarget": true,
+    "confirmedNewEpochNotRepeated": true,
+    "safetyVersionCount": 1,
+    "oldDraftPreservedAndNotExecuted": true,
+    "mode": "real cloud + client lost-response injection"
+  },
+  "failureType": "TimeoutError",
+  "strictLocatorViolation": false,
+  "headerStatuses": [
+    "已同步到云端"
+  ],
+  "otherHeaderStatuses": [
+    "无权访问，本地草稿保留（1 项）"
+  ],
+  "failedStage": "cloud/revoked-session-refresh",
+  "finishedAt": "2026-10-07T08:31:39.398Z"
+}

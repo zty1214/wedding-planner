@@ -1,0 +1,12 @@
+{
+  "mode": "real CloudBase + same Chromium context two pages sharing IndexedDB/locks",
+  "startedAt": "2026-10-07T08:47:03.748Z",
+  "projectId": "fusion-created-107e20d8-4395-46a8-b335-d63ea44a1ba1",
+  "operationId": "5c458af6-81c4-4007-afb3-a8b280b4c915",
+  "offlineCount": 1,
+  "afterReconnectCount": 0,
+  "serverGuestCount": 1,
+  "originalReceiptConfirmed": true,
+  "status": "passed",
+  "finishedAt": "2026-10-07T08:47:10.976Z"
+}
