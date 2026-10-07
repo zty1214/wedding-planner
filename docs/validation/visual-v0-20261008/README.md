@@ -31,3 +31,5 @@
 ## 候选CI修复
 
 首个阶段提交269d211已推送候选分支，但[首次远端运行](https://github.com/zty1214/wedding-planner/actions/runs/37656837191)在创建job前失败，没有执行测试。产物目录表达式错误地在job级env引用runner.temp；[GitHub上下文限制](https://docs.github.com/en/actions/reference/workflows-and-actions/contexts)仅允许步骤级env使用runner。现将e2e环境变量移到步骤，并在upload的with中使用同一run/attempt路径，仍不匹配仓库旧报告。修复阶段另行提交并验证，不能把首次失败算作通过。
+
+修复提交 `ded153f70a81151c26db79d6f0a7e6fd7502de9f` 的[同提交CI](https://github.com/zty1214/wedding-planner/actions/runs/37657091946)已completed/success；check、test:e2e和本次main-flow-e2e产物上传均成功，见[API证据](ci-report.json)。本地feat已快进到相同SHA；原用户未提交方案与设计在合并后原样恢复并核对哈希，原方案保留为未提交修改。备份在 `/private/tmp/planner-preserved-user-docs-6k4jax_9`。CI及整合结果仅补录工作区，随下一完整阶段提交，不为日志再建碎片提交。

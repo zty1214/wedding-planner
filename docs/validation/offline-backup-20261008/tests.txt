@@ -1,0 +1,13 @@
+✔ encrypted backup restores exact source bytes, metadata and old attachment references without leaking records (2.69775ms)
+✔ wrong key, corrupted ciphertext and authentication tag cannot be restored (0.343417ms)
+✔ incomplete, altered and falsely frozen source manifests are rejected before encryption (0.196666ms)
+✔ backup collector covers server-capped pages with exact offsets and rejects missing or duplicate rows (1.084042ms)
+✔ CLI defaults to verification, uses separate private keys and never overwrites output or enters a Git checkout (390.687417ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 464.673416
