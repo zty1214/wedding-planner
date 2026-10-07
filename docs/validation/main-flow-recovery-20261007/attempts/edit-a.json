@@ -1,0 +1,12 @@
+{
+  "baseline": "f175d82a8920a754e617ce93009ed95fc14ae0e9",
+  "mode": "real App + IndexedDB + local MemoryStore gateway; handoff/cleanup/lost-response injection",
+  "startedAt": "2026-10-07T08:59:27.957Z",
+  "results": [],
+  "browserVersion": "149.0.7827.55",
+  "projectId": "fusion-created-b54920ed-bcd6-4734-b0f9-3670a415764a",
+  "status": "failed",
+  "failedStage": "guest-edit-handoff-save-failure",
+  "failureType": "TypeError",
+  "finishedAt": "2026-10-07T08:59:29.823Z"
+}

@@ -11,20 +11,21 @@ let offline = false, loseNext = null, lostResponses = 0
 const port = 4194, route = '/__recovery_gateway', control = '/__recovery_control'
 const stats = () => ({ offline, loseNext, lostResponses, projects: store.projects.size,
   receipts: [...store.projects.values()].reduce((n, p) => n + p.receipts.size, 0),
-  guests: [...store.projects.values()].reduce((n, p) => n + (p.current.data.guestOrder?.length ?? 0), 0) })
+  guests: [...store.projects.values()].reduce((n, p) => n + (p.current.data.guestOrder?.length ?? 0), 0), notes: [...store.projects.values()].reduce((n, p) => n + p.notes.size, 0) })
 const draftModules = new Map()
 for (const name of ['Guest', 'Note', 'Field']) {
   const path = `/src/fusion/${name.toLowerCase()}Drafts.ts`
   const source = (await readFile(new URL(`../../${path.slice(1)}`, import.meta.url), 'utf8'))
     .replace(`export async function open${name}DraftVault(`, `async function openActual${name}DraftVault(`)
-  draftModules.set(path, `${source}\nexport async function open${name}DraftVault(factory = indexedDB) { const vault = await openActual${name}DraftVault(factory); return {...vault, save: async (...args) => { if (localStorage.getItem('recovery-storage-fail') === 'yes') throw Error('INJECTED_LOCAL_SAVE_FAILURE'); return vault.save(...args) }} }`)
+  draftModules.set(path, `${source}\nexport async function open${name}DraftVault(factory = indexedDB) { const vault = await openActual${name}DraftVault(factory); return {...vault, save: async (...args) => { if (localStorage.getItem('recovery-storage-fail') === 'yes' || (args[0]?.handoff && localStorage.getItem('recovery-handoff-fail') === 'yes')) throw Error('INJECTED_LOCAL_SAVE_FAILURE'); return vault.save(...args) }, remove: async (...args) => { if (localStorage.getItem('recovery-cleanup-fail') === 'yes') throw Error('INJECTED_LOCAL_CLEANUP_FAILURE'); return vault.remove(...args) }} }`)
 }
 const toolbar = `<script type="module">
 const bar=document.createElement('aside');bar.setAttribute('aria-label','本地故障验收控制');bar.style='padding:8px;background:#fff8dc;display:flex;gap:8px;flex-wrap:wrap';
 const status=document.createElement('p');status.setAttribute('role','status');status.setAttribute('data-recovery-stats','');status.style='width:100%;font-size:12px';bar.append(status);
 async function update(mode){const r=await fetch('${control}',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode})});const v=await r.json();status.textContent='仅本地虚构：项目 '+v.projects+'，宾客 '+v.guests+'，回执 '+v.receipts+'，丢响应 '+v.lostResponses+'，网络 '+(v.offline?'离线':'在线')+'，待丢 '+(v.loseNext||'无');}
-for(const [label,mode] of [['模拟断网','offline'],['恢复网络','online'],['下一次创建丢响应','lose-create'],['下一次轮换丢响应','lose-rotate'],['下一次恢复丢响应','lose-restore'],['读取验收计数','stats']]){const b=document.createElement('button');b.textContent=label;b.onclick=()=>update(mode);bar.append(b)}
+for(const [label,mode] of [['模拟断网','offline'],['恢复网络','online'],['下一次创建丢响应','lose-create'],['下一次轮换丢响应','lose-rotate'],['下一次恢复丢响应','lose-restore'],['下一次宾客修改丢响应','lose-guest-update'],['读取验收计数','stats']]){const b=document.createElement('button');b.textContent=label;b.onclick=()=>update(mode);bar.append(b)}
 for(const [label,failed] of [['模拟表单保存失败',true],['恢复表单存储',false]]){const b=document.createElement('button');b.textContent=label;b.onclick=()=>{if(failed)localStorage.setItem('recovery-storage-fail','yes');else localStorage.removeItem('recovery-storage-fail');status.textContent=failed?'本地故障注入：表单保存失败':'表单本机存储已恢复';};bar.append(b)}
+for(const [label,key,failed] of [['模拟交接保存失败','recovery-handoff-fail',true],['恢复交接保存','recovery-handoff-fail',false],['模拟表单清理失败','recovery-cleanup-fail',true],['恢复表单清理','recovery-cleanup-fail',false]]){const b=document.createElement('button');b.textContent=label;b.onclick=()=>{if(failed)localStorage.setItem(key,'yes');else localStorage.removeItem(key);status.textContent=label;};bar.append(b)}
 document.body.prepend(bar);await update('stats');
 </script>`
 const server = await createServer({ configFile: false, envDir: false,
@@ -48,10 +49,10 @@ const server = await createServer({ configFile: false, envDir: false,
         const input = JSON.parse(Buffer.concat(chunks).toString('utf8'))
         if (req.url === control) {
           const { mode } = input
-          if (!['stats', 'offline', 'online', 'lose-create', 'lose-rotate', 'lose-restore'].includes(mode)) return reply(400, { error: 'INVALID_INPUT' })
+          if (!['stats', 'offline', 'online', 'lose-create', 'lose-rotate', 'lose-restore', 'lose-guest-update'].includes(mode)) return reply(400, { error: 'INVALID_INPUT' })
           if (mode === 'offline') offline = true
           if (mode === 'online') offline = false
-          if (mode.startsWith('lose-')) loseNext = { 'lose-create': 'project.create', 'lose-rotate': 'access.rotateCollaboration', 'lose-restore': 'version.restore' }[mode]
+          if (mode.startsWith('lose-')) loseNext = { 'lose-create': 'project.create', 'lose-rotate': 'access.rotateCollaboration', 'lose-restore': 'version.restore', 'lose-guest-update': 'guest.update' }[mode]
           return reply(200, stats())
         }
         if (offline) return reply(503, { error: 'INJECTED_OFFLINE' })

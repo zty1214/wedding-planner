@@ -1,0 +1,63 @@
+{
+  "baseline": "f175d82a8920a754e617ce93009ed95fc14ae0e9",
+  "mode": "real App + IndexedDB + local MemoryStore gateway; handoff/cleanup/lost-response injection",
+  "startedAt": "2026-10-07T09:00:51.071Z",
+  "results": [
+    {
+      "name": "guest-edit-handoff-save-failure",
+      "status": "passed",
+      "operationId": "607c1de4-9d08-4f6f-b3a2-4c042e3046a9",
+      "noDispatch": true,
+      "inputAndOriginalIdAfterReload": true
+    },
+    {
+      "name": "guest-edit-cleanup-failure",
+      "status": "passed",
+      "operationId": "607c1de4-9d08-4f6f-b3a2-4c042e3046a9",
+      "receiptsAdded": 1,
+      "repeatCheckAddedReceipts": 0,
+      "formsAfterCleanup": 0
+    },
+    {
+      "name": "note-edit-handoff-save-failure",
+      "status": "passed",
+      "operationId": "29b71054-aa3c-4cf2-8cc4-2620fd798ba3",
+      "noDispatch": true,
+      "contentAndOriginalIdAfterReload": true
+    },
+    {
+      "name": "note-edit-cleanup-failure",
+      "status": "passed",
+      "operationId": "29b71054-aa3c-4cf2-8cc4-2620fd798ba3",
+      "receiptsAdded": 1,
+      "repeatCheckAddedReceipts": 0,
+      "formsAfterCleanup": 0
+    },
+    {
+      "name": "unknown-result-discard-denied",
+      "status": "passed",
+      "operationId": "8c97476c-b112-4c53-9efe-d28f69ade073",
+      "queuePreserved": true
+    },
+    {
+      "name": "known-conflict-permanent-discard",
+      "status": "passed",
+      "operationId": "8c97476c-b112-4c53-9efe-d28f69ade073",
+      "queueAfterReopen": 0,
+      "otherValuePreserved": true,
+      "extraReceipts": 0
+    },
+    {
+      "name": "committed-result-discard-does-not-undo",
+      "status": "passed",
+      "operationId": "8e4abc32-3323-4dab-820f-eb3f564456cc",
+      "queueAfterReopen": 0,
+      "serverValuePreserved": true,
+      "extraReceipts": 0
+    }
+  ],
+  "browserVersion": "149.0.7827.55",
+  "projectId": "fusion-created-822c0f3b-7230-4ef4-9d9a-f464ac07d9d7",
+  "status": "passed",
+  "finishedAt": "2026-10-07T09:00:57.140Z"
+}

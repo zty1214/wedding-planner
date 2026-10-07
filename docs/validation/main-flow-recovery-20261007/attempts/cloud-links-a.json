@@ -1,0 +1,32 @@
+{
+  "baseline": "f175d82a8920a754e617ce93009ed95fc14ae0e9",
+  "mode": "real App + real dev CloudBase; client lost-response injection for creation and rotation",
+  "startedAt": "2026-10-07T09:02:39.288Z",
+  "results": [
+    {
+      "name": "creation-success-lost-response",
+      "status": "passed",
+      "originalRequestId": "78d93b7a-7f8b-4ed2-a424-00d3c0e692cc",
+      "sameProject": true,
+      "sameOriginalSecretsInMemory": true,
+      "creationEntries": 1,
+      "sameEpochAfterRetry": true,
+      "actualProductCopyMatched": true
+    }
+  ],
+  "deployment": {
+    "env": "dev-d1gh3jw1gdf06af22",
+    "functionName": "planner-fusion-gateway-probe",
+    "active": true,
+    "eventLoggingDisabled": true,
+    "manifestBundleSha256": "2052a7b9707af47598741c2d1c5263700a93d936b558cde0cebe1a228ac19f12",
+    "bundleContentRehashed": false
+  },
+  "browserVersion": "149.0.7827.55",
+  "projectId": "fusion-created-78d93b7a-7f8b-4ed2-a424-00d3c0e692cc",
+  "identitiesDistinct": true,
+  "status": "failed",
+  "failedStage": "rotation-success-lost-response",
+  "failureType": "Error",
+  "finishedAt": "2026-10-07T09:02:52.151Z"
+}

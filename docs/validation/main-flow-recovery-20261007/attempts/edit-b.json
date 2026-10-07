@@ -1,0 +1,28 @@
+{
+  "baseline": "f175d82a8920a754e617ce93009ed95fc14ae0e9",
+  "mode": "real App + IndexedDB + local MemoryStore gateway; handoff/cleanup/lost-response injection",
+  "startedAt": "2026-10-07T09:00:12.968Z",
+  "results": [
+    {
+      "name": "guest-edit-handoff-save-failure",
+      "status": "passed",
+      "operationId": "0c020a86-aafa-4e9f-99ac-081e0bc5bd1a",
+      "noDispatch": true,
+      "inputAndOriginalIdAfterReload": true
+    },
+    {
+      "name": "guest-edit-cleanup-failure",
+      "status": "passed",
+      "operationId": "0c020a86-aafa-4e9f-99ac-081e0bc5bd1a",
+      "receiptsAdded": 1,
+      "repeatCheckAddedReceipts": 0,
+      "formsAfterCleanup": 0
+    }
+  ],
+  "browserVersion": "149.0.7827.55",
+  "projectId": "fusion-created-62030b9b-3b22-4618-b03c-8b0bcf8a8036",
+  "status": "failed",
+  "failedStage": "note-edit-handoff-save-failure",
+  "failureType": "TimeoutError",
+  "finishedAt": "2026-10-07T09:00:30.908Z"
+}
