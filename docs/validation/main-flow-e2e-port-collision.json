@@ -1,0 +1,6 @@
+{
+  "test": "pre-existing local port is not taken over",
+  "exitCode": 1,
+  "failureCode": "PORT_4196_UNAVAILABLE",
+  "guardStillListening": true
+}

@@ -4,14 +4,16 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { MemoryStore } from '../../tests/fusion/memoryStore.ts'
 import { probeGateway } from '../../server/fusion/probeGateway.ts'
+const port = Number(process.env.S03_PORT ?? 4192)
+if (!Number.isInteger(port) || port < 1024 || port > 65535) throw Error('INVALID_S03_PORT')
 const store = new MemoryStore()
 const gateway = probeGateway(store, [])
 const maxBytes = 1024 * 1024
 const server = await createServer({
   configFile: false, envDir: false,
   define: { 'import.meta.env.VITE_FUSION_ENV_ID': JSON.stringify('sol-s03-local-fictitious-env'), 'import.meta.env.VITE_FUSION_PUBLISHABLE_KEY': JSON.stringify('sol-s03-local-fictitious-key') },
-  cacheDir: '/private/tmp/planner-sol-s03-vite',
-  server: { host: '127.0.0.1', port: 4192, strictPort: true },
+  cacheDir: `/private/tmp/planner-sol-s03-vite-${port}`,
+  server: { host: '127.0.0.1', port, strictPort: true },
   plugins: [{
     name: 'sol-s03-local-gateway', enforce: 'pre',
     load(id) {
@@ -41,4 +43,4 @@ const server = await createServer({
   }, react(), tailwindcss()],
 })
 await server.listen()
-console.log('S03 local fictitious main flow: http://127.0.0.1:4192/fusion ; memory resets when process stops')
+console.log(`S03 local fictitious main flow: http://127.0.0.1:${port}/fusion ; memory resets when process stops`)

@@ -47,4 +47,4 @@ POST输入上限1 MiB；过大返回413/REQUEST_TOO_LARGE，非法JSON返回400/
 
 主会话真实UI已完成项目创建，但打开项目时FusionLayout独立检查env/key，最初夹具未提供导致“新数据入口尚未配置 CloudBase 环境”。这不是四模块通过的证据。夹具增量补充Vite define：VITE_FUSION_ENV_ID=sol-s03-local-fictitious-env、VITE_FUSION_PUBLISHABLE_KEY=sol-s03-local-fictitious-key，仅为绕过该入口配置检查的明确虚构占位；cloudClient仍被本机fetch覆盖，envDir:false保持，未加载真实.env或SDK。服务重启清空内存，主会话应新建虚构项目继续UI验收。
 
-修正后重启实际HTTP验证通过：cloudClient编译内容仍为/__sol_s03_gateway本机fetch且无@cloudbase/cloudbase.init；FusionLayout编译内容同时包含上述两个虚构占位值。Node assert核对三项通过；UI后续验收由主会话继续。
+修正后重启实际HTTP验证通过：cloudClient编译内容仍为/__sol_s03_gateway本机fetch且无@cloudbase/cloudbase.init；FusionLayout编译内容同时包含上述两个虚构占位值。Node assert核对三项通过；当时UI仍待主会话接续，后续已通过，见上方2026-10-07真实浏览器验收段。

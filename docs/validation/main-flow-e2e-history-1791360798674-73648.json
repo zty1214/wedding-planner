@@ -1,0 +1,58 @@
+{
+  "scope": "real App + local fictitious gateway; isolated Chromium",
+  "baseline": "709f2650882007446a6f266993870a1da960d4e9",
+  "startedAt": "2026-10-07T08:11:47.342Z",
+  "results": [
+    {
+      "name": "create-project",
+      "status": "passed",
+      "elapsedMs": 712
+    },
+    {
+      "name": "guests-leading-zero",
+      "status": "passed",
+      "elapsedMs": 432
+    },
+    {
+      "name": "seating-visible-canvas",
+      "status": "passed",
+      "elapsedMs": 502
+    },
+    {
+      "name": "stay-different-nights",
+      "status": "passed",
+      "elapsedMs": 932
+    },
+    {
+      "name": "notes-and-refresh",
+      "status": "passed",
+      "elapsedMs": 736
+    },
+    {
+      "name": "same-context-shared-queue",
+      "status": "passed",
+      "elapsedMs": 887
+    },
+    {
+      "name": "independent-context-local-collaboration",
+      "status": "passed",
+      "elapsedMs": 814
+    }
+  ],
+  "browserVersion": "149.0.7827.55",
+  "sharedQueue": {
+    "operationId": "7e7b3cea-e9bf-4812-8203-e2f4e3443ccd",
+    "offlinePending": 1,
+    "afterReconnectPending": 0,
+    "serverGuestCount": 1
+  },
+  "serverFinal": {
+    "guests": 4,
+    "tables": 1,
+    "rooms": 1,
+    "notes": 1,
+    "snapshotRevision": 18
+  },
+  "status": "passed",
+  "finishedAt": "2026-10-07T08:11:53.526Z"
+}

@@ -14,7 +14,8 @@
     "test": "npm run test:fusion",
     "check": "npm run test && npm run test:scale && npm run typecheck:fusion && npm run lint && npm run build && npm run build:fusion-check",
     "test:scale": "node --experimental-strip-types scripts/fusion/validate-scale.ts",
-    "build:fusion-check": "node scripts/fusion/validate-build.mjs"
+    "build:fusion-check": "node scripts/fusion/validate-build.mjs",
+    "test:e2e": "node scripts/fusion/main-flow-e2e-run.mjs"
   },
   "dependencies": {
     "@cloudbase/js-sdk": "3.6.3",
@@ -39,6 +40,7 @@
     "@vitejs/plugin-react": "^6.0.3",
     "fake-indexeddb": "6.2.5",
     "oxlint": "^1.71.0",
+    "playwright": "1.62.1",
     "rolldown": "1.1.5",
     "tailwindcss": "^4.3.3",
     "typescript": "~6.0.2",
