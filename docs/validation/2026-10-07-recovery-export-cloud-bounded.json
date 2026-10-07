@@ -1,0 +1,23 @@
+{
+  "observedAt": "2026-10-07T05:44:45.204Z",
+  "env": "dev-d1gh3jw1gdf06af22",
+  "functionName": "planner-fusion-gateway-probe",
+  "deploymentManifestSha256": "2052a7b9707af47598741c2d1c5263700a93d936b558cde0cebe1a228ac19f12",
+  "mode": "REAL_GATEWAY_RECOVERY_EXPORT_WITH_LOCAL_FAULT_INJECTION",
+  "checks": [
+    {
+      "name": "recycle_restore_draft_export_is_read_only_and_matches_commit",
+      "passed": true,
+      "durationMs": 7246
+    },
+    {
+      "name": "whole_restore_export_before_commit_and_after_lost_response_is_read_only",
+      "passed": true,
+      "durationMs": 9482
+    }
+  ],
+  "fixtureProjectId": "fusion-created-65e41565-2814-48bf-a1f1-189c9edc3b39",
+  "status": "PASS",
+  "scope": "Real CloudBase gateway/database; one anonymous SDK login with a private management credential. Read-only draft reconstruction is checked before and after actual restore. Local queue storage is fake-indexeddb. Offline and discarded-response faults are client-side injection, not an actual network outage. No independent browser/device claim; existing projects and permissions unchanged.",
+  "stage": "whole_restore_export_before_commit_and_after_lost_response_is_read_only"
+}

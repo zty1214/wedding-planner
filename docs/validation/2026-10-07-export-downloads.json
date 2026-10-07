@@ -1,0 +1,26 @@
+{
+  "environment": "local synthetic fixture; actual browser export components; no CloudBase calls",
+  "projectId": "browser-export-fixture",
+  "capturedAt": "2026-10-07T05:15:56.358Z",
+  "files": [
+    {
+      "filename": "纯虚构导出验收_住宿安排_云端已确认_r7_2026-10-07T05-15-56-358Z.xlsx",
+      "bytes": 18585,
+      "sha256": "24012d67e3d906b6b4f13d6f7697155ceb17cdbe003d3277f3a5560500586191"
+    },
+    {
+      "filename": "纯虚构导出验收_宾客名单_云端已确认_r7_2026-10-07T05-15-56-358Z.xlsx",
+      "bytes": 17422,
+      "sha256": "2c8c1ab5496bb82ad1c44ab3417a518dc1f05148eb4493a5db4d55bda4c00c83"
+    },
+    {
+      "filename": "纯虚构导出验收_座位图_云端已确认_r7_2026-10-07T05-15-56-358Z.png",
+      "bytes": 446335,
+      "sha256": "f1446c01045b347e15be43e96e8735d6d5e4d9cf608bfa20e7bf730a43359df2",
+      "dimensions": [
+        4368,
+        2400
+      ]
+    }
+  ]
+}

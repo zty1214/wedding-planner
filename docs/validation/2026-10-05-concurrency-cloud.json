@@ -1,0 +1,37 @@
+{
+  "observedAt": "2026-10-05T04:03:38.658Z",
+  "env": "dev-d1gh3jw1gdf06af22",
+  "functionName": "planner-fusion-gateway-probe",
+  "deploymentManifestSha256": "2052a7b9707af47598741c2d1c5263700a93d936b558cde0cebe1a228ac19f12",
+  "mode": "REAL_GATEWAY_CONCURRENT_REQUESTS_WITH_LOCAL_FAULT_INJECTION",
+  "checks": [
+    {
+      "name": "same_seat_concurrent_claim_has_one_winner_and_one_conflict",
+      "passed": true,
+      "durationMs": 3463
+    },
+    {
+      "name": "different_guests_concurrent_edits_both_survive",
+      "passed": true,
+      "durationMs": 3710
+    },
+    {
+      "name": "real_conflict_retained_then_new_intent_submitted_without_replaying_original",
+      "passed": true,
+      "durationMs": 10896
+    },
+    {
+      "name": "discarded_success_response_is_confirmed_once_by_original_receipt",
+      "passed": true,
+      "durationMs": 2916
+    },
+    {
+      "name": "project_restore_blocks_old_epoch_queue_and_retains_original_intent",
+      "passed": true,
+      "durationMs": 4273
+    }
+  ],
+  "fixtureProjectId": "fusion-created-372dd818-bccd-4dff-bb64-32da3d88c5ff",
+  "status": "PASS",
+  "scope": "Real CloudBase gateway/database; two concurrent request streams use one anonymous SDK login. Local queue storage is fake-indexeddb. Offline and discarded-response faults are client-side injection, not an actual network outage. No independent browser/device claim; existing projects and permissions unchanged."
+}

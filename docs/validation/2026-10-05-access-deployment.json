@@ -1,0 +1,15 @@
+{
+  "env": "dev-d1gh3jw1gdf06af22",
+  "functionName": "planner-fusion-gateway-probe",
+  "projects": [
+    "fusion-gateway-79da15fb-156f-4af7-8038-cb500ed5e3eb",
+    "fusion-gateway-57cae459-bf42-443f-b2de-07577584dacf"
+  ],
+  "sha256": "2052a7b9707af47598741c2d1c5263700a93d936b558cde0cebe1a228ac19f12",
+  "sdk": "3.18.3",
+  "fixtureMode": "CONTINUE_EXISTING_SYNTHETIC_UI_PROJECT",
+  "previousBundleSha256": "69700c62c77d0f11f72d0c62f5b290ec1f85d60c4e41434bec96c91a0ee6c4e4",
+  "cliDeploymentResult": "success",
+  "postDeploymentReadback": "Active and original project allowlist verified by probe-access-flow",
+  "scope": "existing isolated gateway only; no ACL or invocation rule changes"
+}

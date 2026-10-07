@@ -1,0 +1,16 @@
+{
+  "observedAt": "2026-10-05T03:46:14.803Z",
+  "env": "dev-d1gh3jw1gdf06af22",
+  "mode": "ADMIN_SDK_REAL_DATABASE_LOCAL_MAINTENANCE_CODE",
+  "checks": [
+    {
+      "name": "manual_future_wrong_epoch_protected",
+      "passed": true,
+      "durationMs": 842
+    }
+  ],
+  "fixtureProjectId": "fusion-created-1bb81a3b-7d51-4289-98f0-948d4a9fdfcd",
+  "status": "FAIL",
+  "failedStage": "real_transaction_rolls_back_recycle_delete_when_index_write_fails",
+  "errorCode": "PROBE_FAILED"
+}

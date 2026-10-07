@@ -1,0 +1,196 @@
+{
+  "generatedAt": "2026-10-05T03:29:37.733Z",
+  "runtime": "v25.8.1",
+  "evidence": "local-memory-store-only",
+  "limits": [
+    "No CloudBase requests or quota measurements",
+    "MemoryStore clones whole project per transaction; timings are not cloud latency",
+    "Workbook buffers read back programmatically; browser download and 150-person PNG readability not tested"
+  ],
+  "fixture": {
+    "guests": 150,
+    "tables": 15,
+    "rooms": 30,
+    "notes": 12,
+    "noteCharactersEach": 2002,
+    "changedDays": 90,
+    "firstDay": "2026-07-07",
+    "lastDay": "2026-10-04"
+  },
+  "serializedBytes": {
+    "currentCore": 46516,
+    "notes": 73997,
+    "singleDailyBody": 120884,
+    "dailyBodies90": 10879722,
+    "historyIndex90": 33832,
+    "maximumHistoryPage": 7566,
+    "largestCommandEnvelope": 6366,
+    "exports": {
+      "guests": 64930,
+      "rooms": 25030
+    }
+  },
+  "timingsMs": {
+    "noteSetup": {
+      "samples": 12,
+      "min": 0.31,
+      "median": 0.38,
+      "p95": 1.32,
+      "max": 1.32
+    },
+    "tableMove": {
+      "samples": 90,
+      "min": 3.98,
+      "median": 12.8,
+      "p95": 26.59,
+      "max": 57.9
+    },
+    "dailySnapshot": {
+      "samples": 90,
+      "min": 1.29,
+      "median": 10.27,
+      "p95": 26.34,
+      "max": 34.53
+    },
+    "historyPage": {
+      "samples": 5,
+      "min": 18.58,
+      "median": 18.74,
+      "p95": 22.54,
+      "max": 22.54
+    },
+    "versionRead": {
+      "samples": 1,
+      "min": 19.45,
+      "median": 19.45,
+      "p95": 19.45,
+      "max": 19.45
+    },
+    "projectRead": {
+      "samples": 1,
+      "min": 18.92,
+      "median": 18.92,
+      "p95": 18.92,
+      "max": 18.92
+    },
+    "restore": {
+      "samples": 1,
+      "min": 24.23,
+      "median": 24.23,
+      "p95": 24.23,
+      "max": 24.23
+    },
+    "restoredRead": {
+      "samples": 1,
+      "min": 19.5,
+      "median": 19.5,
+      "p95": 19.5,
+      "max": 19.5
+    },
+    "guestsWorkbook": {
+      "samples": 1,
+      "min": 19.81,
+      "median": 19.81,
+      "p95": 19.81,
+      "max": 19.81
+    },
+    "roomsWorkbook": {
+      "samples": 1,
+      "min": 4.64,
+      "median": 4.64,
+      "p95": 4.64,
+      "max": 4.64
+    }
+  },
+  "logicalTransactionCalls": {
+    "noteSetup": {
+      "transactions": 12,
+      "access": 12,
+      "current": 12,
+      "receipt": 12,
+      "note": 12,
+      "noteIndex": 12,
+      "dailyState": 24,
+      "putDailyState": 12,
+      "putNote": 12,
+      "putNoteIndex": 12,
+      "incrementActivity": 12,
+      "putReceipt": 12
+    },
+    "tableMove": {
+      "transactions": 90,
+      "access": 90,
+      "current": 90,
+      "receipt": 90,
+      "dailyState": 180,
+      "putDailyState": 90,
+      "putCurrent": 90,
+      "incrementActivity": 90,
+      "putReceipt": 90
+    },
+    "dailySnapshot": {
+      "transactions": 90,
+      "current": 90,
+      "dailyState": 180,
+      "noteIndex": 90,
+      "note": 1080,
+      "version": 90,
+      "historyIndex": 90,
+      "putVersion": 90,
+      "putHistoryIndex": 90,
+      "putDailyState": 90
+    },
+    "historyPage": {
+      "transactions": 5,
+      "access": 5,
+      "historyIndex": 5
+    },
+    "versionRead": {
+      "transactions": 1,
+      "access": 1,
+      "version": 1
+    },
+    "projectRead": {
+      "transactions": 1,
+      "access": 1,
+      "current": 1,
+      "noteIndex": 1,
+      "note": 12
+    },
+    "restore": {
+      "transactions": 1,
+      "access": 1,
+      "receipt": 1,
+      "current": 1,
+      "noteIndex": 1,
+      "note": 12,
+      "dailyState": 2,
+      "putDailyState": 1,
+      "version": 2,
+      "historyIndex": 1,
+      "putVersion": 1,
+      "putHistoryIndex": 1,
+      "putNote": 12,
+      "putNoteIndex": 1,
+      "putCurrent": 1,
+      "incrementActivity": 1,
+      "putReceipt": 1
+    },
+    "restoredRead": {
+      "transactions": 1,
+      "access": 1,
+      "current": 1,
+      "noteIndex": 1,
+      "note": 12
+    }
+  },
+  "checks": {
+    "dailyVersions": 90,
+    "metadataPages": 5,
+    "restoreCoreAndNotesEqual": true,
+    "safetyVersionCreated": true,
+    "credentialsUnchanged": true,
+    "workbookRowsAndLeadingZerosAndCrossYearDates": true,
+    "seated": 150
+  }
+}

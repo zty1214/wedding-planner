@@ -1,0 +1,32 @@
+{
+  "observedAt": "2026-10-05T03:40:28.707Z",
+  "env": "dev-d1gh3jw1gdf06af22",
+  "functionName": "planner-fusion-gateway-probe",
+  "bundleSha256": "2052a7b9707af47598741c2d1c5263700a93d936b558cde0cebe1a228ac19f12",
+  "mode": "JS_SDK_NODE_CLIENT_TO_DEPLOYED_FUNCTION",
+  "checks": [
+    {
+      "name": "management_only_access_metadata_and_rotation",
+      "passed": true,
+      "durationMs": 751
+    },
+    {
+      "name": "rotate_confirm_original_receipt_and_keep_business_unchanged",
+      "passed": true,
+      "durationMs": 1910
+    },
+    {
+      "name": "old_link_read_write_and_receipt_denied_new_link_works",
+      "passed": true,
+      "durationMs": 1968
+    },
+    {
+      "name": "stale_revision_and_changed_retry_cannot_replace_current_link",
+      "passed": true,
+      "durationMs": 1119
+    }
+  ],
+  "fixtureProjectId": "fusion-created-c294b878-aeb6-4673-b951-2ad3bf497bf4",
+  "status": "PASS",
+  "scope": "Anonymous Node JS SDK to deployed function and real database. No independent browser/device UI or real network fault injection. Existing projects, ACLs and function invoke rules untouched."
+}

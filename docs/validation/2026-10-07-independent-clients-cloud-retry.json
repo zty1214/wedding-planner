@@ -1,0 +1,33 @@
+{
+  "observedAt": "2026-10-07T06:05:45.063Z",
+  "env": "dev-d1gh3jw1gdf06af22",
+  "functionName": "planner-fusion-gateway-probe",
+  "deploymentManifestSha256": "2052a7b9707af47598741c2d1c5263700a93d936b558cde0cebe1a228ac19f12",
+  "mode": "TWO_INDEPENDENT_NODE_SDK_IDENTITIES",
+  "status": "PASS",
+  "checks": [
+    {
+      "name": "separate_identity_reads_shared_project_but_wrong_credential_is_denied",
+      "passed": true,
+      "durationMs": 501
+    },
+    {
+      "name": "separate_identities_create_records_and_observe_each_other",
+      "passed": true,
+      "durationMs": 1476
+    },
+    {
+      "name": "same_record_concurrent_update_has_one_winner",
+      "passed": true,
+      "durationMs": 1169
+    },
+    {
+      "name": "rotation_revokes_existing_other_identity_session_and_new_link_recovers",
+      "passed": true,
+      "durationMs": 2135
+    }
+  ],
+  "independentIdentityVerified": true,
+  "fixtureProjectId": "fusion-created-9ee8147d-e91a-4081-b391-786663ef3a85",
+  "scope": "Two separate Node processes with distinct anonymous uid verified in memory; real deployed gateway/database. Not browser/device UI, mobile or independent network validation. Only fresh synthetic project links rotated; environment permissions untouched."
+}

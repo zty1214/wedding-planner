@@ -1,0 +1,10 @@
+{
+  "observedAt": "2026-10-07T05:40:35.153Z",
+  "env": "dev-d1gh3jw1gdf06af22",
+  "functionName": "planner-fusion-gateway-probe",
+  "deploymentManifestSha256": "2052a7b9707af47598741c2d1c5263700a93d936b558cde0cebe1a228ac19f12",
+  "mode": "REAL_GATEWAY_RECOVERY_EXPORT_WITH_LOCAL_FAULT_INJECTION",
+  "checks": [],
+  "status": "FAIL",
+  "failedStage": "deployment-readback"
+}

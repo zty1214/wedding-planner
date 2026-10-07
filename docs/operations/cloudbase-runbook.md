@@ -419,8 +419,61 @@ CLI 3.8.5 的 `tcb fn trigger create --help` 显示支持 `--trigger-name` 和�
 安全边界：环境默认规则为 `auth != null && auth.loginType != 'ANONYMOUS'`，新函数没有例外，因此匿名客户端被拒绝，但非匿名客户端仍受默认允许规则覆盖。将该函数单独收紧为 `invoke: false` 的动作被自动审批拒绝，理由是此前用户明确授权仅涉及 gateway；已向用户提出具体确认，尚未执行。待用户确认后才可运行 `secure-daily-function.mjs <fresh report>`，该脚本备份和两次核对原规则，只改新定时函数项，不覆盖其他规则。不得把当前默认规则描述成所有客户端均不可调用。
 
 
-### 18.1 失败项目不阻塞后续批次（本地待部署）
+### 18.1 失败项目不阻塞后续批次
 
 2026-10-05 审查后，worker 新增 `planner_fusion_probe_current/planner_fusion_daily_scan_cursor_v1` 作为后台扫描进度，payload.kind 为 daily-scan-cursor；不匹配业务 daily-state 查询。每批仍最多 20 条，按 `_id` 向后分页，失败也记录游标推进，末尾下一轮从头补偿。进度写入失败则整批返回错误；已封存项目由 sealed 状态幂等跳过。该文档不包含业务内容或凭证，不清除失败项目的日结状态。
 
-本地已验证首 20 个项目失败不会饿死后续健康项目，以及后续轮回恢复。此增量尚未部署，部署后需核对游标读写与范围查询的实际 SDK 行为；不得把既有定时通过报告用于证明此新增路径。仍需单独完成先前待确认的客户端 invoke:false 规则，代码注释不代替权限。
+本地已验证首 20 个项目失败不会饿死后续健康项目，以及后续轮回恢复。此增量已在 2026-10-05 部署，管理员调用实际验证游标读写、范围查询和重复调用幂等，见 daily-cursor-cloud 报告；新版真实定时触发仍不能沿用旧包报告冒充。仍需单独完成先前待确认的客户端 invoke:false 规则，代码注释不代替权限。
+
+
+## 19. 筹备日历与活动汇总
+
+`activity.month` 传入 YYYY-MM，读取最多 31 个日汇总，使用服务器 Asia/Shanghai 当前日；须同网关其他动作携带项目凭证。`history.list` 可传 day=YYYY-MM-DD 和 nextCursor，只取该业务日的版本元数据。分类统计和活动总量仍在业务事务中写一次同一个日文档；普通编辑不创建版本。
+
+legacy 文档只有 day/count 时按“历史未分类”呈现，继续写入时保留原数量。删除/清除归入原业务模块，回收恢复按原操作模块计 restored；整项目恢复只增加当日一条项目活动，不回滚日汇总。不改变旧回执保留策略。
+
+月份接口当前顺序读取小文档，2026-10-05 一次真实客户端调用实测 1366 ms；后续做多项目/规模测量再决定是否需要月索引，不能凭猜测增加重复汇总或宣称容量达标。
+
+`probe-daily-schedule.mjs <manifest> <fresh report> --invoke` 是明确的管理员调用验证模式，会新建虚构前日项目并调用两次 worker，核对游标和重复幂等；不带 --invoke 仍是等待真实调度，报告的 mode 必须区分。失败标记只包含 failedAt，不存原始 SDK 异常、凭证或日志正文。
+
+## 18. 协作链接轮换隔离验收（2026-10-05）
+
+`probe-access-flow.mjs <公开环境配置路径> <部署 manifest> <新的报告路径>` 使用匿名 Node JS SDK 对真实 gateway 验证管理权限、链接轮换、旧链接拒绝、原请求幂等、版本冲突。报告先独占创建，只在 `fusion-created-*` 新建一个虚构项目；秘密只在内存中，退出后不提供该临时项目的链接找回。失败保留阶段和项目 ID，不输出 SDK 原始错误或凭证。
+
+本次 staging `/private/tmp/planner-access-20261005-a` 沿用原 UI 两个项目白名单，gateway 新包 SHA 为 `2052a7b9707af47598741c2d1c5263700a93d936b558cde0cebe1a228ac19f12`。从 staging 部署同名验证函数，等待 CLI 完成及 Active 读回后再调用脚本；不要因 COS 上传阶段长时间无新输出而重复部署。4 组真实云端通过，报告见 `docs/validation/2026-10-05-access-cloud.json`；尚非浏览器轮换/复制/重开 UI 证明。
+
+## 19. 到期清理 Admin SDK 实际验证（2026-10-05）
+
+运行 `node scripts/fusion/probe-retention-cloud.mjs <新的报告路径>`。固定开发验证环境、ADMINONLY 探针集合，通过 CLI 临时凭证操作；脚本只通过创建服务新建自己的虚构项目并把到期时间设为过去，不改变真实时间或其他项目。只清理自己生成的两条到期正文，保留报告和其余样本。成功报告为 `docs/validation/2026-10-05-retention-cloud-final.json`，不等同于部署定时维护函数。
+
+实测陷阱：文档字段 `payload.expiresAt` 的条件也会命中历史索引数组中的元素；投影后的 `payload` 可能是数组。扫描必须使用 `retentionScanRow` 区分正文与索引，跳过索引但推进游标，不能把它当回收正文或清理失败。测试回收记录必须含有效 changes；只断言“抛错”不能证明删除回滚，必须确认已走到删除后的索引写失败注入点，再读回正文与索引。
+
+## 并发、丢响应及旧草稿隔离验收
+
+运行 `node --experimental-strip-types scripts/fusion/probe-concurrency-flow.mjs <公开环境配置路径> <gateway 部署 manifest> <新的报告路径>`。脚本先核对 Active 和原验证白名单，只通过创建服务新建一个 `fusion-created-*` 虚构项目，秘密仅在内存中。报告独占创建，失败仅保留阶段名，不输出原始异常或凭证；不要覆盖失败报告或在未确认进程结束时重复启动。
+
+场景包括：两个请求竞争同一座位、两个宾客并发编辑、实际冲突后保留原草稿再提交新意图、云端执行成功后故意丢弃返回结果并通过原回执恢复、整项目恢复后的旧代次草稿拒绝重发。并发通过两个 transport 请求流发出，使用同一个匿名 SDK 登录，不能作为独立浏览器/匿名身份隔离证据。本地队列使用独立 fake-indexeddb；真实数据库与本机故障注入的证明范围分别记录。脚本不修改函数、权限或已有项目。
+
+## 恢复类草稿导出只读验证
+
+运行 `node --experimental-strip-types scripts/fusion/probe-recovery-export.mjs <公开环境配置路径> <gateway 部署 manifest> <新的报告路径>`。沿用同一 dev gateway 和白名单检查，仅新建一个虚构项目；不部署代码或修改权限。回收桌子前先排座，检查导出恢复后的桌/人关联；整项目恢复先保存含笔记的目标版本，再修改宾客和笔记，检查未提交草稿及成功丢响应后的导出。
+
+关键断言是导出前后云端核心/笔记、回收材料、历史列表和原队列不变；明确执行后实际安排与导出目标一致。完整请求和临时凭证只在内存中，报告只含环境、阶段、项目 ID、通过状态及耗时。模拟离线阻止回执查询，实际网络请求由正常 SDK 执行；fake-indexeddb 不替代浏览器，单一 SDK 登录不证明独立身份隔离。失败报告保留，用新报告路径重试，先确认原进程已退出。
+
+2026-10-07 成功结果见 `docs/validation/2026-10-07-recovery-export-cloud-bounded.json`，两组真实云端验证通过。该脚本现会在每阶段和每个 SDK 调用前持久记录状态/动作名，SDK 请求超过 30 秒报 SDK_REQUEST_TIMEOUT；超时并不证明服务端未执行，不自动重放或清理项目。CLI 读回仍使用现有 90 秒进程上限。不得把 RUNNING 或空报告当 PASS，先核对原进程句柄和最终报告再决定下一步。
+
+
+## 独立匿名身份协作与撤权验收
+
+运行 `node scripts/fusion/probe-independent-clients.mjs <公开环境配置路径> <gateway 部署 manifest> <新的报告路径>`。脚本只允许开发环境 `dev-d1gh3jw1gdf06af22` 和 `planner-fusion-gateway-probe`，先核对 Active、验证白名单及关闭事件上下文日志；不部署代码或修改环境权限。通过两个隔离 Node 子进程分别初始化 SDK、匿名登录，从 `getLoginState().user.uid` 在内存核对两个身份不同。不要只创建两个 transport 就声称独立登录。
+
+公开配置经 IPC 传给子进程；临时项目秘密不写命令行或日志。只创建一个纯虚构项目并轮换它的协作凭证；报告不保存 uid、身份哈希、凭证或完整响应，只记录独立身份核验布尔值、项目 ID、阶段与结果。进程退出后临时链接不保留。
+
+每个 IPC 请求上限 30 秒，阶段/结果及时落盘，不自动重试未知结果。失败报告不覆盖；确认原进程已退出后才使用新报告路径重试。2026-10-07 首次在 deployment-readback 失败，未创建项目；取得网络执行权限后，`docs/validation/2026-10-07-independent-clients-cloud-retry.json` 四组通过。测试证明独立身份对应的实际 gateway/数据库行为，不替代不同浏览器/设备 UI、独立网络、移动端或离线队列验收。
+
+
+## 当前产品页面的开发环境预览
+
+`node scripts/fusion/preview-fusion-cloud.mjs <公开环境配置路径>` 只启动监听 `127.0.0.1:4188` 的 Vite，限定开发环境，不创建/覆盖项目或部署权限。通过浏览器 `/fusion` 的正常入口创建纯虚构项目进行验收。区别于旧 `preview-core-ui.mjs`，本脚本不使用管理员 SDK 预置白名单项目，适用于已启用项目创建服务的 gateway。
+
+验收徽标统计当前标签页累计 fetch/XHR 与 Supabase 标准域名 HTTP 写请求，计数不含秘密；统计仅随预览注入，生产源码不注入。可以证明执行路径的 HTTP 观测结果，不作为全部协议/自定义域名的审计。凭证仍由正常产品的创建 vault / sessionStorage 管理，不复制到报告。
