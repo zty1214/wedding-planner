@@ -1,0 +1,98 @@
+{
+  "baseline": "6f6c9622db64835f7edc5c9292afae408c341e7d",
+  "mode": "actual Chromium SIGKILL + same disposable profile; local App/IndexedDB/MemoryStore gateway; controlled handoff/cleanup pause",
+  "startedAt": "2026-10-07T09:17:59.682Z",
+  "results": [
+    {
+      "name": "unsubmitted-input-survives-process-kill",
+      "status": "passed",
+      "originalFormId": "9dbb0d5b-28bd-4e01-8f08-4f855999a095",
+      "sameInput": true,
+      "queueCount": 0,
+      "serviceGuests": 0
+    },
+    {
+      "name": "guest-frozen-form-before-outbox-process-kill",
+      "status": "passed",
+      "operationId": "9dbb0d5b-28bd-4e01-8f08-4f855999a095",
+      "frozenRequestIdentical": true,
+      "beforeQueue": 0,
+      "serviceGuestsAfter": 1,
+      "originalReceipt": true
+    },
+    {
+      "name": "note-frozen-form-before-outbox-process-kill",
+      "status": "passed",
+      "operationId": "16f3200b-2a36-43b4-b291-89be3ca2bc7a",
+      "frozenRequestIdentical": true,
+      "beforeQueue": 0,
+      "serviceNotesAfter": 1,
+      "originalReceipt": true
+    },
+    {
+      "name": "offline-outbox-survives-process-kill",
+      "status": "passed",
+      "operationId": "25af6f9e-3f7f-4ccf-9174-51ef1fab3f4c",
+      "sameWholeCommand": true,
+      "queueBefore": 1,
+      "queueAfter": 0,
+      "receiptsAdded": 1
+    },
+    {
+      "name": "server-committed-before-form-cleanup-process-kill",
+      "status": "passed",
+      "operationId": "218213a0-7c01-4772-bc57-07029ccdbb06",
+      "originalReceipt": true,
+      "extraWritesAfterReopen": 0,
+      "formsAfter": 0,
+      "serviceGuests": 1
+    },
+    {
+      "name": "field-frozen-form-before-outbox-process-kill",
+      "status": "passed",
+      "operationId": "8eb3a2e6-2447-4d6a-86e5-b90fe564b283",
+      "frozenRequestIdentical": true,
+      "beforeQueue": 0,
+      "formsAfter": 0,
+      "originalReceipt": true,
+      "receiptsAdded": 1
+    },
+    {
+      "name": "private-form-download-before-and-after-restore",
+      "status": "passed",
+      "actualDownloads": [
+        {
+          "filename": "actual-version.json",
+          "bytes": 1662,
+          "sha256": "e8c76ddd95ca708f74a2cb61f65cbe688977429c4644ade92d7a3c69bae5a1b7"
+        },
+        {
+          "filename": "actual-private-before-restore.json",
+          "bytes": 1599,
+          "sha256": "cf3cec81e858c9566c76dbc57a02b57a3c7fa0d1120ddf4290d0a7534cfd2f53"
+        },
+        {
+          "filename": "actual-private-after-restore.json",
+          "bytes": 1599,
+          "sha256": "a40b8a6695c1d241bde627ded745fba544b0a100deee4b61893f1149f01b34c9"
+        }
+      ],
+      "originalFormIds": {
+        "field": "5fd2585c-df6f-4667-ac57-ad37dca09612",
+        "guest": "bed99332-9daa-4d7f-a47e-734ee2972ead",
+        "note": "410d5615-fc4f-4450-a199-91d8e44ac140"
+      },
+      "originalEpoch": "b6e3beed-e639-4551-ba1a-ad1354768b88",
+      "originalRevisionsRetained": true,
+      "deletedGuestInputBeforeRestore": true,
+      "deletedGuestPreparedViaAuthenticatedCommand": true,
+      "oldEpochInputAfterRestore": true,
+      "exportAddedReceipts": 0
+    }
+  ],
+  "killedProcesses": 6,
+  "browserVersion": "149.0.7827.55",
+  "projectId": "fusion-created-b6e3beed-e639-4551-ba1a-ad1354768b88",
+  "status": "passed",
+  "finishedAt": "2026-10-07T09:18:08.044Z"
+}

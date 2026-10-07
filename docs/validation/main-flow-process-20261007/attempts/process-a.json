@@ -1,0 +1,56 @@
+{
+  "baseline": "6f6c9622db64835f7edc5c9292afae408c341e7d",
+  "mode": "actual Chromium SIGKILL + same disposable profile; local App/IndexedDB/MemoryStore gateway; controlled handoff/cleanup pause",
+  "startedAt": "2026-10-07T09:10:42.345Z",
+  "results": [
+    {
+      "name": "unsubmitted-input-survives-process-kill",
+      "status": "passed",
+      "originalFormId": "391951c9-68dd-4c88-8c37-ae694eb7a361",
+      "sameInput": true,
+      "queueCount": 0,
+      "serviceGuests": 0
+    },
+    {
+      "name": "guest-frozen-form-before-outbox-process-kill",
+      "status": "passed",
+      "operationId": "391951c9-68dd-4c88-8c37-ae694eb7a361",
+      "frozenRequestIdentical": true,
+      "beforeQueue": 0,
+      "serviceGuestsAfter": 1,
+      "originalReceipt": true
+    },
+    {
+      "name": "note-frozen-form-before-outbox-process-kill",
+      "status": "passed",
+      "operationId": "81e88fa4-31b9-4506-be55-10c5b4b98c3f",
+      "frozenRequestIdentical": true,
+      "beforeQueue": 0,
+      "serviceNotesAfter": 1,
+      "originalReceipt": true
+    },
+    {
+      "name": "offline-outbox-survives-process-kill",
+      "status": "passed",
+      "operationId": "c1be30bc-8daf-425f-88ad-c58ed5c21999",
+      "sameWholeCommand": true,
+      "queueBefore": 1,
+      "queueAfter": 0,
+      "receiptsAdded": 1
+    },
+    {
+      "name": "server-committed-before-form-cleanup-process-kill",
+      "status": "passed",
+      "operationId": "74d7d164-dc19-4a37-9b92-c615b8137174",
+      "originalReceipt": true,
+      "extraWritesAfterReopen": 0,
+      "formsAfter": 0,
+      "serviceGuests": 1
+    }
+  ],
+  "killedProcesses": 5,
+  "browserVersion": "149.0.7827.55",
+  "projectId": "fusion-created-eabc9492-676b-4eca-9897-26d995e8725d",
+  "status": "passed",
+  "finishedAt": "2026-10-07T09:10:47.769Z"
+}

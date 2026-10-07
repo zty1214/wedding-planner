@@ -1,0 +1,65 @@
+{
+  "id": "b6e3beed-e639-4551-ba1a-ad1354768b88:58c10825-883a-49a5-b330-1f9e2171d095",
+  "name": "私有输入导出前虚构恢复点",
+  "kind": "manual",
+  "status": "ready",
+  "dataEpoch": "b6e3beed-e639-4551-ba1a-ad1354768b88",
+  "snapshotRevision": 4,
+  "notesRevision": 1,
+  "capturedAt": "2026-10-07T09:18:07.151Z",
+  "businessDate": "2026-10-07",
+  "expiresAt": null,
+  "counts": {
+    "guests": 1,
+    "tables": 0,
+    "rooms": 0,
+    "notes": 1
+  },
+  "schemaVersion": 1,
+  "core": {
+    "schemaVersion": 2,
+    "guestOrder": [
+      "0862659e-9f34-41ae-9e59-b0d3b3921a33"
+    ],
+    "tableOrder": [],
+    "roomOrder": [],
+    "guests": {
+      "0862659e-9f34-41ae-9e59-b0d3b3921a33": {
+        "id": "0862659e-9f34-41ae-9e59-b0d3b3921a33",
+        "revision": 2,
+        "name": "进程中断清理后宾客",
+        "group": "新郎亲属",
+        "phone": "00123456789",
+        "notes": "",
+        "side": "unset",
+        "attendance": "pending",
+        "tableId": null,
+        "seatIndex": null,
+        "roomId": null,
+        "stayNeed": "pending",
+        "stayDates": []
+      }
+    },
+    "tables": {},
+    "rooms": {},
+    "config": {
+      "revision": 1,
+      "title": "字段冻结进程中断虚构标题",
+      "mainStagePos": null,
+      "customGroups": [],
+      "stayDates": []
+    }
+  },
+  "notes": [
+    {
+      "id": "dba277bf-d622-4dee-9e38-a95b33c2abef",
+      "category": "酒店",
+      "title": "进程中断虚构笔记",
+      "content": "已落盘的完整正文",
+      "revision": 0,
+      "createdAt": "2026-10-07T09:18:04.154Z",
+      "updatedAt": "2026-10-07T09:18:04.154Z"
+    }
+  ],
+  "noteRetiredIds": []
+}

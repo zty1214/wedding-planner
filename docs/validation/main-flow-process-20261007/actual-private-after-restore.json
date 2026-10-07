@@ -1,0 +1,47 @@
+{
+  "format": "planner-private-form-drafts-v1",
+  "projectId": "fusion-created-b6e3beed-e639-4551-ba1a-ad1354768b88",
+  "exportedAt": "2026-10-07T09:18:07.935Z",
+  "fieldDrafts": [
+    {
+      "id": "5fd2585c-df6f-4667-ac57-ad37dca09612",
+      "projectId": "fusion-created-b6e3beed-e639-4551-ba1a-ad1354768b88",
+      "dataEpoch": "b6e3beed-e639-4551-ba1a-ad1354768b88",
+      "kind": "project",
+      "entityId": "config",
+      "entityRevision": 1,
+      "value": "仅本机私有标题",
+      "revision": 0,
+      "updatedAt": "2026-10-07T09:18:07.311Z"
+    }
+  ],
+  "guestDrafts": [
+    {
+      "name": "仅本机私有宾客修改",
+      "group": "新郎亲属",
+      "phone": "00123456789",
+      "id": "bed99332-9daa-4d7f-a47e-734ee2972ead",
+      "entityId": "0862659e-9f34-41ae-9e59-b0d3b3921a33",
+      "guestRevision": 2,
+      "projectId": "fusion-created-b6e3beed-e639-4551-ba1a-ad1354768b88",
+      "dataEpoch": "b6e3beed-e639-4551-ba1a-ad1354768b88",
+      "revision": 0,
+      "updatedAt": "2026-10-07T09:18:07.284Z"
+    }
+  ],
+  "noteDrafts": [
+    {
+      "id": "410d5615-fc4f-4450-a199-91d8e44ac140",
+      "projectId": "fusion-created-b6e3beed-e639-4551-ba1a-ad1354768b88",
+      "dataEpoch": "b6e3beed-e639-4551-ba1a-ad1354768b88",
+      "noteId": "dba277bf-d622-4dee-9e38-a95b33c2abef",
+      "entityId": "dba277bf-d622-4dee-9e38-a95b33c2abef",
+      "noteRevision": 0,
+      "category": "酒店",
+      "title": "进程中断虚构笔记",
+      "content": "仅本机私有笔记完整正文",
+      "revision": 0,
+      "updatedAt": "2026-10-07T09:18:07.447Z"
+    }
+  ]
+}
