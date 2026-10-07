@@ -188,10 +188,14 @@ B04已实现 `npm run test:e2e`，本地七组通过，固定依赖及CI接线�
 - [独立身份云端恢复报告](/Users/baojie/dev/wedding-planner/docs/validation/2026-10-07-independent-restore-cloud.json)
 - [CloudBase 操作手册](/Users/baojie/dev/wedding-planner/docs/operations/cloudbase-runbook.md)
 
-本轮剩余优先级：B02原生配额拒绝未验、云端UI轮换丢响应终点重验（开发创建额度已用完）；B03真实手机流程及文件保存/打开（Excel/WPS专项已延期）；B05目标SHA的远端CI已通过。原生配额拒绝安全探针未触发，保留未验，不再填盘探索。T01完成不等于整个目标完成或获准正式发布。
+本轮剩余优先级：B02原生配额拒绝未验；云端UI轮换丢响应终点已通过，开发额度按用户授权调整为可配置每日200；B03真实手机流程及文件保存/打开（Excel/WPS专项已延期）；B05目标SHA的远端CI已通过。原生配额拒绝安全探针未触发，保留未验，不再填盘探索。T01完成不等于整个目标完成或获准正式发布。
 
 第二阶段补充：永久放弃三分支及宾客/笔记编辑交接/清理失败七组通过；真实云端创建丢响应完整通过。报告见[编辑与放弃补充](validation/main-flow-recovery-20261007/README.md)。云端轮换丢响应中间已核对原候选/回执，最终用例重验被每日开发额度阻塞，不标为完整通过；不修改限流。
 
 第三阶段：实际SIGKILL/同profile重开覆盖六个代表边界，三种vault原冻结请求、离线队列及服务已提交清理前恢复通过；私有表单两入口及历史JSON实际下载回读通过，各导出按钮已有证据映射。详见[进程与下载报告](validation/main-flow-process-20261007/README.md)。最终check191项通过；云端轮换终点、真实设备/原生配额及远端CI继续保持未验。
 
 第四阶段工程收口：`0bba827` [远端CI](https://github.com/zty1214/wedding-planner/actions/runs/37642290159) completed/success，Ubuntu创建表单与七组主流程通过；B04/B05工程验收闭环，不关闭B02原生配额/轮换终点及B03真机。源码交付在验收分支，未合并主分支、未部署。
+
+## 开发额度调整后的恢复终点闭环（2026-10-07）
+
+用户授权保留防失控措施并提高开发额度，默认每日200、环境变量可配置，原计数和幂等不变。实际云端创建及轮换丢响应两组通过，独立旧会话拒绝和新链接进入已核对，见[额度及恢复报告](validation/main-flow-dev-quota-20261007/README.md)。开发创建额度不再是当前阻塞；仍保留原生配额拒绝及真机验收未验，不整体关闭B02/B03。新代码完整check194项通过，先前0bba827远端CI不代替新代码CI。

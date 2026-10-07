@@ -1,0 +1,33 @@
+{
+  "env": "dev-d1gh3jw1gdf06af22",
+  "functionName": "planner-fusion-gateway-probe",
+  "status": "deployed-and-verified",
+  "day": "2026-10-07",
+  "beforeCount": 20,
+  "beforeLimit": 20,
+  "configuredLimit": 200,
+  "previousBundleSha256": "2052a7b9707af47598741c2d1c5263700a93d936b558cde0cebe1a228ac19f12",
+  "bundleSha256": "7dbd0aa186c841d8966ec056926492bcfd078d44264638bf1bd6541a74c70468",
+  "projects": [
+    "fusion-gateway-79da15fb-156f-4af7-8038-cb500ed5e3eb",
+    "fusion-gateway-57cae459-bf42-443f-b2de-07577584dacf"
+  ],
+  "preparedAt": "2026-10-07T15:33:38.406Z",
+  "active": true,
+  "readbackLimit": 200,
+  "afterBrowserCount": 21,
+  "counterPreserved": true,
+  "permissionsMatchRecordedRules": true,
+  "permissionRules": {
+    "*": {
+      "invoke": "auth != null && auth.loginType != 'ANONYMOUS'"
+    },
+    "planner-fusion-gateway-probe": {
+      "invoke": "auth != null"
+    }
+  },
+  "permissionRulesSha256": "6d447ed3ac35bbffe7ccef2485c4e5a737644df37089b19ac7af7de922707093",
+  "permissionReference": "docs/validation/2026-10-04-function-permission.json",
+  "verificationCorrection": "Initial digest incorrectly included per-call RequestId; discarded. Current parsed rules match recorded configuration. No permission mutation was issued.",
+  "readbackAt": "2026-10-07T15:36:19.681Z"
+}

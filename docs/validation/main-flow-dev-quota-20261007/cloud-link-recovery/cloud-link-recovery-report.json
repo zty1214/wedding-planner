@@ -1,0 +1,41 @@
+{
+  "baseline": "6dd8edebcb72fd60ed8672b3b277d468f7e300df",
+  "mode": "real App + real dev CloudBase; client lost-response injection for creation and rotation",
+  "startedAt": "2026-10-07T15:34:43.070Z",
+  "results": [
+    {
+      "name": "creation-success-lost-response",
+      "status": "passed",
+      "originalRequestId": "70e546e5-f4bb-4170-a8a6-c4156044c810",
+      "sameProject": true,
+      "sameOriginalSecretsInMemory": true,
+      "creationEntries": 1,
+      "sameEpochAfterRetry": true,
+      "actualProductCopyMatched": true
+    },
+    {
+      "name": "rotation-success-lost-response",
+      "status": "passed",
+      "originalOperationId": "10cd9e8f-9200-4a36-b22b-cd3e96aab17c",
+      "originalCandidateInMemoryPreserved": true,
+      "accessRevision": 1,
+      "originalReceiptUnchanged": true,
+      "candidateCopiedThroughProduct": true,
+      "oldOpenedSessionDenied": true,
+      "newLinkJoined": true
+    }
+  ],
+  "deployment": {
+    "env": "dev-d1gh3jw1gdf06af22",
+    "functionName": "planner-fusion-gateway-probe",
+    "active": true,
+    "eventLoggingDisabled": true,
+    "manifestBundleSha256": "7dbd0aa186c841d8966ec056926492bcfd078d44264638bf1bd6541a74c70468",
+    "bundleContentRehashed": false
+  },
+  "browserVersion": "151.0.7922.34",
+  "projectId": "fusion-created-70e546e5-f4bb-4170-a8a6-c4156044c810",
+  "identitiesDistinct": true,
+  "status": "passed",
+  "finishedAt": "2026-10-07T15:34:56.538Z"
+}

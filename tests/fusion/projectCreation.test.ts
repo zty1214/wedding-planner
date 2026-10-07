@@ -2,7 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { IDBFactory } from 'fake-indexeddb'
 import { MemoryStore } from './memoryStore.ts'
-import { projectService } from '../../server/fusion/projectService.ts'
+import { developmentCreationDailyLimit, projectService } from '../../server/fusion/projectService.ts'
 import { newCreation, creationProjectId, projectLinks } from '../../src/fusion/projectCreation.ts'
 import { openCreationVault, submitCreation } from '../../src/fusion/creationVault.ts'
 import { probeGateway } from '../../server/fusion/probeGateway.ts'
@@ -47,4 +47,28 @@ test('local creation save failure prevents network; two links have distinct perm
   await assert.rejects(commands.execute(command, request.collaborationSecret), { code: 'FORBIDDEN' })
   await commands.execute(command, request.managementSecret)
   vault.close()
+})
+
+test('development creation limit is configurable and invalid configuration never disables the bound', () => {
+  assert.equal(developmentCreationDailyLimit(undefined), 200)
+  assert.equal(developmentCreationDailyLimit('300'), 300)
+  for (const value of ['', '0', '-1', '1.5', 'Infinity', 'NaN', '200x', ' 200 ', '9007199254740992']) {
+    assert.throws(() => developmentCreationDailyLimit(value), /INVALID_DEV_CREATION_DAILY_LIMIT/)
+  }
+  for (const limit of [0, -1, Infinity, NaN, 1.5]) {
+    assert.throws(() => projectService(new MemoryStore(), undefined, limit), /INVALID_DEV_CREATION_DAILY_LIMIT/)
+  }
+})
+
+test('raising development gateway quota retains consumed count, retry identity and the new bound', async () => {
+  const store = new MemoryStore(), first = newCreation('额度内项目')
+  const oldGateway = probeGateway(store, [], undefined, 1)
+  assert.equal((await oldGateway({ action: 'project.create', request: first })).ok, true)
+  assert.deepEqual(await oldGateway({ action: 'project.create', request: newCreation('旧额度拒绝') }), { ok: false, error: { code: 'RATE_LIMITED' } })
+  const gateway = probeGateway(store, [], undefined, 3)
+  assert.equal((await gateway({ action: 'project.create', request: first })).ok, true)
+  for (const title of ['新增二', '新增三']) assert.equal((await gateway({ action: 'project.create', request: newCreation(title) })).ok, true)
+  assert.deepEqual(await gateway({ action: 'project.create', request: newCreation('新额度仍拒绝') }), { ok: false, error: { code: 'RATE_LIMITED' } })
+  assert.equal(store.projects.size, 3)
+  assert.deepEqual([...store.creationCounts.values()], [3])
 })

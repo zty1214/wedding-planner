@@ -17,4 +17,4 @@
 
 本机已安装 `/Applications/Microsoft Excel.app` 和 `/Applications/wpsoffice.app`。实际请求电脑操作工具打开Excel时，工具返回 `Computer Use permissions are not granted`，没有取得应用界面，不能声明已打开或视觉核对通过。用户随后确认无需专门验证Excel/WPS；该项保留为延期记录，不再等待操作权限或桌面打开结果，不标记为已通过。此失败发生于工具权限层，未修改应用、文件或系统权限。
 
-云端创建额度由 `projectService` 调用 `businessDay(now())` 绑定日期，businessTime使用Asia/Shanghai；新日期使用独立计数。10月8日00:00北京时间后可按现有额度重验，不修改限流；是否有剩余额度仍以当次实际结果为准。
+云端创建额度按Asia/Shanghai业务日期计数。用户随后授权提高开发额度，现已部署可配置每日200且云端恢复终点通过，无需再等待午夜；见[报告](main-flow-dev-quota-20261007/README.md)。手机可达入口和实际操作仍待设备持有者提供。

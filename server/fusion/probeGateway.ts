@@ -2,7 +2,7 @@ import { activityService } from './activityService.ts'
 import { accessService } from './accessService.ts'
 import { historyService } from './historyService.ts'
 import { recycleService } from './recycleService.ts'
-import { projectService } from './projectService.ts'
+import { DEFAULT_DEV_CREATION_DAILY_LIMIT, projectService } from './projectService.ts'
 import { noteService } from './noteService.ts'
 import { coreHandlers } from './coreHandlers.ts'
 import { commandService } from './commandService.ts'
@@ -10,8 +10,9 @@ import type { Handler, TransactionStore } from './commandService.ts'
 import { assertGatewayRequestSize, CommandError } from '../../src/fusion/protocol.ts'
 import type { ProbeImages } from './probeImages.ts'
 
-/** P1a only: allowlisted fictitious projects, no create/delete/admin database API. */
-export function probeGateway(store: TransactionStore, projectIds: readonly string[], images?: ProbeImages) {
+/** P1a only: allowlisted fictitious projects, bounded creation in the development namespace, no raw database API. */
+export function probeGateway(store: TransactionStore, projectIds: readonly string[], images?: ProbeImages, creationDailyLimit = DEFAULT_DEV_CREATION_DAILY_LIMIT) {
+  const creation = projectService(store, undefined, creationDailyLimit)
   const allowed = new Set(projectIds)
   const handlers = new Map<string, Handler>([
     ['probe.increment', { apply: data => {
@@ -28,7 +29,7 @@ export function probeGateway(store: TransactionStore, projectIds: readonly strin
       if (!event || typeof event !== 'object' || Array.isArray(event)) throw new CommandError('INVALID_INPUT')
       assertGatewayRequestSize(event)
       const e = event as Record<string, unknown>
-      if (e.action === 'project.create') return { ok: true, value: await projectService(store).create(e.request) }
+      if (e.action === 'project.create') return { ok: true, value: await creation.create(e.request) }
       if (typeof e.projectId !== 'string' || (!allowed.has(e.projectId) && !/^fusion-created-[a-f0-9-]{36}$/.test(e.projectId))
         || typeof e.secret !== 'string' || !/^[a-f0-9]{64}$/.test(e.secret)) throw new CommandError('FORBIDDEN')
       if (typeof e.action === 'string' && ['image.upload', 'image.read', 'image.delete'].includes(e.action) && images) {

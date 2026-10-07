@@ -3,8 +3,17 @@ import { emptyCore } from '../../src/fusion/core.ts'
 import { canonicalJson, CommandError } from '../../src/fusion/protocol.ts'
 import { businessDay, hashSecret } from './commandService.ts'
 import type { TransactionStore } from './commandService.ts'
+export const DEFAULT_DEV_CREATION_DAILY_LIMIT = 200
+
+export function developmentCreationDailyLimit(value: string | undefined) {
+  if (value === undefined) return DEFAULT_DEV_CREATION_DAILY_LIMIT
+  if (!/^[1-9][0-9]*$/.test(value) || !Number.isSafeInteger(Number(value))) throw Error('INVALID_DEV_CREATION_DAILY_LIMIT')
+  return Number(value)
+}
+
 /** Bounded creation in the isolated development namespace; unknown reads never create. */
-export function projectService(store: TransactionStore, now = () => new Date(), dailyLimit = 20) {
+export function projectService(store: TransactionStore, now = () => new Date(), dailyLimit = DEFAULT_DEV_CREATION_DAILY_LIMIT) {
+  if (!Number.isSafeInteger(dailyLimit) || dailyLimit < 1) throw Error('INVALID_DEV_CREATION_DAILY_LIMIT')
   return {
     async create(input: unknown) {
       assertCreation(input)

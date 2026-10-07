@@ -2,6 +2,7 @@ import cloudbase from '@cloudbase/node-sdk'
 import { cloudBaseTransactionStore } from './cloudBaseTransactionStore.ts'
 import { probeGateway } from './probeGateway.ts'
 import { probeImages } from './probeImages.ts'
+import { developmentCreationDailyLimit } from './projectService.ts'
 
 let gateway: ReturnType<typeof probeGateway> | undefined
 export async function main(event: unknown) {
@@ -11,8 +12,9 @@ export async function main(event: unknown) {
     if (env !== 'dev-d1gh3jw1gdf06af22' || projects.length !== 2
       || projects.some(id => !/^fusion-gateway-[a-f0-9-]{36}$/.test(id))) return { ok: false, error: { code: 'PROBE_NOT_CONFIGURED' } }
     if (!gateway) {
+      const creationDailyLimit = developmentCreationDailyLimit(process.env.FUSION_DEV_CREATION_DAILY_LIMIT)
       const app = cloudbase.init({ env, region: 'ap-shanghai' })
-      gateway = probeGateway(cloudBaseTransactionStore(app.database()), projects, probeImages(app))
+      gateway = probeGateway(cloudBaseTransactionStore(app.database()), projects, probeImages(app), creationDailyLimit)
     }
     return await gateway(event)
   } catch {

@@ -477,3 +477,12 @@ legacy 文档只有 day/count 时按“历史未分类”呈现，继续写入�
 `node scripts/fusion/preview-fusion-cloud.mjs <公开环境配置路径>` 只启动监听 `127.0.0.1:4188` 的 Vite，限定开发环境，不创建/覆盖项目或部署权限。通过浏览器 `/fusion` 的正常入口创建纯虚构项目进行验收。区别于旧 `preview-core-ui.mjs`，本脚本不使用管理员 SDK 预置白名单项目，适用于已启用项目创建服务的 gateway。
 
 验收徽标统计当前标签页累计 fetch/XHR 与 Supabase 标准域名 HTTP 写请求，计数不含秘密；统计仅随预览注入，生产源码不注入。可以证明执行路径的 HTTP 观测结果，不作为全部协议/自定义域名的审计。凭证仍由正常产品的创建 vault / sessionStorage 管理，不复制到报告。
+
+
+## 开发创建额度配置（2026-10-07）
+
+`planner-fusion-gateway-probe` 使用 `FUSION_DEV_CREATION_DAILY_LIMIT`，开发默认每日200个；构建时可设置该环境变量，例如 `FUSION_DEV_CREATION_DAILY_LIMIT=300 node scripts/fusion/build-probe-function.mjs <全新目录>`。生成配置及manifest均记录额度，部署后须读回Active与实际变量。只接受正安全整数；空值、0、负数、小数及非数字配置拒绝启动创建服务，不解释为无限额度。
+
+这是自有开发命名空间的保护值，不是腾讯云强制限额，也不是正式环境防滥用方案。提高额度不清零当天已用计数：仍按Asia/Shanghai业务日期、全开发命名空间共享事务计数；成功创建才占用，失败事务回滚，原请求幂等重试不重复占用，达到新上限仍拒绝。客户端请求不能指定额度。
+
+更新既有开发探针时保留原虚构项目白名单、日志开关及函数权限；不部署每日任务或正式业务入口。降低额度只需重新配置正整数并部署，保留计数；若已用数量高于降低后的上限，新建拒绝，已创建项目和原请求重试不受影响。本次[验证记录](../validation/main-flow-dev-quota-20261007/README.md)记录部署与回读。
