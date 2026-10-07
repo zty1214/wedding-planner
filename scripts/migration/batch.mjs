@@ -1,6 +1,7 @@
 // Operator-only trial migration. Not registered as a browser gateway operation.
 import { createHash } from 'node:crypto'
 import { canonicalJson } from '../../src/fusion/protocol.ts'
+import { acceptsBusinessProject } from '../../server/fusion/businessGateway.ts'
 import { reconcileConversion } from './reconcile.mjs'
 const digest = value => createHash('sha256').update(canonicalJson(value)).digest('hex')
 /** store.run must be serializable and roll back every write on failure.
@@ -9,10 +10,13 @@ const digest = value => createHash('sha256').update(canonicalJson(value)).digest
 export async function migrationBatch(store, artifact, target, action = 'dry-run') {
   const reconciliation = reconcileConversion(artifact)
   if (!reconciliation.passed) throw Error('CONVERSION_NOT_RECONCILED')
-  if (action === 'dry-run') return { mode: 'dry-run', reconciliation }
+  // Full transactional readback is bounded by the platform's 100-operation limit.
+  const withinTransactionBudget = artifact.candidate.notes.length <= 40
+  if (action === 'dry-run') return { mode: 'dry-run', reconciliation, withinTransactionBudget, maximumNotes: 40 }
+  if (!withinTransactionBudget) throw Error('MIGRATION_NOTE_TRANSACTION_LIMIT')
   if (!['prepare', 'import', 'verify', 'publish'].includes(action)) throw Error('INVALID_MIGRATION_ACTION')
-  if (!target?.environmentId || !target.projectId || !target.sourceEnvironmentId || target.environmentId === target.sourceEnvironmentId
-    || store.environmentId !== target.environmentId || !target.isolated || !target.access || !/^[a-f0-9]{64}$/.test(target.access.managementHash)
+  if (!target?.environmentId || !acceptsBusinessProject(target.projectId ?? '') || !target.sourceEnvironmentId || target.environmentId === target.sourceEnvironmentId
+    || store.environmentId !== target.environmentId || target.isolated !== true || !target.access || !/^[a-f0-9]{64}$/.test(target.access.managementHash)
     || !/^[a-f0-9]{64}$/.test(target.access.collaborationHash) || target.access.managementHash === target.access.collaborationHash) throw Error('EXPLICIT_ISOLATED_TARGET_REQUIRED')
   const binding = { environmentId: target.environmentId, projectId: target.projectId, batchId: artifact.batchId,
     sourceSystem: artifact.sourceSystem, sourceProjectId: artifact.sourceProjectId, sourceHash: artifact.sourceHash,

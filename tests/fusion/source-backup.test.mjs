@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { createHash, randomBytes } from 'node:crypto'
-import { collectPlannerBackup, collectSeatingBackup } from '../../scripts/migration/source-readers.mjs'
+import { collectPlannerBackup, collectSeatingBackup, collectFusionBackup } from '../../scripts/migration/source-readers.mjs'
 import { sealBackup, openBackup } from '../../scripts/migration/backup.mjs'
 import { convertSeatingSource } from '../../scripts/migration/convert.mjs'
 import { reconcileConversion } from '../../scripts/migration/reconcile.mjs'
@@ -86,4 +86,23 @@ test('actual Supabase client CLI encrypts a scoped localhost response and verifi
     for (const secret of ['PRIVATE_FICTIONAL_GUEST', '00123456789', projectId, 'fictional-anon-key']) { assert.ok(!stdout.includes(secret)); assert.ok(!encrypted.includes(secret)) }
     assert.equal((await stat(output)).mode & 0o777, 0o600); assert.deepEqual((await readdir(dir)).sort(), ['backup.json', 'config.json', 'key'])
   } finally { await new Promise(resolve => server.close(resolve)); await rm(dir, { recursive: true, force: true }) }
+})
+
+test('Fusion independent backup includes complete permission/epoch/note/history/recycle/receipt data and capped exact-count pages', async () => {
+  const projectId = 'fictional-fusion-backup', collections = Object.fromEntries(['access', 'current', 'receipts', 'activity'].map(k => [k, 'planner_fusion_fictional_' + k]))
+  const source = { access: [{ _id: 'access-id', projectId, payload: { managementHash: 'a'.repeat(64), collaborationHash: 'b'.repeat(64) } }],
+    current: Array.from({ length: 205 }, (_, i) => ({ _id: 'current-' + String(i).padStart(3, '0'), projectId, payload: { kind: i % 2 ? 'version' : 'note', originalText: '完整虚构正文' + i, dataEpoch: 'original-epoch', unknownSourceField: true } })),
+    receipts: [{ _id: 'receipt-id', projectId, payload: { originalOperationId: 'fictional-op' } }], activity: [] }
+  const calls = [], db = { config: { envName: 'fictional-fusion-source-env' }, collection(name) {
+    const kind = Object.keys(collections).find(k => collections[k] === name); assert.ok(kind)
+    const query = { where(filter) { assert.deepEqual(filter, { projectId }); return this }, count: async () => ({ total: source[kind].length }),
+      orderBy(field, direction) { assert.equal(field, '_id'); assert.equal(direction, 'asc'); return this }, skip(n) { this.offset = n; return this },
+      limit(n) { this.limitValue = n; return this }, get() { calls.push({ kind, offset: this.offset }); return Promise.resolve({ data: source[kind].slice(this.offset, this.offset + this.limitValue) }) } }; return query
+  } }
+  const backup = await collectFusionBackup(db, projectId, collections), key = randomBytes(32)
+  const restored = openBackup(sealBackup(backup.rawJson, backup.manifest, key), key)
+  assert.deepEqual(JSON.parse(restored.rawJson), source); assert.deepEqual(restored.manifest.physicalCollections, collections)
+  assert.deepEqual(calls.filter(c => c.kind === 'current').map(c => c.offset), [0, 100, 200]); assert.equal(restored.manifest.collections.current.count, 205)
+  source.current[0].projectId = 'other'; await assert.rejects(collectFusionBackup(db, projectId, collections), /SOURCE_PROJECT_SCOPE_MISMATCH/)
+  await assert.rejects(collectFusionBackup(db, projectId, { ...collections, access: 'weddings' }), /EXPLICIT_FUSION_COLLECTIONS_REQUIRED/)
 })

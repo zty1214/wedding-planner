@@ -27,3 +27,28 @@ export async function collectSeatingBackup(db, projectId, metadata = {}) {
       return { rows: response.data, count: 1 }
     })
 }
+
+/** Includes permission hashes, notes/history/recycle/receipts/activity. Encrypted backup only. */
+export async function collectFusionBackup(db, projectId, collections, metadata = {}) {
+  project(projectId)
+  const sourceEnvironmentId = db?.config?.envName
+  if (typeof sourceEnvironmentId !== 'string' || !sourceEnvironmentId) throw Error('EXPLICIT_SOURCE_DATABASE_ENVIRONMENT_REQUIRED')
+  validateFusionCollections(collections)
+  const kinds = ['access', 'current', 'receipts', 'activity']
+  return collectBackupSource({ ...metadata, sourceSystem: 'fusion-project', sourceProjectId: projectId, schema: 'fusion-project-documents-v1',
+    sourceEnvironmentId, physicalCollections: collections, exportedAt: new Date().toISOString() }, kinds, async (kind, offset, size) => {
+    const query = db.collection(collections[kind]).where({ projectId })
+    const counted = await query.count()
+    if (!counted || counted.code || !Number.isSafeInteger(counted.total) || counted.total < 0) throw Error('SOURCE_COUNT_FAILED')
+    const result = await query.orderBy('_id', 'asc').skip(offset).limit(Math.min(size, 100)).get()
+    if (!result || result.code || !Array.isArray(result.data)) throw Error('SOURCE_READ_FAILED')
+    if (result.data.some(row => row.projectId !== projectId)) throw Error('SOURCE_PROJECT_SCOPE_MISMATCH')
+    return { rows: result.data, count: counted.total }
+  })
+}
+
+export function validateFusionCollections(collections) {
+  const kinds = ['access', 'current', 'receipts', 'activity']
+  if (!collections || Object.keys(collections).length !== kinds.length || new Set(Object.values(collections)).size !== kinds.length
+    || kinds.some(k => typeof collections[k] !== 'string' || !new RegExp('^planner_fusion_[a-z0-9_]+_' + k + '$').test(collections[k]))) throw Error('EXPLICIT_FUSION_COLLECTIONS_REQUIRED')
+}

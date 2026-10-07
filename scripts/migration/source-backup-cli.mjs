@@ -2,15 +2,16 @@
 import { parseArgs } from 'node:util'
 import { readFile, writeFile, stat } from 'node:fs/promises'
 import { controlledPath } from './privatePaths.mjs'
-import { collectPlannerBackup, collectSeatingBackup } from './source-readers.mjs'
+import { collectPlannerBackup, collectSeatingBackup, collectFusionBackup, validateFusionCollections } from './source-readers.mjs'
 import { sealBackup, openBackup, backupSummary } from './backup.mjs'
 try {
   const { values } = parseArgs({ options: { 'source-system': { type: 'string' }, 'project-id': { type: 'string' }, 'source-config': { type: 'string' },
     'read-source': { type: 'boolean' }, 'key-file': { type: 'string' }, output: { type: 'string' } } })
   const system = values['source-system'], projectId = values['project-id']
-  if (!['supabase-planner', 'cloudbase-wedding'].includes(system) || !projectId) throw Error('EXPLICIT_SUPPORTED_SOURCE_REQUIRED')
+  if (!['supabase-planner', 'cloudbase-wedding', 'fusion-project'].includes(system) || !projectId) throw Error('EXPLICIT_SUPPORTED_SOURCE_REQUIRED')
   const config = JSON.parse(await readFile(await controlledPath(values['source-config']), 'utf8'))
   if (system === 'supabase-planner' ? !config.url || !config.anonKey : !config.environmentId || config.region !== 'ap-shanghai') throw Error('EXPLICIT_SOURCE_CONFIGURATION_REQUIRED')
+  if (system === 'fusion-project') validateFusionCollections(config.collections)
   if (!values['read-source']) console.log(JSON.stringify({ mode: 'dry-run', configured: true, consistency: 'preliminary' }))
   else {
     const keyPath = await controlledPath(values['key-file']), output = await controlledPath(values.output)
@@ -24,7 +25,7 @@ try {
     } else {
       const { default: cloudbase } = await import('@cloudbase/node-sdk'), { temporaryCredential } = await import('../fusion/cloudbase-cli.mjs')
       const db = cloudbase.init({ env: config.environmentId, region: config.region, ...temporaryCredential(config.environmentId) }).database()
-      backup = await collectSeatingBackup(db, projectId)
+      backup = system === 'fusion-project' ? await collectFusionBackup(db, projectId, config.collections) : await collectSeatingBackup(db, projectId)
     }
     const envelope = sealBackup(backup.rawJson, backup.manifest, key), verified = openBackup(envelope, key)
     await writeFile(output, JSON.stringify(envelope) + '\n', { flag: 'wx', mode: 0o600 })

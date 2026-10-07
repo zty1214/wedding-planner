@@ -7,3 +7,5 @@
 未确认创建成功、未读取/写入真实来源业务数据、未部署、设置权限或开自动续费。已尝试免费独立预发创建，失败机器码及只读配置/报价/环境数量见environment-investigation.json，付费预算待确认。环境资格/费用、实际runtime/限额/域名/匿名鉴权、客户端数据库拒绝、内部清理函数权限、实际活跃包回读和用户试用仍待完成。
 
 最终工作区完整 `npm run check` 通过231项测试、规模/类型/lint及两次构建，见check.txt；七组真实应用本地浏览器回归通过，见e2e.txt与local-e2e。报告baseline为提交前6c764f5，包含当前阶段改动，不冒充6c764f5的冻结验收；阶段提交后补同提交CI。
+
+f7499e2594ad333d7101beebf5557f6df373ff44的[同提交CI](https://github.com/zty1214/wedding-planner/actions/runs/37665218894)全部success，check、七组e2e与本次产物上传通过，见ci-report.json；主feat已集成。补录随后续完整阶段提交。

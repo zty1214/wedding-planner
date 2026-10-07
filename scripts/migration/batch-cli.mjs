@@ -2,6 +2,7 @@
 import { parseArgs } from 'node:util'
 import { readFile } from 'node:fs/promises'
 import { controlledPath } from './privatePaths.mjs'
+import { acceptsBusinessProject } from '../../server/fusion/businessGateway.ts'
 import { migrationBatch } from './batch.mjs'
 try {
   const { values } = parseArgs({ options: { input: { type: 'string' }, action: { type: 'string' }, 'target-config': { type: 'string' }, apply: { type: 'boolean' } } })
@@ -15,8 +16,8 @@ try {
     if (!['prepare', 'import', 'verify', 'publish'].includes(action)) throw Error('INVALID_MIGRATION_ACTION')
     const target = JSON.parse(await readFile(await controlledPath(values['target-config']), 'utf8'))
     // Reject obvious unsafe config before acquiring any cloud credential.
-    if (!target.environmentId || !target.sourceEnvironmentId || target.environmentId === target.sourceEnvironmentId || !target.isolated
-      || !target.projectId || !target.collections?.access || !target.collections?.current) throw Error('EXPLICIT_ISOLATED_TARGET_REQUIRED')
+    if (!target.environmentId || !target.sourceEnvironmentId || target.environmentId === target.sourceEnvironmentId || target.isolated !== true
+      || !acceptsBusinessProject(target.projectId ?? '') || !target.collections?.access || !target.collections?.current) throw Error('EXPLICIT_ISOLATED_TARGET_REQUIRED')
     const { default: cloudbase } = await import('@cloudbase/node-sdk')
     const { temporaryCredential } = await import('../fusion/cloudbase-cli.mjs')
     const { cloudBaseMigrationStore } = await import('./cloudbase-batch-store.mjs')

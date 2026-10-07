@@ -10,14 +10,14 @@ const { EJSON } = createRequire(require.resolve('@cloudbase/database'))('bson')
 
 // Actual installed SDK serialization/transaction machinery; only its HTTP requester is replaced.
 // This checks the SDK boundary, not the remote service or security rules.
-async function withTransport(run, failure, collections = PROBE_COLLECTIONS) {
+async function withTransport(run, failure, collections = PROBE_COLLECTIONS, projectId = 'a') {
   const db = cloudbase.init({ env: 'local-fixture-only' }).database()
   const original = Db.reqClass
   const committed = new Map()
   const calls = []
   let working
   function seed(kind, payload) {
-    committed.set(`${collections[kind]}/${documentKey('a')}`, { _id: documentKey('a'), projectId: 'a', payload })
+    committed.set(`${collections[kind]}/${documentKey(projectId)}`, { _id: documentKey(projectId), projectId, payload })
   }
   seed('access', { collaborationHash: hashSecret('collab-fixture'), managementHash: hashSecret('manager-fixture') })
   seed('current', { dataEpoch: 'e1', snapshotRevision: 0, data: 0 })
@@ -29,6 +29,11 @@ async function withTransport(run, failure, collections = PROBE_COLLECTIONS) {
       if (api === 'database.commitTransaction') {
         committed.clear(); for (const [k, v] of working) committed.set(k, v)
         return {}
+      }
+      if (!args.transactionId && ['database.getDocument', 'database.calculateDocument'].includes(api)) {
+        const query = typeof args.query === 'string' ? EJSON.parse(args.query) : args.query, matches = [...committed.entries()].filter(([k, v]) => k.startsWith(args.collectionName + '/') && v.projectId === query.projectId).map(([, v]) => v).sort((a, b) => a._id < b._id ? -1 : a._id > b._id ? 1 : 0)
+        if (api === 'database.calculateDocument') return { data: { total: matches.length } }
+        return { data: { list: matches.slice(args.offset ?? 0, (args.offset ?? 0) + (args.limit ?? 100)).map(v => EJSON.stringify(v)) } }
       }
       assert.equal(args.transactionId, 'fixture-tx')
       assert.ok(Object.values(collections).includes(args.collectionName))
@@ -47,7 +52,7 @@ async function withTransport(run, failure, collections = PROBE_COLLECTIONS) {
       throw Error(`UNEXPECTED_SDK_API:${api}`)
     }
   }
-  try { await run({ store: cloudBaseTransactionStore(db, collections), committed, calls }) }
+  try { await run({ store: cloudBaseTransactionStore(db, collections), db, committed, calls }) }
   finally { Db.reqClass = original }
 }
 const command = { projectId: 'a', dataEpoch: 'e1', operationId: 'o1', commandVersion: 1, type: 'increment', payload: null, expectedRevisions: {} }
@@ -132,4 +137,19 @@ test('installed SDK keeps explicit business collections separate from the origin
   const db = cloudbase.init({ env: 'local-fixture-only' }).database()
   assert.throws(() => cloudBaseTransactionStore(db, { ...collections, access: collections.current }), /INVALID_FUSION_COLLECTIONS/)
   assert.throws(() => cloudBaseTransactionStore(db, { extra: 'x', current: 'y', receipts: 'z', activity: 'a' }), /INVALID_FUSION_COLLECTIONS/)
+})
+
+test('installed SDK restores project documents with permission roots withheld until verified atomic publication', async () => {
+  const { cloudBaseRecoveryStore, recoverFusionProject } = await import('../../scripts/migration/fusion-recovery.mjs'), { collectBackupSource, sealBackup } = await import('../../scripts/migration/backup.mjs'), { randomBytes } = await import('node:crypto'), { emptyCore } = await import('../../src/fusion/core.ts')
+  const projectId = 'fusion-created-00000000-0000-4000-8000-000000000001', id = documentKey(projectId), collections = Object.fromEntries(Object.keys(PROBE_COLLECTIONS).map(k => [k, 'planner_fusion_sdk_' + k]))
+  const source = { access: [{ _id: id, projectId, payload: { managementHash: 'a'.repeat(64), collaborationHash: 'b'.repeat(64) } }], current: [{ _id: id, projectId, payload: { dataEpoch: 'original-epoch', snapshotRevision: 7, data: emptyCore() } }], receipts: [], activity: [] }
+  const b = await collectBackupSource({ sourceSystem: 'fusion-project', sourceEnvironmentId: 'fictional-source', sourceProjectId: projectId, schema: 'fusion-project-documents-v1', exportedAt: '2026-10-08T00:00:00Z' }, Object.keys(source), async (kind, offset) => ({ rows: source[kind].slice(offset), count: source[kind].length })), key = randomBytes(32), envelope = sealBackup(b.rawJson, b.manifest, key)
+  await withTransport(async ({ db, committed }) => {
+    committed.clear()
+    const store = cloudBaseRecoveryStore(db, collections), target = { environmentId: 'local-fixture-only', sourceEnvironmentId: 'fictional-source', isolated: true, batchId: 'fictional-sdk-recovery' }
+    for (const action of ['prepare', 'import', 'verify']) await recoverFusionProject(store, envelope, key, target, action)
+    assert.equal(committed.has(collections.access + '/' + id), false)
+    await recoverFusionProject(store, envelope, key, target, 'publish')
+    assert.deepEqual(committed.get(collections.access + '/' + id), source.access[0]); assert.deepEqual(committed.get(collections.current + '/' + id), source.current[0])
+  }, undefined, collections, projectId)
 })

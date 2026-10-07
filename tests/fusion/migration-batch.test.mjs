@@ -4,7 +4,7 @@ import { convertPlannerSource } from '../../scripts/migration/convert.mjs'
 import { migrationBatch } from '../../scripts/migration/batch.mjs'
 import { cloudBaseMigrationStore } from '../../scripts/migration/cloudbase-batch-store.mjs'
 import { documentKey } from '../../server/fusion/cloudBaseTransactionStore.ts'
-const target = { environmentId: 'fictional-preprod', sourceEnvironmentId: 'fictional-source', projectId: 'fictional-target', isolated: true,
+const target = { environmentId: 'fictional-preprod', sourceEnvironmentId: 'fictional-source', projectId: 'fusion-migrated-00000000-0000-4000-8000-000000000001', isolated: true,
   access: { managementHash: 'a'.repeat(64), collaborationHash: 'b'.repeat(64) } }
 function artifact() {
   return convertPlannerSource(JSON.stringify({ guests: [], tables: [], rooms: [], project_config: [{ project_id: 'fictional', stay_dates: [] }],
@@ -73,7 +73,7 @@ test('concurrent same-batch retries stay idempotent and backup rebuild in a fres
   await Promise.all([run(store, a, 'import'), run(store, a, 'import')]); assert.equal(store.control.writes, 4)
   await run(store, a, 'verify'); await run(store, a, 'publish')
   const rebuilt = convertPlannerSource(a.provenance.rawJson, { sourceProjectId: a.sourceProjectId, batchId: 'recovery-batch' })
-  const recovery = { ...target, projectId: 'fictional-recovery' }
+  const recovery = { ...target, projectId: 'fusion-migrated-00000000-0000-4000-8000-000000000002' }
   for (const action of ['prepare', 'import', 'verify', 'publish']) await migrationBatch(store, rebuilt, recovery, action)
   assert.deepEqual(store.state.get(target.projectId).published.data, store.state.get(recovery.projectId).published.data)
   assert.deepEqual(store.state.get(target.projectId).published.notesOrder, store.state.get(recovery.projectId).published.notesOrder)
@@ -114,4 +114,29 @@ test('batch CLI requires explicit action, apply and isolated target; default doe
     const sameEnv = run(['--action', 'prepare', '--apply', '--target-config', config]); assert.equal(sameEnv.status, 1); assert.ok(sameEnv.stderr.includes('EXPLICIT_ISOLATED_TARGET_REQUIRED'))
     assert.equal(run(['--apply']).status, 1)
   } finally { await rm(dir, { recursive: true, force: true }) }
+})
+
+test('trial migration refuses notes beyond the atomic transaction budget while dry-run preserves the complete candidate', async () => {
+  const a = artifact()
+  const source = JSON.parse(a.provenance.rawJson); source.notes = Array.from({ length: 41 }, (_, i) => ({ ...source.notes[0], id: 'long-note-' + i }))
+  const many = convertPlannerSource(JSON.stringify(source), { sourceProjectId: a.sourceProjectId, batchId: a.batchId })
+  assert.equal(many.candidate.notes.length, 41)
+  const dry = await migrationBatch(null, many); assert.equal(dry.withinTransactionBudget, false); assert.equal(dry.maximumNotes, 40)
+  await assert.rejects(run(memory(), many, 'prepare'), /MIGRATION_NOTE_TRANSACTION_LIMIT/)
+})
+
+test('forty-note trial stays below the documented 100 operations in every adapter transaction', async () => {
+  const source = JSON.parse(artifact().provenance.rawJson); source.notes = Array.from({ length: 40 }, (_, i) => ({ ...source.notes[0], id: 'bounded-note-' + i }))
+  const a = convertPlannerSource(JSON.stringify(source), { sourceProjectId: 'fictional', batchId: 'bounded-batch' })
+  let docs = new Map(), maximum = 0
+  const db = { config: { envName: target.environmentId }, async runTransaction(body) {
+    const draft = structuredClone(docs); let count = 0
+    const op = () => { count++; assert.ok(count <= 100) }
+    const result = await body({ collection: kind => ({ doc: id => ({ get: async () => { op(); return { data: structuredClone(draft.get(kind + ':' + id) ?? null) } },
+      set: async v => { op(); draft.set(kind + ':' + id, structuredClone(v)); return {} } }) }) })
+    maximum = Math.max(maximum, count); docs = draft; return result
+  } }
+  const store = cloudBaseMigrationStore(db, { access: 'fictional_access', current: 'fictional_current' })
+  for (const action of ['prepare', 'import', 'verify', 'publish']) await run(store, a, action)
+  assert.ok(maximum <= 92); assert.ok(maximum >= 80)
 })

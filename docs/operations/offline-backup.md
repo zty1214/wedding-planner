@@ -36,3 +36,5 @@ node --experimental-strip-types scripts/migration/source-backup-cli.mjs --source
 ```
 
 CloudBase完整包装备份解密后可直接输入Seating转换，sourceHash贯穿备份、布局裁决、转换和对账；不会为转换剥掉项目归属/时间信息。此功能尚未证明实际账号的读取权限、真实来源的归属或目标云端恢复。
+
+新Fusion项目级完整备份与隔离数据库恢复、平台回档及保管频率最小方案见[灾难备份恢复](disaster-backup-recovery.md)。已补齐离线/SDK边界能力，真实目标恢复仍待执行。
