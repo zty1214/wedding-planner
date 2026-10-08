@@ -1,0 +1,43 @@
+{
+  "observedAt": "2026-10-08T14:44:16.117Z",
+  "env": "dev-d1gh3jw1gdf06af22",
+  "functionName": "planner-fusion-gateway",
+  "deploymentManifestSha256": "f4080bc4d651ce22d09037396ffffbc61ae049d30854cddc58147a81fe77d489",
+  "mode": "TWO_INDEPENDENT_NODE_SDK_IDENTITIES",
+  "status": "PASS",
+  "checks": [
+    {
+      "name": "separate_identity_reads_shared_project_but_wrong_credential_is_denied",
+      "passed": true,
+      "durationMs": 564
+    },
+    {
+      "name": "separate_identities_create_records_and_observe_each_other",
+      "passed": true,
+      "durationMs": 1491
+    },
+    {
+      "name": "same_record_concurrent_update_has_one_winner",
+      "passed": true,
+      "durationMs": 1119
+    },
+    {
+      "name": "room_arrangement_is_atomic_across_independent_clients_and_receipt_replay",
+      "passed": true,
+      "durationMs": 4456
+    },
+    {
+      "name": "rotation_revokes_existing_other_identity_session_and_new_link_recovers",
+      "passed": true,
+      "durationMs": 2248
+    },
+    {
+      "name": "restore_changes_epoch_for_both_identities_and_rejects_stale_intent",
+      "passed": true,
+      "durationMs": 4349
+    }
+  ],
+  "independentIdentityVerified": true,
+  "fixtureProjectId": "fusion-created-116453b6-6820-43c6-9ef0-287d1a689780",
+  "scope": "Two separate Node processes with distinct anonymous uid verified in memory; real deployed gateway/database. Not browser/device UI, mobile or independent network validation. Only fresh synthetic project links rotated; environment permissions untouched."
+}

@@ -1,0 +1,46 @@
+{
+  "format": "planner-business-frontend-v1",
+  "mode": "offline-build-not-deployed",
+  "baselineSha": "ab95ed38f3c50016c84cf940d4579053fa403685",
+  "sourceTreeSha256": "6b89609ed533508620e2eecc9729ace403fe7b3749ff91d8e60510e5ecdb0b5e",
+  "publicConfigSha256": "a0d2608374bf85e29e3cb087282801b3af3d38cad1328d964f11c9f48559f87a",
+  "environmentId": "dev-d1gh3jw1gdf06af22",
+  "functionName": "planner-fusion-gateway",
+  "fusionOnly": true,
+  "legacyDatabaseConfigured": false,
+  "artifacts": [
+    [
+      "_redirects",
+      "6036983e5fc00f0169c9e939b1816ed771eee00e27f2fcc517b819041460b9ef"
+    ],
+    [
+      "assets/index-6Jb3F6fd.css",
+      "64d75e5c96de63780a8c9cc04bfeed71ff7c8da07100d66d78e3cde7deab1deb"
+    ],
+    [
+      "assets/index-Cu4CHZwd.js",
+      "5b0b268a589ba6d13d9f9b419ec94771fab0508cd332783eb74cb51abc30c4b7"
+    ],
+    [
+      "favicon.svg",
+      "61bc9a161de58248288e6905425d7180f0624c2865007b97d763fdac12043a66"
+    ],
+    [
+      "icons.svg",
+      "b45fa506195cfcdef406ba9f0c77b36ddc1a7c224040926ec70abc2fdea7b93a"
+    ],
+    [
+      "index.html",
+      "5882274986b67352eda30b7b08f98f3de506322641cf1f5575384bb7b9f2c7ba"
+    ],
+    [
+      "build-info.json",
+      "1146eb33eb3538184e417b7852915b911fef6c5e7563b3ee13ee1e6b6f02ae7c"
+    ]
+  ],
+  "unresolvedDeploymentGates": [
+    "target-runtime-and-domain-readback",
+    "gateway-same-version",
+    "permissions-and-mobile-acceptance"
+  ]
+}

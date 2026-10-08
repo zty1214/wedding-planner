@@ -1,0 +1,23 @@
+{
+  "status": "PASS",
+  "commit": "ab95ed38f3c50016c84cf940d4579053fa403685",
+  "functionName": "planner-fusion-gateway",
+  "environment": "dev-d1gh3jw1gdf06af22",
+  "active": true,
+  "runtime": "Nodejs20.19",
+  "memory": 256,
+  "timeout": 20,
+  "handler": "index.main",
+  "configuration": {
+    "FUSION_ALLOW_REUSED_DEV": "true",
+    "FUSION_ENV_ID": "dev-d1gh3jw1gdf06af22",
+    "FUSION_REGION": "ap-shanghai",
+    "FUSION_COLLECTION_PREFIX": "planner_fusion_preprod",
+    "FUSION_CREATION_DAILY_LIMIT": "200",
+    "LOG_EVENT_CONTEXT": "false",
+    "LOG_HEADER_BODY": "false",
+    "LOG_CONTENT_ENABLED": "false"
+  },
+  "downloadedCodeSha256": "f4080bc4d651ce22d09037396ffffbc61ae049d30854cddc58147a81fe77d489",
+  "codeMatches": true
+}

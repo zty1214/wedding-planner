@@ -1,0 +1,11 @@
+{
+  "deployedCommit": "ab95ed38f3c50016c84cf940d4579053fa403685",
+  "tools": {
+    "scripts/release/verify-reused-dev-browser.mjs": "986b758dabb1609f836f071c4affc792dffd98270b260ee79a6264d2447581bd",
+    "scripts/fusion/probe-independent-clients.mjs": "0b734282e14e92080f6ee59e85504dbc3de363c7d8c187e63c9a6e30d3b215d9",
+    "scripts/fusion/probe-client-permissions.mjs": "8f051debe91b4d17ee5e4cb2cfe570ee66aadd88b8adb932855ea186fedcd99b"
+  },
+  "scope": "updated verification tools exercised on actual deployed ab95ed3; does not mean these tool updates are part of that runtime commit",
+  "realPhoneAcceptance": "pending",
+  "visualAcceptance": "pending"
+}

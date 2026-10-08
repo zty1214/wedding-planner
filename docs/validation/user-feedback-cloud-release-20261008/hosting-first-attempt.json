@@ -1,0 +1,10 @@
+{
+  "status": "FAIL",
+  "code": "HOSTING_DEPLOY_FAILED",
+  "message": "Static file upload failed: 一致性发布失败，已自动回滚，备份保留于 .cloudbase-backup/1791470276788/，确认无误后可调用 cleanupBackup 清理：一致性校验失败：missing=/_redirects,/favicon.svg,/icons.svg,/build-info.json,/index.html,/assets/index-6Jb3F6fd.css,/assets/index-Cu4CHZwd.js; mismatched=[]",
+  "rootArgument": "/",
+  "cliVersion": "3.8.5",
+  "publicBuildInfoAfterReportedRollback": "HTTP404",
+  "cause": "local manifest and remote prefix preserve leading slash; upload strips leading slash",
+  "resolution": "omit cloudPath for bucket root; retain safe/verify; compare all public artifact bytes"
+}

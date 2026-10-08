@@ -1,0 +1,53 @@
+{
+  "status": "PASS",
+  "commit": "ab95ed38f3c50016c84cf940d4579053fa403685",
+  "scope": "actual public HTTP bytes compared with all 7 local candidate artifacts",
+  "rows": [
+    {
+      "path": "_redirects",
+      "sha256": "6036983e5fc00f0169c9e939b1816ed771eee00e27f2fcc517b819041460b9ef",
+      "matches": true
+    },
+    {
+      "path": "assets/index-6Jb3F6fd.css",
+      "sha256": "64d75e5c96de63780a8c9cc04bfeed71ff7c8da07100d66d78e3cde7deab1deb",
+      "matches": true
+    },
+    {
+      "path": "assets/index-Cu4CHZwd.js",
+      "sha256": "5b0b268a589ba6d13d9f9b419ec94771fab0508cd332783eb74cb51abc30c4b7",
+      "matches": true
+    },
+    {
+      "path": "build-info.json",
+      "sha256": "1146eb33eb3538184e417b7852915b911fef6c5e7563b3ee13ee1e6b6f02ae7c",
+      "matches": true
+    },
+    {
+      "path": "favicon.svg",
+      "sha256": "61bc9a161de58248288e6905425d7180f0624c2865007b97d763fdac12043a66",
+      "matches": true
+    },
+    {
+      "path": "icons.svg",
+      "sha256": "b45fa506195cfcdef406ba9f0c77b36ddc1a7c224040926ec70abc2fdea7b93a",
+      "matches": true
+    },
+    {
+      "path": "index.html",
+      "sha256": "5882274986b67352eda30b7b08f98f3de506322641cf1f5575384bb7b9f2c7ba",
+      "matches": true
+    }
+  ],
+  "buildInfo": {
+    "commit": "ab95ed38f3c50016c84cf940d4579053fa403685",
+    "environment": "dev-d1gh3jw1gdf06af22",
+    "gateway": "planner-fusion-gateway",
+    "gatewayBundleSha256": "f4080bc4d651ce22d09037396ffffbc61ae049d30854cddc58147a81fe77d489",
+    "mode": "fusion-only",
+    "release": "user-feedback-iteration-20261008"
+  },
+  "safe": true,
+  "verify": true,
+  "prune": false
+}
