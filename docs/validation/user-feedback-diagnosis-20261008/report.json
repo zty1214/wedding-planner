@@ -1,0 +1,92 @@
+{
+  "scope": "actual local React UI + in-memory fictitious 150-guest fixture; no real project writes",
+  "results": {
+    "canvas": {
+      "before": {
+        "width": 1168,
+        "stagePosition": {
+          "x": 584,
+          "y": 40
+        },
+        "stageRectWidth": 260,
+        "watermarkPosition": {
+          "x": 484,
+          "y": 679
+        },
+        "tableWorld": {
+          "x": 150,
+          "y": 200
+        },
+        "tablePoint": {
+          "x": 150,
+          "y": 200
+        },
+        "canvasBox": {
+          "x": 432,
+          "y": 81,
+          "width": 1168,
+          "height": 919,
+          "top": 81,
+          "right": 1600,
+          "bottom": 1000,
+          "left": 432
+        }
+      },
+      "after": {
+        "width": 880,
+        "stagePosition": {
+          "x": 440,
+          "y": 40
+        },
+        "stageRectWidth": 260,
+        "watermarkPosition": {
+          "x": 340,
+          "y": 679
+        },
+        "tableWorld": {
+          "x": 150,
+          "y": 200
+        },
+        "tablePoint": {
+          "x": 150,
+          "y": 200
+        },
+        "canvasBox": {
+          "x": 432,
+          "y": 81,
+          "width": 880,
+          "height": 919,
+          "top": 81,
+          "right": 1312,
+          "bottom": 1000,
+          "left": 432
+        }
+      },
+      "stageMoved": true,
+      "watermarkMoved": true,
+      "tableWorldPositionUnchanged": true
+    },
+    "roomOrder": {
+      "firstLabels": [
+        "008",
+        "002",
+        "001"
+      ],
+      "expectedNatural": [
+        "001",
+        "002",
+        "008"
+      ]
+    },
+    "addRoom": {
+      "pickerAutoOpened": false,
+      "newCardBelowViewport": true,
+      "label": "大床房31"
+    },
+    "search": {
+      "pendingConfirmedUnassignedHidden": true,
+      "neededConfirmedUnassignedVisible": true,
+      "dateSelectionInPicker": false
+    }
+  }
+}
