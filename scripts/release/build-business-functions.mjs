@@ -21,8 +21,8 @@ async function sourceTree() {
   return sha(JSON.stringify(entries.sort(([a], [b]) => a.localeCompare(b))))
 }
 try {
-  const { values } = parseArgs({ options: Object.fromEntries(['output', 'target-env', 'region', 'collection-prefix', 'creation-limit'].map(k => [k, { type: 'string' }])) })
-  const environment = { FUSION_ENV_ID: values['target-env'], FUSION_REGION: values.region,
+  const { values } = parseArgs({ options: Object.fromEntries(['output', 'target-env', 'region', 'collection-prefix', 'creation-limit', 'allow-reused-dev'].map(k => [k, { type: 'string' }])) })
+  const environment = { FUSION_ALLOW_REUSED_DEV: values['allow-reused-dev'], FUSION_ENV_ID: values['target-env'], FUSION_REGION: values.region,
     FUSION_COLLECTION_PREFIX: values['collection-prefix'], FUSION_CREATION_DAILY_LIMIT: values['creation-limit'] }
   businessConfiguration(environment)
   const output = await controlledPath(values.output); await mkdir(output, { mode: 0o700 })

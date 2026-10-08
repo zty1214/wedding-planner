@@ -17,9 +17,9 @@ async function files(dir) {
   return rows.sort(([a], [b]) => a.localeCompare(b))
 }
 try {
-  const { values } = parseArgs({ options: Object.fromEntries(['output', 'target-env', 'publishable-key', 'function'].map(k => [k, { type: 'string' }])) })
+  const { values } = parseArgs({ options: Object.fromEntries(['output', 'target-env', 'publishable-key', 'function', 'allow-reused-dev'].map(k => [k, { type: 'string' }])) })
   const environmentId = values['target-env'], functionName = values.function
-  if (!environmentId || environmentId === 'dev-d1gh3jw1gdf06af22' || !/^[a-z0-9][a-z0-9-]{5,127}$/.test(environmentId)
+  if (!environmentId || (environmentId === 'dev-d1gh3jw1gdf06af22' && values['allow-reused-dev'] !== 'true') || !/^[a-z0-9][a-z0-9-]{5,127}$/.test(environmentId)
     || !values['publishable-key'] || !functionName || !/^[a-z][a-z0-9-]{0,59}$/.test(functionName) || functionName.includes('probe')) throw Error('INDEPENDENT_FRONTEND_CONFIG_REQUIRED')
   const output = await controlledPath(values.output)
   await mkdir(output, { mode: 0o700 })

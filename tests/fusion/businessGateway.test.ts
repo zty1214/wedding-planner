@@ -46,3 +46,9 @@ test('candidate configuration rejects source environment, probe collections and 
   assert.equal(businessConfiguration(env).collections.current, 'planner_fusion_preprod_current')
   for (const change of [{ FUSION_ENV_ID: 'dev-d1gh3jw1gdf06af22' }, { FUSION_COLLECTION_PREFIX: 'planner_fusion_probe' }, { FUSION_CREATION_DAILY_LIMIT: '' }, { FUSION_REGION: 'ap-beijing' }, { FUSION_CREATION_DAILY_LIMIT: '0' }]) assert.throws(() => businessConfiguration({ ...env, ...change }), /BUSINESS_GATEWAY_NOT_CONFIGURED/)
 })
+
+test('authorized reused dev requires explicit flag and still rejects probe namespace', () => {
+  const env = { FUSION_ENV_ID: 'dev-d1gh3jw1gdf06af22', FUSION_REGION: 'ap-shanghai', FUSION_COLLECTION_PREFIX: 'planner_fusion_preprod', FUSION_CREATION_DAILY_LIMIT: '200', FUSION_ALLOW_REUSED_DEV: 'true' }
+  assert.equal(businessConfiguration(env).collections.current, 'planner_fusion_preprod_current')
+  assert.throws(() => businessConfiguration({ ...env, FUSION_COLLECTION_PREFIX: 'planner_fusion_probe' }), /BUSINESS_GATEWAY_NOT_CONFIGURED/)
+})

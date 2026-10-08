@@ -55,3 +55,9 @@ node scripts/release/build-business-frontend.mjs \
 只接受独立环境和明确非probe函数；产物目录必须在Git外且不存在。工具不读`.env`，显式覆盖继承的VITE配置，禁用Supabase客户端。manifest绑定基线SHA、实际源码/配置/产物哈希；配置摘要不代替部署配置回读。公开访问密钥属于浏览器配置，禁止把服务端凭证传入此参数。
 
 `npm run test:e2e:business`使用生产构建和虚构配置，检查首页/旧路径、新深链保留、错误环境/probe拒绝、继承旧配置未进入产物及零外部请求。远端CI执行此检查；真实网关、域名、直接数据库拒绝及手机验收仍须在独立环境补齐。此工具不创建资源或发布站点。
+
+## 用户授权复用dev（2026-10-08）
+
+在全数据库/云存储加密备份完成后，用户明确授权在现有dev部署。业务配置仍默认拒绝该来源环境；此次通过显式FUSION_ALLOW_REUSED_DEV=true（打包参数--allow-reused-dev true）启用复用，且禁止planner_fusion_probe命名空间。新业务集合为planner_fusion_preprod_*，新函数planner-fusion-gateway/planner-fusion-retention，不覆盖原weddings和探针集合/函数。前端仍为Fusion-only，无Supabase配置。
+
+共享环境的地域/匿名登录/资源配额与旧资源相同，不能称独立环境。部署不购买第二环境，不推送main或触发GitHub Pages正式发布。现有静态站点部署采用safe备份和verify，不prune旧文件；SPA深链回退需实际配置并回读。内部retention调用规则必须显式deny；不启用每日业务快照。
