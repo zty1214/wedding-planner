@@ -1,0 +1,23 @@
+{
+  "status": "PASS",
+  "environmentId": "dev-d1gh3jw1gdf06af22",
+  "sourceHash": "5883cd67746c75ac64df1ce953abc698052431209e822f5a96508452a3ff02eb",
+  "encryptedFileSha256": "4a98449da633ad5efe0aebe894b1eb6dffc83975c83d2d490162b66751667b20",
+  "databaseCollections": 6,
+  "databaseDocuments": 1606,
+  "storageFiles": 4,
+  "bsonTypeRoundtrip": true,
+  "permissions": {
+    "backup": "600",
+    "key": "600",
+    "directory": "700"
+  },
+  "consistency": "preliminary",
+  "twoPassContentMatch": true,
+  "exclusions": [
+    "function-code-packages",
+    "static-website-files",
+    "authentication-users",
+    "database-index-definitions"
+  ]
+}

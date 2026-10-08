@@ -7,3 +7,5 @@
 这属于虚构数据/本机适配器证据，不代表真实目标部署、数据库规则、云端时延或用户迁移验收完成。
 
 完整npm run check通过240项回归、规模/类型/lint与两次构建，见check.txt。候选提交同提交CI通过后再集成主feat。
+
+候选d831f30已通过[同提交CI](https://github.com/zty1214/wedding-planner/actions/runs/37672872727)，完整检查及两套浏览器回归成功，已快进集成主feat。脱敏回读见ci-report.json。

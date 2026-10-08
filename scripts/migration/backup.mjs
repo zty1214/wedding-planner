@@ -8,7 +8,7 @@ function validate(rawJson, manifest) {
   let source
   try { source = JSON.parse(rawJson) } catch { fail('INVALID_SOURCE_JSON') }
   if (!manifest || manifest.format !== 'planner-source-manifest-v1'
-    || !['supabase-planner', 'cloudbase-wedding', 'browser-local', 'fusion-project'].includes(manifest.sourceSystem)
+    || !['supabase-planner', 'cloudbase-wedding', 'browser-local', 'fusion-project', 'cloudbase-environment'].includes(manifest.sourceSystem)
     || typeof manifest.sourceProjectId !== 'string' || !manifest.sourceProjectId
     || typeof manifest.schema !== 'string' || !manifest.schema
     || !Number.isFinite(Date.parse(manifest.exportedAt))
