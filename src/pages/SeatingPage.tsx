@@ -135,6 +135,15 @@ export default function SeatingPage() {
 
   return (
     <div className={`${fusion ? 'planner-page ' : ''}h-full min-h-0 min-w-0 relative flex flex-col md:flex-row`}>
+      {fusion ? <div className="planner-seating-tools md:hidden shrink-0 bg-white border-b p-2 flex gap-2" aria-label="排座工具">
+        <select aria-label="添加桌子" value="" onChange={e => { if (e.target.value) handleAddTable(Number(e.target.value)) }} className="border rounded text-sm">
+          <option value="">添加桌子</option>{TABLE_PRESETS.map(preset => <option key={preset.seats} value={preset.seats}>{preset.seats}人桌</option>)}
+        </select>
+        <select aria-label="选择桌子" value={selectedTableId ?? ''} onChange={e => setSelectedTableId(e.target.value || null)} className="border rounded min-w-0 flex-1 text-sm">
+          <option value="">选桌安排 · {tables.length}桌</option>
+          {tables.map(table => <option key={table.id} value={table.id}>{table.label} · {guests.filter(g => g.tableId === table.id).length}/{table.seats}人</option>)}
+        </select>
+      </div> : (
       <div className="md:hidden shrink-0 bg-white border-b p-2 space-y-2" aria-label="排座工具">
         <div className="flex flex-wrap gap-2">
           {TABLE_PRESETS.map(preset => <button key={preset.seats} onClick={() => handleAddTable(preset.seats)} className="border rounded px-3 py-2 text-sm">添加{preset.seats}人桌</button>)}
@@ -147,6 +156,7 @@ export default function SeatingPage() {
           <button disabled={!tables.length} onClick={handleExport} className="border rounded px-3 py-2 text-sm disabled:opacity-40">导出 PNG</button>
         </div>
       </div>
+      )}
       {/* Left panel */}
       <div className="hidden md:flex w-52 bg-white border-r border-gray-100 p-4 flex-col shrink-0 overflow-y-auto">
         <h3 className="text-sm font-semibold text-gray-700 mb-3">图形库</h3>
@@ -219,7 +229,7 @@ export default function SeatingPage() {
 
       {/* Right panel */}
       {selectedTable && (
-        <div className="absolute inset-x-0 bottom-0 z-30 max-h-[70%] md:static md:max-h-full md:w-72 bg-white border border-gray-100 p-4 flex flex-col shrink-0 overflow-y-auto shadow-lg md:shadow-none">
+        <div className="absolute inset-x-0 bottom-0 z-30 max-h-[70%] md:inset-y-0 md:left-auto md:right-0 md:max-h-full md:w-72 bg-white border border-gray-100 p-4 flex flex-col shrink-0 overflow-y-auto shadow-lg md:shadow-none">
           {/* Table name - editable */}
           <div className="sticky top-0 z-10 bg-white flex items-center justify-between mb-4 py-1 shrink-0">
             {fusion ? <FusionFieldEditor key={selectedTable.id} kind="table" entityId={selectedTable.id} label="桌名" value={selectedTable.label} /> : editingLabel ? (
@@ -329,8 +339,9 @@ export default function SeatingPage() {
             <UserPlus className="w-4 h-4" /> 分配宾客
           </button>
 
+          {showAssign && tableGuests.length >= selectedTable.seats && <p role="status" className="text-sm">此桌已满，请选择其他桌子。</p>}
           {/* Unassigned list */}
-          {showAssign && (
+          {showAssign && tableGuests.length < selectedTable.seats && (
             <div className="flex-1 border-t border-gray-100 pt-3">
               <h4 className="text-xs font-semibold text-gray-500 mb-2">待分配宾客</h4>
               <div className="space-y-1 overflow-y-auto max-h-60">

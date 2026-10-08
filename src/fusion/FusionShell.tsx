@@ -24,6 +24,7 @@ export default function FusionShell({ projectId, title, status, state, actions, 
       if (event.key === 'Escape' && !document.querySelector('dialog[open]')) { setMenuOpen(false); menuButton.current?.focus() }
     }
     const outside = (event: PointerEvent) => {
+      if (document.querySelector('dialog[open]')) return
       if (event.target instanceof Node && !menu.current?.contains(event.target) && !menuButton.current?.contains(event.target)) setMenuOpen(false)
     }
     document.addEventListener('keydown', key)
@@ -42,7 +43,7 @@ export default function FusionShell({ projectId, title, status, state, actions, 
       <div className="planner-side-bottom"><Heart size={18} /><p>把琐碎的准备，<br />留给相聚的美好。</p><a href="/fusion"><FolderHeart size={18} />返回项目列表</a></div>
     </aside>
     <div className="planner-workspace">
-      <header className="planner-header">
+      <header className="planner-header" data-state={state}>
         <div className="planner-project-title">{title}</div>
         <div className="planner-header-status"><span role="status" className="planner-sync" data-state={state}><i aria-hidden="true" />{status}</span>{resume}</div>
         <button ref={menuButton} className="planner-more" aria-label="更多操作" aria-expanded={menuOpen} aria-controls="planner-project-actions" onClick={() => setMenuOpen(value => !value)}><MoreHorizontal size={20} /><span>更多操作</span></button>

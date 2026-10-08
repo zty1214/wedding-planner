@@ -29,7 +29,8 @@ export type RoomType = '大床房' | '标间'
 export interface Room {
   id: string
   type: RoomType
-  label: string // 房号，如「大床房1」
+  label: string // 项目内唯一房间号
+  stayDates?: string[] // Fusion统一房间晚次；旧入口保留个人日期
   notes?: string
 }
 

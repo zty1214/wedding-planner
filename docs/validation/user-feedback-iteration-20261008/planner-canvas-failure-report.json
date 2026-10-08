@@ -1,0 +1,27 @@
+{
+  "scope": "local fictitious 150-guest/30-room memory project only",
+  "results": {
+    "dragFailure": {
+      "before": {
+        "x": 150,
+        "y": 200
+      },
+      "after": {
+        "x": 150,
+        "y": 200
+      },
+      "rolledBack": true
+    },
+    "stageFailure": {
+      "rolledBack": true
+    },
+    "retry": {
+      "persisted": true
+    },
+    "offline": {
+      "localProjectionPreserved": true,
+      "gatewayReadbackAfterResume": true
+    }
+  },
+  "error": "fictitious write failure"
+}

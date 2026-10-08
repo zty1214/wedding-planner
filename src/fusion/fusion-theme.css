@@ -19,3 +19,48 @@
 .planner-page .bg-rose-500{background:#a44861}.planner-page .text-rose-500,.planner-page .text-rose-600{color:#a44861}.planner-page input.pl-8{padding-left:32px}.planner-page input.pl-10{padding-left:40px}
 .planner-page .text-gray-300{color:#746870}.planner-page [class*="text-[#7c9ec9]"]{color:#426791}.planner-page [class*="bg-[#7c9ec9]"]{background:#426791}
 .planner-page input.pl-9:not([type=checkbox]):not([type=radio]){padding-left:36px}
+
+/* 手机正常状态压缩固定区域；异常状态保留完整信息与恢复入口。 */
+@media(max-width:767px){
+  .planner-header{display:grid;grid-template-columns:minmax(0,1fr) auto 44px;gap:4px;padding:4px 8px;min-height:52px}
+  .planner-project-title{min-width:0}.planner-project-title input{padding:4px 6px;text-overflow:ellipsis}
+  .planner-header-status{order:0;width:auto;padding:0;gap:4px}.planner-more{padding:4px;width:44px}
+  .planner-header:not([data-state=synced]){grid-template-columns:minmax(0,1fr) 44px}
+  .planner-header:not([data-state=synced]) .planner-header-status{grid-column:1/-1;grid-row:2;padding:0 4px 4px}
+  .planner-header:not([data-state=synced]) .planner-more{grid-column:2;grid-row:1}
+  .planner-sync{font-size:11px}.planner-header[data-state=synced] .planner-sync{white-space:nowrap}
+  .planner-navigation a{flex-direction:row;justify-content:center;gap:4px;padding:4px 0;min-height:44px;font-size:11px}
+  .planner-navigation a svg{width:16px;height:16px;flex-shrink:0}.planner-navigation a span{white-space:nowrap}
+  .planner-seating-tools{gap:6px;padding:4px 8px}.planner-seating-tools select{font-size:16px;padding:6px 8px;min-height:44px}
+  .planner-seating-tools select:first-child{width:116px;flex-shrink:0}
+  .planner-zoom{right:8px;bottom:max(8px,env(safe-area-inset-bottom));gap:0;padding:0 2px}
+  .planner-zoom button{min-width:44px;min-height:44px;padding:6px}.planner-zoom span{width:36px}
+  .planner-dialog input:not([type=checkbox]):not([type=radio]),.planner-dialog select,.planner-dialog textarea{font-size:16px}
+}
+
+@media(max-width:767px){
+  .planner-stay-heading{gap:6px;margin-bottom:8px;align-items:start}.planner-stay-heading>div:first-child{flex:1;min-width:0}
+  .planner-stay-heading>div:first-child p{font-size:12px;line-height:1.5}
+  .planner-stay-actions>button{display:none}.planner-stay-actions select{max-width:120px;font-size:16px}
+  .planner-stay-filters{padding:6px 8px;margin-bottom:8px;gap:2px}
+  .planner-stay-filters>div{flex-wrap:nowrap;overflow-x:auto;max-width:100%;gap:4px}
+  .planner-stay-filters>div>*{flex-shrink:0}.planner-stay-filters button{white-space:nowrap}
+  .planner-stay-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;margin-bottom:8px}
+  .planner-stay-stats[aria-label="住宿待办"]{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .planner-stay .planner-stat{padding:6px;min-width:0;border-radius:8px}
+  .planner-stay .planner-stat>div:first-child{font-size:20px;line-height:1.3}
+  .planner-stay .planner-stat>div:nth-child(2){font-size:11px;line-height:1.4}
+}
+
+@media(min-width:768px){.planner-editor:not(.planner-editor-modal){position:static;width:100%;max-height:none;border:0;border-radius:0;box-shadow:none;background:transparent;margin:0;overflow:visible}.planner-editor:not(.planner-editor-modal)>section{padding:16px;border:1px solid var(--planner-line)}}
+@media(max-width:767px){
+  .planner-guests-heading{gap:8px;margin-bottom:8px}.planner-guests .planner-guests-export{display:none}
+  .planner-guests-stats{grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;margin-bottom:8px}
+  .planner-guests-stats>div{padding:6px}.planner-guests-stats>div>div:first-child{font-size:20px}.planner-guests-stats>div>div:last-child{font-size:11px}
+  .planner-guests>p{font-size:12px;margin-bottom:8px}
+  .planner-notes>div:first-child,.planner-notes>div:nth-child(2){margin-bottom:8px}
+}
+
+@media(min-width:768px){.planner-editor:not(.planner-editor-modal) button{border:revert-layer;min-height:36px;border-radius:revert-layer}}
+
+@media(max-width:767px){.planner-dialog label:has(input[type=checkbox]){min-height:44px;display:flex;align-items:center;gap:6px}.planner-dialog input[type=checkbox]{flex-shrink:0}}

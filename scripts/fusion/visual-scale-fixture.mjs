@@ -24,5 +24,9 @@ export async function seedVisualScale(store) {
   assertCore(data)
   store.seed(projectId, { collaborationHash: hashSecret(randomBytes(32).toString('hex')), managementHash: hashSecret(secret) }, { dataEpoch: epoch, snapshotRevision: 0, data })
   await noteService(store).execute({ projectId, dataEpoch: epoch, commandVersion: 1, operationId: randomUUID(), type: 'note.add', expectedRevisions: {}, payload: { id: 'long-note', category: '酒店', title: '虚构长笔记 · 完整正文', content: '虚构备婚记录：确认场地、交通、宾客到达与房间安排。\n'.repeat(80) } }, secret)
+  if (process.env.FEEDBACK_EDITOR_FIXTURE === '1') for (let i = 0; i < 25; i++) {
+    await noteService(store).execute({ projectId, dataEpoch: epoch, commandVersion: 1, operationId: randomUUID(), type: 'note.add', expectedRevisions: {},
+      payload: { id: `editor-note-${i}`, category: i === 24 ? '备忘' : '酒店', title: `虚构编辑笔记${i + 1}`, content: '虚构记录\n'.repeat(8) } }, secret)
+  }
   return `/fusion/p/${projectId}/seating#key=${secret}`
 }

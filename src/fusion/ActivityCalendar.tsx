@@ -5,8 +5,8 @@ import type { ActivityMonth, SnapshotState } from './activity'
 const categories = { guests: '宾客', seating: '排座', stay: '住宿', notes: '笔记', layout: '布局', project: '项目', unclassified: '历史未分类' }
 const changes = { added: '新增', adjusted: '调整', deleted: '删除或清除', restored: '恢复', unclassified: '历史未分类' }
 const snapshotLabels: Record<SnapshotState, string> = {
-  today: '今天尚未封存，每日快照将在次日生成。', ready: '自动快照已生成，可在下方预览。', expired: '自动快照已过 90 天保留期，不能恢复。',
-  pending: '有已同步活动，尚无可用自动快照：可能待生成、待重试或早于自动快照启用日期。', failed: '自动快照生成失败，后台将重试；当前已同步数据仍保留。', none: '这一天没有已记录活动，也没有自动快照。',
+  today: '今天的已同步操作仍在记录中；可主动创建手动版本。', ready: '自动快照已生成，可在下方预览。', expired: '自动快照已过 90 天保留期，不能恢复。',
+  pending: '有已同步活动，但没有可用的自动快照；请查看已有版本或主动创建手动版本。', failed: '这一天的自动快照生成失败；当前已同步数据仍保留，可使用已有手动版本。', none: '这一天没有已记录活动，也没有自动快照。',
 }
 export default function ActivityCalendar({ selected, onSelect, reload }: { selected: string | null; onSelect(day: string | null): void; reload: number }) {
   const repo = useContext(RepositoryContext)!

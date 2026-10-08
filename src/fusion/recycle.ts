@@ -23,6 +23,7 @@ export function restoreCore(core: Core, changes: CoreChange[], c: Pick<Command, 
     if (actual && c.expectedRevisions[`${change.section.slice(0, -1)}:${change.id}`] !== (actual as { revision: number }).revision) throw new CommandError('CONFLICT')
     const old = structuredClone(change.before) as { revision: number }
     old.revision = Math.max(old.revision, (actual as { revision?: number } | null)?.revision ?? -1) + 1
+    if (change.section === 'rooms' && change.after === null && Object.values(core.rooms).some(room => room.label.trim() === (old as unknown as Core['rooms'][string]).label.trim())) throw new CommandError('CONFLICT')
     entities[change.id] = old as unknown as Json
     if (change.after === null) {
       const key = change.section === 'guests' ? 'guestOrder' : change.section === 'tables' ? 'tableOrder' : 'roomOrder'

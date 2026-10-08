@@ -8,7 +8,7 @@ export interface RotationVault {
   list(projectId: string): Promise<RotationRequest[]>
   close(): void
 }
-async function secretHash(secret: string) {
+export async function secretHash(secret: string) {
   return Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(secret))), b => b.toString(16).padStart(2, '0')).join('')
 }
 async function validate(request: RotationRequest) {

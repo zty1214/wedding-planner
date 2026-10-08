@@ -14,6 +14,7 @@ const numeric = value => typeof value === 'string' && value.trim() && Number.isF
 function begin(rawJson, system, options) {
   if (!options || typeof options.sourceProjectId !== 'string' || !options.sourceProjectId
     || typeof options.batchId !== 'string' || !options.batchId) throw Error('EXPLICIT_SOURCE_AND_BATCH_REQUIRED')
+  if (options.noteDecisions !== undefined && !Array.isArray(options.noteDecisions)) throw Error('INVALID_NOTE_DECISIONS')
   const source = JSON.parse(rawJson), data = emptyCore(), notes = [], mapping = [], issues = [], defaults = []
   const addIssue = (entityType, index, code, severity = 'blocking') => issues.push({ entityType, index, code, severity })
   const ids = new Map()
@@ -42,11 +43,12 @@ function finish(ctx) {
   const counts = { guests: ctx.data.guestOrder.length, tables: ctx.data.tableOrder.length, rooms: ctx.data.roomOrder.length, notes: ctx.notes.length }
   return { format: 'planner-offline-conversion-v1', batchId: ctx.options.batchId, sourceSystem: ctx.system,
     sourceProjectId: ctx.options.sourceProjectId, sourceHash: hash(ctx.rawJson), supplementalConfigHash: hash(JSON.stringify(ctx.options.localConfig ?? ctx.options.layoutDecision ?? null)),
+    ...(ctx.options.noteDecisions !== undefined ? { noteDecisionsHash: hash(JSON.stringify(ctx.options.noteDecisions)) } : {}),
     candidate, targetHash: hash(JSON.stringify(candidate)), mapping: ctx.mapping, issues: ctx.issues, defaults: ctx.defaults,
     // The full raw source preserves unknown fields, original timestamps and attachments.
-    provenance: { rawJson: ctx.rawJson, supplementalConfig: structuredClone(ctx.options.localConfig ?? ctx.options.layoutDecision ?? null) },
+    provenance: { rawJson: ctx.rawJson, supplementalConfig: structuredClone(ctx.options.localConfig ?? ctx.options.layoutDecision ?? null), ...(ctx.options.noteDecisions !== undefined ? { noteDecisions: structuredClone(ctx.options.noteDecisions) } : {}) },
     summary: { readyForTrial: !ctx.issues.some(i => i.severity === 'blocking'), counts, sourceRecords: ctx.mapping.length,
-      mappedRecords: ctx.mapping.filter(m => m.targetId).length, unresolvedRecords: ctx.mapping.filter(m => !m.targetId).length,
+      mappedRecords: ctx.mapping.filter(m => m.targetId).length, unresolvedRecords: ctx.mapping.filter(m => m.disposition === 'unresolved').length, excludedRecords: ctx.mapping.filter(m => m.disposition === 'excluded').length,
       issues: ctx.issues, defaults: ctx.defaults } }
 }
 export function convertPlannerSource(rawJson, options) {
@@ -86,11 +88,38 @@ export function convertPlannerSource(rawJson, options) {
       roomId: c.reference('rooms', row.room_id, index), stayNeed: row.room_id == null ? 'pending' : 'needed', stayDates: [...new Set(row.stay_dates ?? [])].sort() }
     c.defaults.push({ entityType: 'guests', index, fields: ['side', 'stayNeed'], reason: 'PLANNER_V1_FIELD_MAPPING' })
   }
+  const decisions = options.noteDecisions ?? [], validDecisions = new Map(), decisionIds = new Set()
+  for (const decision of decisions) {
+    const row = source.notes.find(n => n.id === decision?.noteId)
+    const valid = decision && decision.sourceProjectId === options.sourceProjectId && decision.sourceHash === hash(rawJson)
+      && typeof decision.noteId === 'string' && row && Array.isArray(row.images) && row.images.length && !String(text(row.content)).trim()
+      && typeof decision.decisionId === 'string' && decision.decisionId.trim() && !decisionIds.has(decision.decisionId) && !validDecisions.has(decision.noteId)
+      && typeof decision.confirmedBy === 'string' && decision.confirmedBy.trim() && typeof decision.confirmedAt === 'string' && Number.isFinite(Date.parse(decision.confirmedAt))
+      && typeof decision.reason === 'string' && decision.reason.trim()
+      && (decision.action === 'exclude' || decision.action === 'text' && typeof decision.content === 'string' && decision.content.trim() && (decision.title === undefined || typeof decision.title === 'string'))
+    if (!valid) { c.addIssue('notes', null, 'INVALID_NOTE_DECISION'); continue }
+    validDecisions.set(decision.noteId, decision); decisionIds.add(decision.decisionId)
+  }
   for (const [index, row] of source.notes.entries()) {
-    const id = c.mapping.find(m => m.entityType === 'notes' && m.sourceIndex === index)?.targetId
+    const mapping = c.mapping.find(m => m.entityType === 'notes' && m.sourceIndex === index), id = mapping?.targetId
     if (!id) continue
-    c.notes.push({ id, revision: 0, category: row.category, title: text(row.title), content: text(row.content), createdAt: row.created_at, updatedAt: row.updated_at })
+    const pureImage = Array.isArray(row.images) && row.images.length > 0 && !String(text(row.content)).trim()
+    const decision = validDecisions.get(row.id)
+    if (pureImage && !decision) c.addIssue('notes', index, 'PURE_IMAGE_NOTE_DECISION_REQUIRED')
+    if (decision) mapping.decisionId = decision.decisionId
+    if (decision?.action === 'exclude') {
+      mapping.disposition = 'excluded'; mapping.targetId = null
+      c.addIssue('notes', index, 'NOTE_EXCLUDED_BY_EXPLICIT_DECISION', 'information'); continue
+    }
+    c.notes.push({ id, revision: 0, category: row.category, title: decision?.action === 'text' ? decision.title ?? text(row.title) : text(row.title),
+      content: decision?.action === 'text' ? decision.content : text(row.content), createdAt: row.created_at, updatedAt: row.updated_at })
     if (row.images?.length) c.addIssue('notes', index, 'OLD_ATTACHMENTS_PRESERVED_IN_SOURCE', 'information')
+  }
+  for (const [index, row] of source.rooms.entries()) {
+    const id = c.mapping.find(m => m.entityType === 'rooms' && m.sourceIndex === index)?.targetId
+    if (!id) continue
+    data.rooms[id].stayDates = [...new Set(source.guests.filter(g => g.room_id === row.id).flatMap(g => g.stay_dates ?? []))].sort()
+    c.defaults.push({ entityType: 'rooms', index, fields: ['stayDates'], reason: 'EXPLICIT_ROOM_NIGHTS_GUEST_DATE_UNION' })
   }
   return finish(c)
 }

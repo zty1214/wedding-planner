@@ -6,7 +6,7 @@ export type CoreGuest = {
   stayNeed: 'pending' | 'needed' | 'not_needed'; stayDates: string[]
 }
 export type CoreTable = { id: string; revision: number; label: string; seats: number; x: number; y: number; rotation: number }
-export type CoreRoom = { id: string; revision: number; label: string; type: '大床房' | '标间'; notes: string }
+export type CoreRoom = { id: string; revision: number; label: string; type: '大床房' | '标间'; notes: string; stayDates?: string[] }
 export type Core = {
   retiredIds?: string[]
   schemaVersion: 2

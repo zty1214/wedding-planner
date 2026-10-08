@@ -16,6 +16,12 @@ function nightly(data) {
     return { date, guests: guests.length, rooms: new Set(guests.map(g => g.roomId).filter(Boolean)).size }
   })
 }
+function roomArrangementNights(data) {
+  return (Array.isArray(data.config?.stayDates) ? data.config.stayDates : []).map(date => {
+    const guests = Object.values(data.guests ?? {}).filter(guest => guest.roomId && (data.rooms?.[guest.roomId]?.stayDates ?? guest.stayDates ?? []).includes(date))
+    return { date, arrangedPeople: guests.length, rooms: new Set(guests.map(guest => guest.roomId)).size }
+  })
+}
 /** actual is a full readback {data, notes}, never merely aggregate counts. */
 export function reconcileConversion(artifact, actual = artifact.candidate) {
   const issues = [], add = (code, entityType = 'project', index = null, field = null) => issues.push({ code, entityType, index, field })
@@ -43,10 +49,25 @@ export function reconcileConversion(artifact, actual = artifact.candidate) {
   const guestDates = planner ? dates(source.guests.flatMap(g => Array.isArray(g.stay_dates) ? g.stay_dates : [])) : []
   if (planner) for (const i of inventory(supplemented ? { ...source, project_config: [{ project_id: artifact.sourceProjectId, stay_dates: guestDates }] } : source, artifact.sourceProjectId).issues) add(i.code, i.table, i.index)
   else if (source.version !== 1) add('UNSUPPORTED_SEATING_SCHEMA')
+  const decisions = artifact.provenance.noteDecisions ?? []
+  if (!Array.isArray(decisions)) throw Error('INVALID_NOTE_DECISIONS')
+  if ((artifact.noteDecisionsHash !== undefined || decisions.length) && hash(JSON.stringify(decisions)) !== artifact.noteDecisionsHash) add('NOTE_DECISIONS_HASH_MISMATCH')
+  const validDecisions = new Map(), decisionIds = new Set()
+  for (const decision of decisions) {
+    const row = planner ? source.notes.find(note => note.id === decision?.noteId) : null
+    const valid = row && Array.isArray(row.images) && row.images.length > 0 && !String(text(row.content)).trim()
+      && decision.sourceProjectId === artifact.sourceProjectId && decision.sourceHash === hash(raw)
+      && typeof decision.decisionId === 'string' && decision.decisionId.trim() && !decisionIds.has(decision.decisionId) && !validDecisions.has(decision.noteId)
+      && typeof decision.confirmedBy === 'string' && decision.confirmedBy.trim() && typeof decision.confirmedAt === 'string' && Number.isFinite(Date.parse(decision.confirmedAt))
+      && typeof decision.reason === 'string' && decision.reason.trim()
+      && (decision.action === 'exclude' || decision.action === 'text' && typeof decision.content === 'string' && decision.content.trim() && (decision.title === undefined || typeof decision.title === 'string'))
+    if (!valid) { add('INVALID_NOTE_DECISION', 'notes'); continue }
+    validDecisions.set(decision.noteId, decision); decisionIds.add(decision.decisionId)
+  }
   const rows = planner ? Object.fromEntries(TABLES.map(t => [t, source[t]]))
     : { tables: Object.values(source.tables), guests: Object.values(source.guests), wedding: [source] }
-  const expectedOrders = { guests: [], tables: [], rooms: [], notes: [] }, expectedGuests = {}, seen = new Set()
-  let sourceRecords = 0, mappedRecords = 0, checkedFields = 0
+  const expectedOrders = { guests: [], tables: [], rooms: [], notes: [] }, expectedGuests = {}, expectedRooms = {}, seen = new Set()
+  let sourceRecords = 0, mappedRecords = 0, excludedRecords = 0, checkedFields = 0
   function compare(type, index, object, expected) {
     for (const [field, value] of Object.entries(expected)) {
       checkedFields++
@@ -62,8 +83,14 @@ export function reconcileConversion(artifact, actual = artifact.candidate) {
     seen.add(JSON.stringify([type, sourceId]))
     if (!unique || maps.length !== 1) { add('SOURCE_DISPOSITION_UNRESOLVED', type, index); continue }
     const m = maps[0], id = idFor(artifact, type, sourceId)
+    const pureImage = planner && type === 'notes' && Array.isArray(row.images) && row.images.length > 0 && !String(text(row.content)).trim()
+    const decision = type === 'notes' ? validDecisions.get(sourceId) : undefined
+    if (pureImage && !decision) add('PURE_IMAGE_NOTE_DECISION_REQUIRED', type, index)
+    const excluded = decision?.action === 'exclude'
     if (m.sourceSystem !== artifact.sourceSystem || m.sourceProjectId !== artifact.sourceProjectId || m.batchId !== artifact.batchId
-      || m.sourceId !== sourceId || m.targetId !== id || m.disposition !== 'retained') { add('INVALID_ID_MAPPING', type, index); continue }
+      || m.sourceId !== sourceId || m.targetId !== (excluded ? null : id) || m.disposition !== (excluded ? 'excluded' : 'retained')
+      || (m.decisionId ?? null) !== (decision?.decisionId ?? null)) { add('INVALID_ID_MAPPING', type, index); continue }
+    if (excluded) { excludedRecords++; if (actual.notes.some(note => note.id === id)) add('EXCLUDED_RECORD_PRESENT', type, index); continue }
     mappedRecords++
     if (type === 'project_config' || type === 'wedding') continue
     expectedOrders[type].push(id)
@@ -72,8 +99,8 @@ export function reconcileConversion(artifact, actual = artifact.candidate) {
     let fields
     if (type === 'tables') fields = { id, revision: 0, label: planner ? row.label : row.name, seats: planner ? row.seats : row.capacity,
       x: planner ? numeric(row.x) : row.x, y: planner ? numeric(row.y) : row.y, rotation: planner ? numeric(row.rotation) : 0 }
-    if (type === 'rooms') fields = { id, revision: 0, label: row.label, type: row.type, notes: text(row.notes) }
-    if (type === 'notes') fields = { id, revision: 0, category: row.category, title: text(row.title), content: text(row.content), createdAt: row.created_at, updatedAt: row.updated_at }
+    if (type === 'rooms') fields = { id, revision: 0, label: row.label, type: row.type, notes: text(row.notes), stayDates: [...new Set(source.guests.filter(g => g.room_id === row.id).flatMap(g => g.stay_dates ?? []))].sort() }
+    if (type === 'notes') fields = { id, revision: 0, category: row.category, title: decision?.action === 'text' ? decision.title ?? text(row.title) : text(row.title), content: decision?.action === 'text' ? decision.content : text(row.content), createdAt: row.created_at, updatedAt: row.updated_at }
     if (type === 'guests') {
       fields = { id, revision: 0, name: row.name, group: planner ? text(row.group_name) : row.relationshipGroup,
         phone: planner ? text(row.phone) : row.phone, notes: planner ? text(row.notes) : row.note,
@@ -82,6 +109,7 @@ export function reconcileConversion(artifact, actual = artifact.candidate) {
         roomId: planner ? reference('rooms', row.room_id) : null, stayNeed: planner && row.room_id != null ? 'needed' : 'pending', stayDates: planner ? dates(row.stay_dates) : [] }
       expectedGuests[id] = fields
     }
+    if (type === 'rooms') expectedRooms[id] = fields
     compare(type, index, target, fields)
   }
   if (artifact.mapping.length !== sourceRecords) add('MAPPING_COUNT_MISMATCH')
@@ -110,8 +138,10 @@ export function reconcileConversion(artifact, actual = artifact.candidate) {
   compare('config', null, actual.data.config, expectedConfig)
   const expectedNights = nightly({ config: expectedConfig, guests: expectedGuests }), actualNights = nightly(actual.data)
   compare('overnight', null, { nights: actualNights }, { nights: expectedNights })
+  const arrangedNights = roomArrangementNights(actual.data)
+  compare('room-nightly', null, { nights: arrangedNights }, { nights: roomArrangementNights({ config: expectedConfig, guests: expectedGuests, rooms: expectedRooms }) })
   return { format: 'planner-reconciliation-v1', passed: issues.length === 0, sourceHash: hash(raw),
-    targetReadbackHash: hash(JSON.stringify(actual)), sourceRecords, mappedRecords, dispositionCoverage: sourceRecords ? mappedRecords / sourceRecords : 1,
+    targetReadbackHash: hash(JSON.stringify(actual)), sourceRecords, mappedRecords, excludedRecords, retainedCoverage: sourceRecords ? mappedRecords / sourceRecords : 1, dispositionCoverage: sourceRecords ? (mappedRecords + excludedRecords) / sourceRecords : 1,
     checkedFields, counts: Object.fromEntries(Object.entries(expectedOrders).map(([k, ids]) => [k, ids.length])),
-    nights: actualNights.filter(n => isoDate(n.date)), issues }
+    nights: actualNights.filter(n => isoDate(n.date)), roomArrangementNights: arrangedNights.filter(n => isoDate(n.date)), issues }
 }

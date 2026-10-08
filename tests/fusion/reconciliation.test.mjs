@@ -17,6 +17,7 @@ test('independent reconciliation covers every source row, fields, layout, full t
   const a = fixture(), r = reconcileConversion(a)
   assert.equal(r.passed, true); assert.equal(r.dispositionCoverage, 1); assert.equal(r.sourceRecords, 6); assert.ok(r.checkedFields > 50)
   assert.deepEqual(r.nights, [{ date: '2026-12-31', guests: 1, rooms: 1 }, { date: '2027-01-01', guests: 1, rooms: 1 }])
+  assert.deepEqual(r.roomArrangementNights, [{ date: '2026-12-31', arrangedPeople: 2, rooms: 1 }, { date: '2027-01-01', arrangedPeople: 2, rooms: 1 }])
   for (const text of ['虚构同名', '00123', '完整正文', a.sourceProjectId, a.batchId]) assert.ok(!JSON.stringify(r).includes(text))
 })
 test('equal aggregate counts cannot hide wrong phone, seat, notes, coordinates, dates, ordering or extra records', () => {

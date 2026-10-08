@@ -1,3 +1,4 @@
+import { roomViews } from './roomNights.ts'
 import { createStore } from 'zustand/vanilla'
 import type { WeddingState } from '../types/weddingState.ts'
 import type { projectRepository } from './repository.ts'
@@ -47,14 +48,28 @@ export function createPageStore(projectId: string, repo: ReturnType<typeof proje
       : send('guest.setStayNeed', { id, stayNeed }, [`guest:${id}`]),
     setGuestStayDates: (id, dates) => send('guest.setStayDates', { id, dates }, [`guest:${id}`, 'config']),
     addCustomGroup: group => send('group.add', { group }, ['config']),
-    addTable: (seats, x, y) => send('table.add', { id: crypto.randomUUID(), label: `第${current().tableOrder.length + 1}桌`, seats, x, y }),
+    addTable: (seats, x, y) => {
+      const used = new Set(Object.values(current().tables).map(table => table.label))
+      let number = 1
+      while (used.has(`第${number}桌`)) number++
+      return send('table.add', { id: crypto.randomUUID(), label: `第${number}桌`, seats, x, y })
+    },
     updateTable: (id, patch) => send('table.update', { id, patch: JSON.parse(JSON.stringify(patch)) }, [`table:${id}`]),
     removeTable: id => send('table.deleteWithGuests', { id }, [`table:${id}`, ...Object.values(current().guests).filter(g => g.tableId === id).map(g => `guest:${g.id}`)]),
-    addRoom: type => send('room.add', { id: crypto.randomUUID(), label: `${type}${current().roomOrder.length + 1}`, type }),
+    addRoom: async type => {
+      const id = crypto.randomUUID(), used = new Set(Object.values(current().rooms).map(room => room.label.trim()))
+      let number = 1
+      while (used.has(String(number).padStart(2, '0'))) number++
+      return await send('room.add', { id, label: String(number).padStart(2, '0'), type }) ? id : null
+    },
+    arrangeRoom: (roomId, guestIds, dates) => {
+      const affected = [...new Set([...Object.values(current().guests).filter(g => g.roomId === roomId).map(g => g.id), ...guestIds])]
+      return send('room.arrange', { id: roomId, guestIds, dates }, [`room:${roomId}`, 'config', ...affected.map(id => `guest:${id}`)])
+    },
     updateRoom: (id, patch) => send('room.update', { id, patch: JSON.parse(JSON.stringify(patch)) }, [`room:${id}`]),
     removeRoom: id => send('room.deleteWithAssignments', { id }, [`room:${id}`, ...Object.values(current().guests).filter(g => g.roomId === id).map(g => `guest:${g.id}`)]),
     addStayDate: date => send('stayDate.add', { date }, ['config']),
-    removeStayDate: date => send('stayDate.remove', { date }, ['config', ...Object.values(current().guests).filter(g => g.stayDates.includes(date)).map(g => `guest:${g.id}`)]), setStayDates: unsupported,
+    removeStayDate: date => send('stayDate.remove', { date }, ['config', ...Object.values(current().guests).filter(g => g.stayDates.includes(date)).map(g => `guest:${g.id}`), ...Object.values(current().rooms).filter(room => room.stayDates?.includes(date)).map(room => `room:${room.id}`)]), setStayDates: unsupported,
     addNote: (category, title, content, images) => {
       if (images.length) { notice('当前只保存文本笔记，图片附件已延后。'); return Promise.resolve(false) }
       return send('note.add', { id: crypto.randomUUID(), category, title, content })
@@ -71,11 +86,12 @@ export function createPageStore(projectId: string, repo: ReturnType<typeof proje
       store.setState({ projectTitle: '', mainStagePos: null, customGroups: [], stayDates: [], guests: [], notes: [], tables: [], rooms: [] })
       return
     }
-    const c = snapshot.data
+    const c = snapshot.data, normalizedRooms = roomViews(c)
+    const nights = new Map(normalizedRooms.map(room => [room.id, room.stayDates]))
     store.setState({ projectTitle: c.config.title, mainStagePos: c.config.mainStagePos, customGroups: c.config.customGroups, stayDates: c.config.stayDates,
-      guests: c.guestOrder.map(id => { const g = c.guests[id]; return { ...g, status: g.attendance === 'confirmed' ? 'confirmed' : g.tableId ? 'assigned' : 'unassigned' } }),
+      guests: c.guestOrder.map(id => { const g = c.guests[id]; return { ...g, stayDates: g.roomId ? nights.get(g.roomId) ?? [] : [], status: g.attendance === 'confirmed' ? 'confirmed' : g.tableId ? 'assigned' : 'unassigned' } }),
       notes: (snapshot.notes ?? []).map(note => ({ ...note, images: [] })),
-      tables: c.tableOrder.map(id => c.tables[id]), rooms: c.roomOrder.map(id => c.rooms[id]) })
+      tables: c.tableOrder.map(id => c.tables[id]), rooms: normalizedRooms })
   }
   apply()
   return { store, unsubscribe: repo.subscribe(apply) }

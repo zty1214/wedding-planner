@@ -1,3 +1,4 @@
+import { usePendingInputGuard } from './PendingInputGuard'
 import { handoffForm } from './formHandoff'
 import { useContext, useEffect, useRef, useState } from 'react'
 import { RepositoryContext } from './RepositoryContext'
@@ -13,6 +14,7 @@ export default function FusionFieldEditor({ kind, entityId, label, value, disabl
   const root = useRef<HTMLDivElement>(null), vault = useRef<FieldDraftVault | null>(null)
   const active = useRef<FieldDraft | null>(null), queue = useRef(Promise.resolve())
   const dirty = useRef(false), submitting = useRef(false), mounted = useRef(false), sequence = useRef(0)
+  usePendingInputGuard(dirty)
   const [text, setText] = useState<string | null>(null), [ready, setReady] = useState(false), [busy, setBusy] = useState(false)
   const [saved, setSaved] = useState<FieldDraft[]>([]), [message, setMessage] = useState('')
   const matches = (d: FieldDraft) => d.kind === kind && d.entityId === entityId
@@ -27,7 +29,7 @@ export default function FusionFieldEditor({ kind, entityId, label, value, disabl
     }).catch(() => { if (!stopped) setMessage('本机草稿无法读取，暂不能编辑。') })
     const unload = (e: BeforeUnloadEvent) => { if (dirty.current) { e.preventDefault(); e.returnValue = '' } }
     const guard = (e: MouseEvent) => {
-      if (dirty.current && e.target instanceof Node && !root.current?.contains(e.target)) {
+      if (dirty.current && e.target instanceof Element && !e.target.closest('[data-input-leave-guard]') && !root.current?.contains(e.target)) {
         e.preventDefault(); e.stopPropagation(); setMessage('输入尚未保存在本机，请先重试保存或复制留存。')
       }
     }
@@ -110,7 +112,7 @@ export default function FusionFieldEditor({ kind, entityId, label, value, disabl
   return <div ref={root} className="min-w-0 space-y-1">
     <div className="flex flex-wrap gap-1">
       <input maxLength={kind === 'version' ? 100 : undefined} aria-label={label} disabled={!ready || busy || disabled || !!active.current?.handoff} value={text ?? value} onChange={e => persist(e.target.value)} className="border-b w-36 max-w-full font-semibold text-sm" />
-      {text !== null && <button disabled={busy || disabled || !text.trim()} onClick={() => void submit()} className="border rounded px-2 text-sm">{active.current?.handoff ? '核对原提交' : submitLabel ?? `保存${label}`}</button>}
+      {text !== null && <button disabled={busy || disabled || (!text.trim() && kind !== 'roomNotes')} onClick={() => void submit()} className="border rounded px-2 text-sm">{active.current?.handoff ? '核对原提交' : submitLabel ?? `保存${label}`}</button>}
       {text !== null && <button disabled={busy || disabled} onClick={() => void recover().catch(() => setMessage('草稿保留，请重试。'))} className="text-xs underline">保留草稿，回到当前值</button>}
       {dirty.current && <button disabled={busy || disabled} onClick={() => persist(text ?? value)} className="text-sm underline">重试本机保存</button>}
     </div>

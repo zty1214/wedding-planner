@@ -1,3 +1,4 @@
+import ResponsiveEditor from '../fusion/ResponsiveEditor'
 import FusionNotesEditor from '../fusion/FusionNotesEditor'
 import { useState, useRef } from 'react'
 import { useWeddingStore, useFusionMode } from '../fusion/PageContext'
@@ -13,8 +14,14 @@ export default function NotesPage() {
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [images, setImages] = useState<string[]>([])
+  const opener = useRef<HTMLElement | null>(null)
+  function closeEditor() {
+    setShowEditor(false); setEditingId(null)
+    requestAnimationFrame(() => { if (opener.current?.isConnected) { opener.current.scrollIntoView({ block: 'nearest' }); opener.current.focus() } })
+  }
   const fileRef = useRef<HTMLInputElement>(null)
 
+  const categories = fusion ? [...new Set([...NOTE_CATEGORIES, ...notes.map(note => note.category)])] : NOTE_CATEGORIES
   const filteredNotes = notes.filter((n) => n.category === activeTab)
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -44,11 +51,11 @@ export default function NotesPage() {
   }
 
   return (
-    <div className={`${fusion ? 'planner-page ' : ''}h-full min-w-0 [overflow-wrap:anywhere] overflow-y-auto sm:flex sm:flex-col p-3 sm:p-6 max-w-3xl mx-auto`}>
+    <div className={`${fusion ? 'planner-page planner-notes ' : ''}h-full min-w-0 [overflow-wrap:anywhere] overflow-y-auto sm:flex sm:flex-col p-3 sm:p-6 max-w-3xl mx-auto`}>
       {fusion && <div className="mb-6"><h2>备婚笔记</h2><p className="planner-description">记下灵感、决定与待办，让准备有条不紊。</p></div>}
       {/* Tabs */}
       <div className="flex flex-wrap items-center gap-1 mb-6">
-        {NOTE_CATEGORIES.map((cat) => (
+        {categories.map((cat) => (
           <button
             key={cat}
             onClick={() => setActiveTab(cat)}
@@ -63,7 +70,7 @@ export default function NotesPage() {
         ))}
         <button
           data-note-editor-switch
-          onClick={() => { setEditingId(null); setTitle(''); setContent(''); setImages([]); setShowEditor(true) }}
+          onClick={event => { opener.current = event.currentTarget; setEditingId(null); setTitle(''); setContent(''); setImages([]); setShowEditor(true) }}
           className="ml-auto flex shrink-0 items-center gap-1.5 px-4 py-2 bg-[#d4728a] text-white rounded-lg text-sm font-medium hover:bg-[#b85a72] transition-colors"
         >
           <Plus className="w-4 h-4" /> 写笔记
@@ -71,7 +78,7 @@ export default function NotesPage() {
       </div>
 
       {/* Editor */}
-      {showEditor && fusion && <FusionNotesEditor key={editingId ?? 'new'} category={activeTab} noteId={editingId} onClose={() => { setShowEditor(false); setEditingId(null) }} />}
+      {showEditor && fusion && <ResponsiveEditor label={editingId ? '编辑笔记' : '写笔记'} open><FusionNotesEditor key={editingId ?? 'new'} category={activeTab} noteId={editingId} onClose={closeEditor} /></ResponsiveEditor>}
       {showEditor && !fusion && (
         <div className="bg-white rounded-xl border border-gray-200 p-4 mb-6 shadow-sm">
           <input
@@ -157,7 +164,7 @@ export default function NotesPage() {
               {note.title && (
                 <h3 className="min-w-0 flex-1 [overflow-wrap:anywhere] text-sm font-semibold text-gray-800 mb-1">{note.title}</h3>
               )}
-              {fusion && <button data-note-editor-switch className="shrink-0 ml-auto text-sm text-rose-600 px-2" onClick={() => { setEditingId(note.id); setTitle(note.title); setContent(note.content); setImages([]); setShowEditor(true) }}>编辑</button>}
+              {fusion && <button data-note-editor-switch className="shrink-0 ml-auto text-sm text-rose-600 px-2" onClick={event => { opener.current = event.currentTarget; setEditingId(note.id); setTitle(note.title); setContent(note.content); setImages([]); setShowEditor(true) }}>编辑</button>}
               <button
                 aria-label="删除笔记"
                 onClick={() => { if (confirm(`删除笔记“${note.title || '无标题'}”？正文将一并移除。`)) removeNote(note.id) }}

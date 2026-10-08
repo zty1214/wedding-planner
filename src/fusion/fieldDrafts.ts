@@ -1,5 +1,5 @@
 import type { Command } from './protocol.ts'
-export type FieldKind = 'project' | 'table' | 'room' | 'group' | 'version'
+export type FieldKind = 'project' | 'table' | 'room' | 'roomNotes' | 'roomArrangement' | 'group' | 'version'
 export interface FieldDraft {
   handoff?: Command
   id: string; projectId: string; dataEpoch: string; entityId: string; kind: FieldKind
@@ -58,21 +58,27 @@ export function fieldTarget(snapshot: import('./repository.ts').ProjectSnapshot,
   if (kind === 'group') return { revision: snapshot.data.config.revision, value: '' }
   const entity = kind === 'project' ? snapshot.data.config : kind === 'table' ? snapshot.data.tables[entityId] : snapshot.data.rooms[entityId]
   if (!entity) throw Error('NOT_FOUND')
-  return { revision: entity.revision, value: 'title' in entity ? entity.title : entity.label }
+  return { revision: entity.revision, value: kind === 'roomNotes' ? ('notes' in entity ? entity.notes : '') : 'title' in entity ? entity.title : entity.label }
 }
 
 /** Restored input keeps its original epoch and revision, even when the current label looks equal. */
 export function fieldDraftCommand(draft: FieldDraft, snapshot: import('./repository.ts').ProjectSnapshot): Pick<import('./protocol.ts').Command, 'type' | 'payload' | 'expectedRevisions' | 'dataEpoch'> {
   if (draft.dataEpoch !== snapshot.dataEpoch) throw Error('PROJECT_REPLACED')
-  if (!['project', 'table', 'room', 'group', 'version'].includes(draft.kind) || !Number.isSafeInteger(draft.entityRevision) || draft.entityRevision < 0 || !draft.value.trim()) throw Error('INVALID_INPUT')
+  if (!['project', 'table', 'room', 'roomNotes', 'roomArrangement', 'group', 'version'].includes(draft.kind) || !Number.isSafeInteger(draft.entityRevision) || draft.entityRevision < 0 || (!draft.value.trim() && draft.kind !== 'roomNotes')) throw Error('INVALID_INPUT')
   const current = fieldTarget(snapshot, draft.kind, draft.entityId)
   if (current.revision !== draft.entityRevision) throw Error('CONFLICT')
+  if (draft.kind === 'roomArrangement') {
+    const value = JSON.parse(draft.value) as { guestIds: string[]; dates: string[]; expectedRevisions: Record<string, number> }
+    if (!Array.isArray(value.guestIds) || !Array.isArray(value.dates) || !value.expectedRevisions || value.expectedRevisions[`room:${draft.entityId}`] !== draft.entityRevision) throw Error('INVALID_INPUT')
+    return { type: 'room.arrange', payload: { id: draft.entityId, guestIds: value.guestIds, dates: value.dates }, expectedRevisions: value.expectedRevisions, dataEpoch: draft.dataEpoch }
+  }
   if (draft.kind === 'group') return { type: 'group.add', payload: { group: draft.value.trim() }, expectedRevisions: { config: draft.entityRevision }, dataEpoch: draft.dataEpoch }
   if (draft.kind === 'version') {
     if (!Number.isSafeInteger(draft.entityNotesRevision) || Number(draft.entityNotesRevision) < 0 || draft.value.trim().length > 100) throw Error('INVALID_INPUT')
     if (draft.entityNotesRevision !== snapshot.notesRevision) throw Error('CONFLICT')
     return { type: 'version.save', payload: { name: draft.value.trim() }, expectedRevisions: { snapshot: draft.entityRevision, notes: draft.entityNotesRevision! }, dataEpoch: draft.dataEpoch }
   }
+  if (draft.kind === 'roomNotes') return { type: 'room.update', payload: { id: draft.entityId, patch: { notes: draft.value } }, expectedRevisions: { [`room:${draft.entityId}`]: draft.entityRevision }, dataEpoch: draft.dataEpoch }
   return draft.kind === 'project'
     ? { type: 'project.update', payload: { patch: { title: draft.value.trim() } }, expectedRevisions: { config: draft.entityRevision }, dataEpoch: draft.dataEpoch }
     : { type: `${draft.kind}.update`, payload: { id: draft.entityId, patch: { label: draft.value.trim() } }, expectedRevisions: { [`${draft.kind}:${draft.entityId}`]: draft.entityRevision }, dataEpoch: draft.dataEpoch }

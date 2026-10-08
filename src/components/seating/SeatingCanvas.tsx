@@ -1,4 +1,6 @@
-import { useCallback, useLayoutEffect, useRef } from 'react'
+import { DEFAULT_MAIN_STAGE, MAIN_STAGE_WIDTH } from '../../utils/stageGeometry'
+import { RepositoryContext } from '../../fusion/RepositoryContext'
+import { useCallback, useLayoutEffect, useRef, useContext, useState } from 'react'
 import { Stage, Layer, Circle, Text, Group, Rect } from 'react-konva'
 import { ZoomIn, ZoomOut, Locate } from 'lucide-react'
 import { useWeddingStore } from '../../fusion/PageContext'
@@ -45,6 +47,10 @@ interface Props {
 
 export default function SeatingCanvas({ selectedTableId, onSelectTable, stageRef, viewport, onViewportChange, fixedData }: Props) {
   const live = useWeddingStore()
+  const repo = useContext(RepositoryContext)
+  const [dragError, setDragError] = useState('')
+  const currentLive = useRef(live)
+  useLayoutEffect(() => { currentLive.current = live }, [live])
   const { tables, guests, mainStagePos } = fixedData ?? live
   const { updateTable, setMainStagePos } = live
   const { scale: stageScale, x: posX, y: posY, width: stageW, height: stageH } = viewport
@@ -70,10 +76,10 @@ export default function SeatingCanvas({ selectedTableId, onSelectTable, stageRef
   const getRadius = (seats: number) =>
     TABLE_PRESETS.find((p) => p.seats === seats)?.radius ?? 60
 
-  const stageWidth = Math.min(stageW * 0.35, 260)
-  // 主舞台位置：优先用存储的位置，否则默认居中
-  const stageX = mainStagePos?.x ?? stageW / 2
-  const stageY = mainStagePos?.y ?? 40
+  const stageWidth = MAIN_STAGE_WIDTH
+  // 舞台使用稳定的世界坐标，不随选桌或视口宽度变化
+  const stageX = mainStagePos?.x ?? DEFAULT_MAIN_STAGE.x
+  const stageY = mainStagePos?.y ?? DEFAULT_MAIN_STAGE.y
 
   // 滚轮缩放（以鼠标位置为中心）
   const handleWheel = (e: any) => {
@@ -190,7 +196,14 @@ export default function SeatingCanvas({ selectedTableId, onSelectTable, stageRef
             x={stageX}
             y={stageY}
             draggable
-            onDragEnd={(e) => setMainStagePos({ x: e.target.x(), y: e.target.y() })}
+            onDragEnd={async e => {
+              setDragError('')
+              if (await setMainStagePos({ x: e.target.x(), y: e.target.y() }) === false) {
+                const position = repo?.getSnapshot().snapshot?.data.config.mainStagePos ?? currentLive.current.mainStagePos ?? DEFAULT_MAIN_STAGE
+                e.target.position(position); e.target.getLayer()?.batchDraw()
+                setDragError('舞台位置未能保存在本机，已回到当前保存位置。请检查顶部状态后重试。')
+              }
+            }}
           >
             <Rect
               x={-stageWidth / 2}
@@ -227,10 +240,20 @@ export default function SeatingCanvas({ selectedTableId, onSelectTable, stageRef
               guests={getTableGuests(table.id)}
               radius={getRadius(table.seats)}
               onSelect={() => onSelectTable(table.id)}
-              onDragEnd={(x, y) => updateTable(table.id, { x, y })}
+              onDragEnd={async (x, y, node) => {
+                setDragError('')
+                if (await updateTable(table.id, { x, y }) === false) {
+                  const saved = repo?.getSnapshot().snapshot?.data.tables[table.id] ?? currentLive.current.tables.find(t => t.id === table.id)
+                  if (saved) { node.position({ x: saved.x, y: saved.y }); node.getLayer()?.batchDraw() }
+                  setDragError('桌子位置未能保存在本机，已回到当前保存位置。请检查顶部状态后重试。')
+                }
+              }}
             />
           ))}
 
+        </Layer>
+        {/* Decoration is anchored in screen space, independent of world pan/zoom. */}
+        <Layer listening={false} x={-posX / stageScale} y={-posY / stageScale} scaleX={1 / stageScale} scaleY={1 / stageScale}>
           {/* Bottom watermark */}
           <Text
             text="囍"
@@ -256,8 +279,9 @@ export default function SeatingCanvas({ selectedTableId, onSelectTable, stageRef
         </Layer>
       </Stage>
 
+      {dragError && <p role="alert" className="absolute top-2 left-2 right-2 z-20 bg-white text-sm">{dragError}</p>}
       {/* Floating zoom controls */}
-      <div className="absolute bottom-4 right-4 z-20 flex items-center gap-1 bg-white rounded-lg border border-gray-200 shadow-sm px-1.5 py-1">
+      <div className="planner-zoom absolute bottom-4 right-4 z-20 flex items-center gap-1 bg-white rounded-lg border border-gray-200 shadow-sm px-1.5 py-1">
         <button
           onClick={() => zoomBy(1 / 1.25)}
           className="p-1.5 text-gray-500 hover:text-[#a44861] hover:bg-[#fdf5f7] rounded transition-colors"
@@ -305,7 +329,7 @@ function TableNode({
   guests: Guest[]
   radius: number
   onSelect: () => void
-  onDragEnd: (x: number, y: number) => void
+  onDragEnd: (x: number, y: number, node: any) => void | Promise<void>
 }) {
   const seatRadius = radius + 24
   const seats = table.seats
@@ -317,7 +341,7 @@ function TableNode({
       draggable
       onClick={onSelect}
       onTap={onSelect}
-      onDragEnd={(e) => onDragEnd(e.target.x(), e.target.y())}
+      onDragEnd={(e) => onDragEnd(e.target.x(), e.target.y(), e.target)}
     >
       {/* Selection ring */}
       {isSelected && (

@@ -23,7 +23,7 @@ export const useWeddingStore = create<WeddingState>()(
       sharedLinks: [],
 
       setProjectTitle: (title) => { set({ projectTitle: title }) },
-      setMainStagePos: (pos) => set({ mainStagePos: pos }),
+      setMainStagePos: (pos) => { set({ mainStagePos: pos }) },
 
       addSharedLink: (link) => set((s) => ({ sharedLinks: [link, ...s.sharedLinks] })),
       renameSharedLink: (id, name) =>
@@ -96,10 +96,11 @@ export const useWeddingStore = create<WeddingState>()(
           }
         }),
 
-      updateTable: (id, patch) =>
+      updateTable: (id, patch) => {
         set((s) => ({
           tables: s.tables.map((t) => (t.id === id ? { ...t, ...patch } : t)),
-        })),
+        }))
+      },
 
       removeTable: (id) => {
         const affected = get().guests.filter((g) => g.tableId === id).map((g) => g.id)

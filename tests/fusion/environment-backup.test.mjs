@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { EJSON } from 'bson'
+import { EJSON, ObjectId } from 'bson'
 import { randomBytes } from 'node:crypto'
 import { collectEnvironmentDatabase } from '../../scripts/migration/environment-backup.mjs'
 import { sealBackup, openBackup } from '../../scripts/migration/backup.mjs'
@@ -19,4 +19,13 @@ test('environment backup refuses count changes rather than silently exporting a 
   let count = 0
   const db = { config: { envName: 'fictional-env' }, collection: () => ({ count: async () => ({ total: ++count }), orderBy: () => ({ skip: () => ({ limit: () => ({ get: async () => ({ data: [{ _id: 'example' }] }) }) }) }) }) }
   await assert.rejects(collectEnvironmentDatabase(db, ['documents']), /SOURCE_CHANGED_DURING_READ/)
+})
+
+
+test('environment backup explicitly refuses ObjectId and numeric document IDs without claiming a complete backup', async () => {
+  for (const id of [new ObjectId('000000000000000000000001'), 42]) {
+    const rows = [{ _id: id, original: 'fictitious' }]
+    const db = { config: { envName: 'fictional-env' }, collection: () => ({ count: async () => ({ total: 1 }), orderBy: () => ({ skip: offset => ({ limit: size => ({ get: async () => ({ data: rows.slice(offset, offset + size) }) }) }) }) }) }
+    await assert.rejects(collectEnvironmentDatabase(db, ['documents']), /UNSUPPORTED_SOURCE_ID_TYPE/)
+  }
 })

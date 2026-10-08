@@ -19,7 +19,7 @@ export default function PrivateDraftPanel({ projectId, dataEpoch }: { projectId:
   }
   const current = value?.projectId === projectId ? value : null
   const rows = current ? [
-    ...current.fieldDrafts.map(d => ({ ...d, label: ({ project: '项目标题', table: '桌名', room: '房号', group: '类别', version: '版本名称' })[d.kind], text: d.value })),
+    ...current.fieldDrafts.map(d => ({ ...d, label: ({ project: '项目标题', table: '桌名', room: '房号', roomNotes: '房间备注', roomArrangement: '房间安排', group: '类别', version: '版本名称' })[d.kind], text: d.value })),
     ...current.guestDrafts.map(d => ({ ...d, label: '宾客表单', text: `姓名：${d.name}\n分组：${d.group}\n电话：${d.phone}` })),
     ...current.noteDrafts.map(d => ({ ...d, label: '笔记表单', text: `${d.category} · ${d.title}\n${d.content}` })),
   ] : []

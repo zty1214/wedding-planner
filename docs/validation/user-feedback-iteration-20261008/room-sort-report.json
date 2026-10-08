@@ -1,0 +1,12 @@
+{
+  "scope": "local fictitious 150-guest/30-room memory project only",
+  "results": {
+    "mixedNumericNaturalOrder": true,
+    "leadingZeroAndChinesePreserved": true,
+    "defaultTypeGrouping": true,
+    "independentBrowserPreferences": true,
+    "preferencesSurviveReload": true,
+    "sortingDoesNotRewriteRoomOrderOrAssociations": true,
+    "duplicateRenameRejected": true
+  }
+}

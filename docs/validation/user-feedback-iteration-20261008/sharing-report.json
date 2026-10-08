@@ -1,0 +1,10 @@
+{
+  "scope": "local fictitious 150-guest/30-room memory project only",
+  "sharing": {
+    "creationLinkVerified": true,
+    "rotationUsesCurrentLink": true,
+    "otherDeviceRefusesStaleLink": true,
+    "offlineDoesNotCopy": true,
+    "recipientCanOpenCollaboration": true
+  }
+}

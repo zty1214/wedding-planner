@@ -17,7 +17,7 @@ export async function migrationBatch(store, artifact, target, action = 'dry-run'
     || !/^[a-f0-9]{64}$/.test(target.access.collaborationHash) || target.access.managementHash === target.access.collaborationHash) throw Error('EXPLICIT_ISOLATED_TARGET_REQUIRED')
   const binding = { environmentId: target.environmentId, projectId: target.projectId, batchId: artifact.batchId,
     sourceSystem: artifact.sourceSystem, sourceProjectId: artifact.sourceProjectId, sourceHash: artifact.sourceHash,
-    supplementalConfigHash: artifact.supplementalConfigHash, targetHash: artifact.targetHash, access: target.access }
+    supplementalConfigHash: artifact.supplementalConfigHash, ...(artifact.noteDecisionsHash !== undefined ? { noteDecisionsHash: artifact.noteDecisionsHash } : {}), targetHash: artifact.targetHash, access: target.access }
   const bindingHash = digest(binding), epoch = 'migration_' + bindingHash, units = [['core', artifact.candidate.data], ...artifact.candidate.notes.map(n => [n.id, n])]
   const scoped = body => store.run(target.projectId, epoch, body)
   async function guard(tx, metadata, selected = []) {

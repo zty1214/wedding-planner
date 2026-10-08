@@ -8,7 +8,13 @@ export default function FusionDialog({ label, onClose, children }: { label: stri
     const dialog = ref.current!
     const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null
     dialog.showModal()
-    return () => { dialog.close(); if (opener?.isConnected) opener.focus() }
+    return () => {
+      dialog.close()
+      const visible = (node: HTMLElement | null) => node?.isConnected && node.getClientRects().length > 0
+      const fallback = Array.from(document.querySelectorAll<HTMLElement>('.planner-more, .planner-project-title input')).find(node => visible(node))
+      if (visible(opener)) opener!.focus()
+      else fallback?.focus()
+    }
   }, [])
   return <dialog ref={ref} className="planner-dialog" aria-label={label} onKeyDown={event => {
     if (event.key !== 'Tab') return

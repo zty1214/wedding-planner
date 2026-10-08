@@ -1,11 +1,13 @@
+import { usePendingInputGuard } from './PendingInputGuard'
 import { handoffForm } from './formHandoff'
 import { useContext, useEffect, useRef, useState } from 'react'
 import { RepositoryContext } from './RepositoryContext'
 import { openGuestDraftVault, guestDraftCommand } from './guestDrafts'
 import type { GuestDraft, GuestDraftVault } from './guestDrafts'
 
-export default function FusionGuestForm({ groups, onAddGroup, guestId, onClose }: { groups: string[]; onAddGroup(): void; guestId?: string; onClose?(): void }) {
+export default function FusionGuestForm({ groups, onAddGroup, guestId, onClose, focusOnOpen = false }: { focusOnOpen?: boolean; groups: string[]; onAddGroup(): void; guestId?: string; onClose?(): void }) {
   const repo = useContext(RepositoryContext)!
+  const input = useRef<HTMLInputElement>(null)
   const submission = useRef<Promise<void> | null>(null)
   const initial = useRef(repo.getSnapshot().snapshot)
   const original = guestId ? initial.current?.data.guests[guestId] : undefined
@@ -14,6 +16,7 @@ export default function FusionGuestForm({ groups, onAddGroup, guestId, onClose }
   const queue = useRef<Promise<void>>(Promise.resolve())
   const saveSequence = useRef(0)
   const failed = useRef(false), submitting = useRef(false)
+  usePendingInputGuard(failed)
   const [form, setForm] = useState({ name: original?.name ?? '', group: original?.group ?? groups[0] ?? '', phone: original?.phone ?? '' })
   const [ready, setReady] = useState(false), [busy, setBusy] = useState(false)
   const [saved, setSaved] = useState<GuestDraft[]>([]), [message, setMessage] = useState('正在读取本机宾客草稿…')
@@ -36,6 +39,9 @@ export default function FusionGuestForm({ groups, onAddGroup, guestId, onClose }
     window.addEventListener('beforeunload', warn)
     return () => { stopped = true; window.removeEventListener('beforeunload', warn); document.removeEventListener('click', guard, true); void Promise.allSettled([queue.current, submission.current]).then(() => { opened?.close(); if (vault.current === opened) vault.current = null }) }
   }, [repo])
+  useEffect(() => {
+    if (ready && focusOnOpen) { input.current?.scrollIntoView({ block: 'center' }); input.current?.focus() }
+  }, [ready, focusOnOpen])
   function change(patch: Partial<typeof form>) {
     if (!ready || submitting.current || active.current?.handoff) return
     const value = { ...form, ...patch }; setForm(value)
@@ -99,14 +105,14 @@ export default function FusionGuestForm({ groups, onAddGroup, guestId, onClose }
   }
   return <div className="space-y-2">
     <div className="flex gap-3 flex-wrap">
-      <input aria-label="宾客姓名" placeholder="宾客姓名" disabled={!ready || busy || !!active.current?.handoff} value={form.name} onChange={e => change({ name: e.target.value })} className="border rounded px-3 py-2" />
+      <input ref={input} aria-label="宾客姓名" placeholder="宾客姓名" disabled={!ready || busy || !!active.current?.handoff} value={form.name} onChange={e => change({ name: e.target.value })} className="border rounded px-3 py-2" />
       <select aria-label="宾客分组" disabled={!ready || busy || !!active.current?.handoff} value={form.group} onChange={e => change({ group: e.target.value })} className="border rounded px-3 py-2">
         {[...new Set([...groups, form.group])].map(group => <option key={group}>{group}</option>)}
       </select>
       <input aria-label="宾客电话" placeholder="手机号（选填）" disabled={!ready || busy || !!active.current?.handoff} value={form.phone} onChange={e => change({ phone: e.target.value })} className="border rounded px-3 py-2" />
       <button disabled={!ready || busy || !form.name.trim()} onClick={() => void submit()} className="bg-rose-500 text-white rounded px-3 py-2">{active.current?.handoff ? '核对原提交' : (active.current ? active.current.guestRevision !== undefined : !!guestId) ? '保存修改' : '添加'}</button>
       <button disabled={busy} onClick={onAddGroup}>添加自定义类别</button>
-      {onClose ? <button disabled={busy} onClick={() => void close()}>保留草稿并关闭编辑</button> : <button disabled={!ready || busy} onClick={() => void recover()}>保留草稿，填写另一位</button>}
+      {onClose ? <button data-editor-close disabled={busy} onClick={() => void close()}>保留草稿并关闭编辑</button> : <button disabled={!ready || busy} onClick={() => void recover()}>保留草稿，填写另一位</button>}
     </div>
     {message && <p role="status" className="text-sm text-amber-800">{message}</p>}
     {saved.length > 0 && <details><summary>恢复本机宾客草稿（{saved.length}）</summary>{saved.map(draft => <button key={draft.id} disabled={busy || !ready} onClick={() => void recover(draft)} className="block p-2 text-left">{draft.name || '未命名宾客'} · {new Date(draft.updatedAt).toLocaleString('zh-CN')}</button>)}</details>}

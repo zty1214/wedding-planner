@@ -16,7 +16,7 @@ export interface WeddingState {
 
   // Project actions
   setProjectTitle: (title: string) => SaveResult
-  setMainStagePos: (pos: { x: number; y: number }) => void
+  setMainStagePos: (pos: { x: number; y: number }) => SaveResult
 
   // Shared-link actions（仅本地）
   addSharedLink: (link: SharedLink) => void
@@ -36,11 +36,12 @@ export interface WeddingState {
 
   // Table actions
   addTable: (seats: number, x: number, y: number) => void
-  updateTable: (id: string, patch: Partial<Table>) => void
+  updateTable: (id: string, patch: Partial<Table>) => SaveResult
   removeTable: (id: string) => void
 
   // Room actions
-  addRoom: (type: RoomType) => void
+  addRoom: (type: RoomType) => void | Promise<string | null>
+  arrangeRoom?: (roomId: string, guestIds: string[], dates: string[]) => Promise<boolean>
   updateRoom: (id: string, patch: Partial<Room>) => void | Promise<boolean>
   removeRoom: (id: string) => void
 

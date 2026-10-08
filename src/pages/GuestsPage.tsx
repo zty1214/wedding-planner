@@ -1,7 +1,8 @@
+import ResponsiveEditor from '../fusion/ResponsiveEditor'
 import FusionFieldEditor from '../fusion/FusionFieldEditor'
 import FusionGuestForm from '../fusion/FusionGuestForm'
 import { ExportContext } from '../fusion/ExportContext'
-import { useContext, useState } from 'react'
+import { useContext, useRef, useState } from 'react'
 import { useWeddingStore, useAllGroups, useFusionMode } from '../fusion/PageContext'
 import { Plus, Trash2, Search, UserCheck, UserX, Pencil, Check, X, TagPlus, Download, BedDouble } from 'lucide-react'
 import type { Guest } from '../types'
@@ -22,6 +23,12 @@ export default function GuestsPage() {
   const [filterGroup, setFilterGroup] = useState('全部')
   const [showAddGroup, setShowAddGroup] = useState(false)
   const [newGroup, setNewGroup] = useState('')
+  const opener = useRef<HTMLElement | null>(null)
+  const [showGuestEditor, setShowGuestEditor] = useState(false)
+  function closeGuestEditor() {
+    setShowGuestEditor(false); setEditingId(null); setShowAddGroup(false)
+    requestAnimationFrame(() => { if (opener.current?.isConnected) { opener.current.scrollIntoView({ block: 'nearest' }); opener.current.focus() } })
+  }
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editName, setEditName] = useState('')
   const [editGroup, setEditGroup] = useState('')
@@ -45,7 +52,8 @@ export default function GuestsPage() {
   const startEdit = (id: string) => {
     const guest = guests.find((g) => g.id === id)
     if (!guest) return
-    setEditingId(id)
+    opener.current = document.activeElement instanceof HTMLElement ? document.activeElement : null
+    setShowGuestEditor(true); setEditingId(id)
     setEditName(guest.name)
     setEditGroup(guest.group)
     setEditPhone(guest.phone || '')
@@ -70,21 +78,22 @@ export default function GuestsPage() {
   const filterGroups = ['全部', ...allGroups]
 
   return (
-    <div className={`${fusion ? 'planner-page ' : ''}h-full min-w-0 [overflow-wrap:anywhere] overflow-y-auto sm:flex sm:flex-col p-3 sm:p-6 max-w-4xl mx-auto`}>
+    <div className={`${fusion ? 'planner-page planner-guests ' : ''}h-full min-w-0 [overflow-wrap:anywhere] overflow-y-auto sm:flex sm:flex-col p-3 sm:p-6 max-w-4xl mx-auto`}>
       {/* Header with export */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="planner-guests-heading flex items-center justify-between mb-4">
         <div><h2 className="text-base font-semibold text-gray-800">宾客名单</h2>{fusion && <p className="planner-description">记录每一位重要的人，确认出席与安排。</p>}</div>
+        {fusion && <button data-guest-form-switch className="md:hidden border rounded px-3" onClick={event => { opener.current = event.currentTarget; setShowGuestEditor(true); setEditingId(null) }}>添加宾客</button>}
         <button
           onClick={() => openExport ? openExport('guests') : exportGuestsToExcel(guests, tables)}
           disabled={guests.length === 0}
-          className="flex items-center gap-1.5 px-3 py-2 bg-[#d4728a] text-white rounded-lg text-sm font-medium hover:bg-[#b85a72] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          className="planner-guests-export flex items-center gap-1.5 px-3 py-2 bg-[#d4728a] text-white rounded-lg text-sm font-medium hover:bg-[#b85a72] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         >
           <Download className="w-4 h-4" /> 导出名单
         </button>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6">
+      <div className="planner-guests-stats grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6">
         <div className="bg-white rounded-xl p-4 flex-1 border border-gray-100">
           <div className="text-2xl font-bold text-gray-800">{guests.length}</div>
           <div className="text-sm text-gray-500">总宾客数</div>
@@ -115,8 +124,9 @@ export default function GuestsPage() {
       </section>}
 
       {/* Add form */}
+      <ResponsiveEditor enabled={fusion} label={editingId ? '编辑宾客' : '添加宾客'} open={showGuestEditor}>
       <div className="bg-white rounded-xl p-4 border border-gray-100 mb-4 [&_input]:min-w-0 [&_input]:max-w-full [&_select]:min-w-0 [&_select]:max-w-full">
-        {fusion ? <FusionGuestForm key={editingId ?? 'new'} guestId={editingId ?? undefined} onClose={editingId ? () => setEditingId(null) : undefined} groups={allGroups} onAddGroup={() => setShowAddGroup(true)} /> : (
+        {fusion ? <FusionGuestForm key={editingId ?? 'new'} guestId={editingId ?? undefined} focusOnOpen={showGuestEditor || !!editingId} onClose={showGuestEditor || editingId ? closeGuestEditor : undefined} groups={allGroups} onAddGroup={() => setShowAddGroup(true)} /> : (
         <div className="flex gap-3 flex-wrap items-center">
           <input
             value={name}
@@ -190,6 +200,7 @@ export default function GuestsPage() {
         )}
       </div>
 
+      </ResponsiveEditor>
       {/* Filters */}
       <div className="flex items-center gap-3 mb-4 flex-wrap">
         <div className="relative flex-1 min-w-[160px] max-w-xs">

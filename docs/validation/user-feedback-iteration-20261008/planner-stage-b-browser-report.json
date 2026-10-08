@@ -1,0 +1,107 @@
+{
+  "scope": "local fictitious 150-guest/30-room memory project only",
+  "geometry": [
+    {
+      "scale": "20%",
+      "width": 1168,
+      "selectionStable": true,
+      "watermarkStable": true
+    },
+    {
+      "scale": "80%",
+      "width": 1168,
+      "selectionStable": true,
+      "watermarkStable": true
+    },
+    {
+      "scale": "100%",
+      "width": 1168,
+      "selectionStable": true,
+      "watermarkStable": true
+    },
+    {
+      "scale": "200%",
+      "width": 1168,
+      "selectionStable": true,
+      "watermarkStable": true
+    }
+  ],
+  "mobile": [
+    {
+      "width": 360,
+      "header": 53,
+      "nav": 44,
+      "tools": 53,
+      "canvas": 694,
+      "height": 844,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "header": 53,
+      "nav": 44,
+      "tools": 53,
+      "canvas": 694,
+      "height": 844,
+      "overflow": false
+    },
+    {
+      "width": 430,
+      "header": 53,
+      "nav": 44,
+      "tools": 53,
+      "canvas": 694,
+      "height": 844,
+      "overflow": false
+    }
+  ],
+  "desktop": [
+    {
+      "width": 768,
+      "sidebar": 188,
+      "navDirection": "column",
+      "libraryWidth": 208,
+      "overflow": false
+    },
+    {
+      "width": 1024,
+      "sidebar": 224,
+      "navDirection": "column",
+      "libraryWidth": 208,
+      "overflow": false
+    },
+    {
+      "width": 1280,
+      "sidebar": 224,
+      "navDirection": "column",
+      "libraryWidth": 208,
+      "overflow": false
+    },
+    {
+      "width": 1440,
+      "sidebar": 224,
+      "navDirection": "column",
+      "libraryWidth": 208,
+      "overflow": false
+    }
+  ],
+  "focus": {
+    "visible": true,
+    "tag": "BUTTON"
+  },
+  "landscape": {
+    "canvas": 317,
+    "overflow": false
+  },
+  "png": {
+    "fixedStageBitmapUnchangedBySelection": true
+  },
+  "savedStage": {
+    "positionAndWidthPreservedAcrossResizeAndSelection": true,
+    "noImplicitConfigWrites": true
+  },
+  "pointer": {
+    "actualMouseDragPersisted": true,
+    "syntheticChromiumTouchDragPersisted": true
+  }
+}

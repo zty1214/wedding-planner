@@ -1,0 +1,11 @@
+{
+  "scope": "local fictitious 150-guest/30-room memory project only",
+  "editing": {
+    "desktopBottomGuestFocused": true,
+    "desktopReturnToRecord": true,
+    "mobileNewGuestModal": true,
+    "mobileBottomGuestModalAndReturn": true,
+    "extraNoteCategoryVisible": true,
+    "mobileBottomNoteModalAndReturn": true
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "scope": "local fictitious 150-guest/30-room memory project only",
+  "results": {
+    "createAssign": {
+      "autoDialog": true,
+      "previouslyHiddenGuestFound": true,
+      "roomAndGuestReadback": true,
+      "unifiedDates": true
+    },
+    "dateFilter": {
+      "assignedNightVisible": true,
+      "otherNightHidden": true
+    },
+    "sort": {
+      "naturalNumberOrder": true,
+      "originalOrder": true,
+      "rememberedAfterReload": true
+    },
+    "notes": {
+      "editable": true,
+      "persistedAfterReload": true
+    },
+    "mobile": {
+      "firstRoomTop": 522.171875,
+      "visualHeight": 844,
+      "overflow": false
+    },
+    "cancel": {
+      "emptyRoomRetained": true,
+      "noGuestOrDateAssigned": true
+    },
+    "offline": {
+      "autoDialogAfterLocalCreation": true,
+      "localArrangementVisible": true,
+      "remoteUnchangedWhileOffline": true,
+      "oneRoomAfterDoubleConfirm": true,
+      "unifiedDatesAfterResume": true,
+      "attendancePreserved": true
+    }
+  }
+}

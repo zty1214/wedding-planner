@@ -1,0 +1,8 @@
+{
+  "scope": "local fictitious 150-guest/30-room memory project only",
+  "results": {
+    "concurrentChangeRejectsWholeBatch": true,
+    "formSelectionsRetained": true,
+    "privateFrozenDraftRetained": true
+  }
+}

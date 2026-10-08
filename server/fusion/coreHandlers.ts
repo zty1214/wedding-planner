@@ -33,6 +33,9 @@ function dates(v: unknown): string[] {
 function expected(command: Command, key: string, revision: number) {
   if (command.expectedRevisions[key] !== revision) throw new CommandError('CONFLICT')
 }
+function uniqueRoomLabel(core: Core, label: string, except?: string) {
+  if (Object.values(core.rooms).some(room => room.id !== except && room.label.trim() === label.trim())) throw new CommandError('CONFLICT')
+}
 function entity<T extends { revision: number }>(items: Record<string, T>, key: string): T {
   if (!Object.hasOwn(items, key)) throw new CommandError('NOT_FOUND')
   return items[key]
@@ -66,6 +69,8 @@ export function assertCore(value: unknown): asserts value is Core {
     const r = record(value); if (id(r.id) !== key) invalid()
     revision(r.revision); text(r.label); text(r.notes)
     if (r.type !== '大床房' && r.type !== '标间') invalid()
+    if (r.stayDates !== undefined && (canonicalJson(dates(r.stayDates)) !== canonicalJson(r.stayDates)
+      || (r.stayDates as string[]).some(d => !(config.stayDates as string[]).includes(d)))) invalid()
   }
   const occupied = new Set<string>()
   for (const [key, value] of Object.entries(guests)) {
@@ -162,7 +167,8 @@ export function coreHandlers(): Map<string, Handler> {
   add('room.update', (c, p, cmd) => {
     fields(p, ['id', 'patch']); const key = id(p.id), r = entity(c.rooms, key), patch = record(p.patch)
     fields(patch, [], ['label', 'notes']); expected(cmd, `room:${key}`, r.revision)
-    touch(r, () => { if (patch.label !== undefined) r.label = text(patch.label, true); if (patch.notes !== undefined) r.notes = text(patch.notes) })
+    if (patch.label !== undefined) uniqueRoomLabel(c, text(patch.label, true), key)
+    touch(r, () => { if (patch.label !== undefined) r.label = text(patch.label, true).trim(); if (patch.notes !== undefined) r.notes = text(patch.notes) })
   })
   add('project.update', (c, p, cmd) => {
     fields(p, ['patch']); const patch = record(p.patch)
@@ -202,10 +208,30 @@ export function coreHandlers(): Map<string, Handler> {
   })
   add('room.add', (c, p) => {
     fields(p, ['id', 'label', 'type'], ['notes']); const key = id(p.id)
+    uniqueRoomLabel(c, text(p.label, true))
     if (p.type !== '大床房' && p.type !== '标间') invalid()
     if (c.retiredIds?.includes('rooms:' + key) || Object.hasOwn(c.rooms, key)) throw new CommandError('CONFLICT')
     c.roomOrder.push(key)
-    c.rooms[key] = { id: key, revision: 0, label: text(p.label, true), type: p.type as '大床房' | '标间', notes: p.notes === undefined ? '' : text(p.notes) }
+    c.rooms[key] = { id: key, revision: 0, label: text(p.label, true).trim(), type: p.type as '大床房' | '标间', notes: p.notes === undefined ? '' : text(p.notes) }
+  })
+  // One command freezes room nights and all affected guests; no partial assignment.
+  add('room.arrange', (c, p, cmd) => {
+    fields(p, ['id', 'guestIds', 'dates'])
+    const key = id(p.id), room = entity(c.rooms, key), selected = dates(p.dates)
+    expected(cmd, `room:${key}`, room.revision); expected(cmd, 'config', c.config.revision)
+    if (selected.some(date => !c.config.stayDates.includes(date)) || !Array.isArray(p.guestIds)) invalid()
+    const ids = (p.guestIds as unknown[]).map(id)
+    if (new Set(ids).size !== ids.length) invalid()
+    const affected = [...new Set([...Object.values(c.guests).filter(g => g.roomId === key).map(g => g.id), ...ids])]
+    // Detect occupants added by another command since this request was frozen.
+    if (canonicalJson(Object.keys(cmd.expectedRevisions).filter(ref => ref.startsWith('guest:')).sort())
+      !== canonicalJson(affected.map(guestId => `guest:${guestId}`).sort())) throw new CommandError('CONFLICT')
+    for (const guestId of affected) expected(cmd, `guest:${guestId}`, entity(c.guests, guestId).revision)
+    touch(room, () => { room.stayDates = selected })
+    for (const guestId of affected) {
+      const g = c.guests[guestId]
+      touch(g, () => { g.roomId = key; g.stayNeed = 'needed'; g.stayDates = [...selected] })
+    }
   })
   add('guest.setStayNeed', (c, p, cmd) => {
     fields(p, ['id', 'stayNeed']); const g = guest(c, p, cmd)
@@ -218,7 +244,7 @@ export function coreHandlers(): Map<string, Handler> {
     // Clearing an existing stay is deferred until recovery material is atomic.
     if (g.roomId !== null && roomId === null) throw new CommandError('INVALID_INPUT')
     if (roomId !== null) { const r = entity(c.rooms, roomId); expected(cmd, `room:${roomId}`, r.revision) }
-    touch(g, () => { g.roomId = roomId; if (roomId) g.stayNeed = 'needed'; else g.stayDates = [] })
+    touch(g, () => { g.roomId = roomId; if (roomId) { g.stayNeed = 'needed'; if (c.rooms[roomId].stayDates) g.stayDates = [...c.rooms[roomId].stayDates!] } else g.stayDates = [] })
   })
   add('stayDate.add', (c, p, cmd) => {
     fields(p, ['date']); expected(cmd, 'config', c.config.revision)
@@ -227,6 +253,7 @@ export function coreHandlers(): Map<string, Handler> {
   })
   add('guest.setStayDates', (c, p, cmd) => {
     fields(p, ['id', 'dates']); const g = guest(c, p, cmd), selected = dates(p.dates)
+    if (g.roomId && c.rooms[g.roomId].stayDates !== undefined) invalid() // Updated rooms use room.arrange atomically.
     expected(cmd, 'config', c.config.revision)
     if ((!g.roomId && selected.length) || selected.some(d => !c.config.stayDates.includes(d))) invalid()
     touch(g, () => { g.stayDates = selected })

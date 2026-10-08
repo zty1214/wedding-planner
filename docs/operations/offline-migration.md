@@ -47,3 +47,14 @@ node --experimental-strip-types scripts/migration/batch-cli.mjs --input /CONTROL
 ## 缺失Planner云端配置的显式试迁补充
 
 仅在来源project_config为空时，localConfig可显式提供sourceProjectId、原始rawJson的sourceHash及missingCloudConfig=guest-date-union。转换从个人stay_dates集合生成项目日期，仍验证非法日期、引用和全部领域约束；没有此决定仍阻止试迁。原始空配置、来源摘要和决定均保留，默认标题/空舞台与配置缺口记录，不称原浏览器配置已收集。对账独立重新推导日期及核验决定绑定。当前真实执行结果见[Supabase试迁](../validation/supabase-trial-migration-20261008/README.md)。
+
+
+## 纯图片笔记的明确处置（本轮迭代）
+
+旧笔记有图片且正文为空或只有空白字符时，无论是否有标题，转换会阻止试迁；独立对账重新核对原文，删除转换报告的blocking问题也不能绕过publish。文字与图片同时存在时保留文字，附件引用继续仅在原始备份中留存，不宣称新站能查看图片。
+
+需要继续迁移时，由负责人核对图片并提供私有JSON数组，使用 `--note-decisions-file /CONTROLLED/note-decisions.json`。每项必须包含 `decisionId`、`sourceProjectId`、原始JSON的 `sourceHash`、来源笔记 `noteId`、`confirmedBy`、ISO `confirmedAt`、非空 `reason`。`action=text`另提供非空 `content` 和可选 `title`；`action=exclude`明确排除目标笔记，映射保留来源笔记ID及决定ID。决定必须绑定本次原文、来源项目和具体笔记，重复或不适用的决定阻止迁移；不由工具自动生成同意。
+
+处置数组、原始引用和原文在受控转换产物的provenance中保留。决定摘要纳入批次绑定，准备后改变决定不能复用原批次。对账分别报告 `mappedRecords`、`excludedRecords`、`retainedCoverage` 与 `dispositionCoverage`；全部条目已处置不等于全部内容已迁移，排除项不得算作完整保留。此门槛只用于下一次离线转换/发布，不重新导入或覆盖已有真实项目。
+
+房间统一晚次由同房来源个人晚次并集显式映射，转换报告标记 `EXPLICIT_ROOM_NIGHTS_GUEST_DATE_UNION`；源个人事实原样留存，后续产品报房按房间安排晚次进行。既有产物不自动补写新字段，需重新转换并对账后再用于新批次。

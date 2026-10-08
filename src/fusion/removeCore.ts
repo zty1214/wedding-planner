@@ -26,6 +26,14 @@ export function removeCore(core: Core, c: Command): CoreChange[] {
     core.config.stayDates = core.config.stayDates.filter(date => date !== id); core.config.revision++
     changes.push({ section: 'config', id: 'stayDates', before, after: structuredClone(core.config) })
     for (const g of affected) recordGuest(g.id, () => { g.stayDates = g.stayDates.filter(date => date !== id) })
+    const affectedRooms = Object.values(core.rooms).filter(room => room.stayDates?.includes(id))
+    if (canonicalJson(Object.keys(c.expectedRevisions).filter(k => k.startsWith('room:')).sort()) !== canonicalJson(affectedRooms.map(room => `room:${room.id}`).sort())) throw new CommandError('CONFLICT')
+    for (const room of affectedRooms) {
+      expected(c, `room:${room.id}`, room.revision)
+      const previous = structuredClone(room)
+      room.stayDates = room.stayDates!.filter(date => date !== id); room.revision++
+      changes.push({ section: 'rooms', id: room.id, before: previous, after: structuredClone(room) })
+    }
   } else if (c.type === 'guest.delete' || c.type === 'table.deleteWithGuests' || c.type === 'room.deleteWithAssignments') {
     const section = c.type === 'guest.delete' ? 'guests' : c.type === 'table.deleteWithGuests' ? 'tables' : 'rooms'
     const entities = core[section], entity = entities[id]

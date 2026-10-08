@@ -46,6 +46,7 @@ export async function collectBackupSource(metadata, collections, readPage) {
       if (!page.rows.length && rows.length < expected) fail('INCOMPLETE_PAGE_COVERAGE')
       for (const row of page.rows) {
         const id = row?._id ?? row?.id ?? row?.project_id
+        if (id !== undefined && id !== null && typeof id !== 'string') fail('UNSUPPORTED_SOURCE_ID_TYPE')
         if (typeof id !== 'string' || !id || ids.has(id)) fail('DUPLICATE_OR_MISSING_SOURCE_ID')
         ids.add(id)
       }

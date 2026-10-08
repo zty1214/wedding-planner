@@ -104,7 +104,7 @@ for (const kind of ['guests', 'rooms'] as const) await measured(`${kind}Workbook
   } else {
     const rows = XLSX.utils.sheet_to_json<Record<string, string | number>>(decoded.Sheets['每晚用房'])
     assert.deepEqual(rows.map(r => r.日期), ['2026-12-31', '2027-01-01'])
-    assert.deepEqual(rows.map(r => r.当晚入住人数), [30, 60])
+    assert.deepEqual(rows.map(r => r.当晚安排人数), [60, 60])
     assert.deepEqual(rows.map(r => r.合计用房), [30, 30])
   }
 })

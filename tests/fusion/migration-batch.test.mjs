@@ -1,5 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import { createHash } from 'node:crypto'
 import { convertPlannerSource } from '../../scripts/migration/convert.mjs'
 import { migrationBatch } from '../../scripts/migration/batch.mjs'
 import { cloudBaseMigrationStore } from '../../scripts/migration/cloudbase-batch-store.mjs'
@@ -150,4 +151,18 @@ test('large trial interrupted near the end resumes without opening an incomplete
   await run(store, a, 'verify'); await run(store, a, 'publish')
   assert.equal(store.state.get(target.projectId).published.notesOrder.length, 150)
   await run(store, a, 'import'); assert.equal(store.control.writes, 151)
+})
+
+
+test('explicit image-note exclusion publishes an accounted partial content migration and binds its decision hash', async () => {
+  const source = JSON.parse(artifact().provenance.rawJson)
+  source.notes[0].content = ' '; source.notes[0].images = ['fictional://image']
+  const raw = JSON.stringify(source), decision = { decisionId: 'exclude-1', sourceProjectId: 'fictional', sourceHash: createHash('sha256').update(raw).digest('hex'), noteId: 'n0', action: 'exclude', confirmedBy: 'fictional-reviewer', confirmedAt: '2026-10-08T00:00:00Z', reason: '已核对的虚构排除' }
+  const a = convertPlannerSource(raw, { sourceProjectId: 'fictional', batchId: 'image-batch', noteDecisions: [decision] }), store = memory()
+  await run(store, a, 'prepare')
+  const changed = convertPlannerSource(raw, { sourceProjectId: 'fictional', batchId: 'image-batch', noteDecisions: [{ ...decision, reason: '处置被修改' }] })
+  await assert.rejects(run(store, changed, 'import'), /MIGRATION_BINDING_MISMATCH/)
+  await run(store, a, 'import'); await run(store, a, 'verify'); const published = await run(store, a, 'publish')
+  assert.equal(published.reconciliation.excludedRecords, 1); assert.ok(published.reconciliation.retainedCoverage < 1)
+  assert.equal(store.state.get(target.projectId).published.notesOrder.length, 2)
 })

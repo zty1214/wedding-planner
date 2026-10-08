@@ -1,3 +1,6 @@
+import { gatewayTransport } from './gatewayTransport'
+import { currentCollaborationSecret } from './currentSharing'
+import { openRotationVault } from './accessRotation'
 import './fusion-theme.css'
 import { useEffect, useState } from 'react'
 import { newCreation, projectLinks, creationProjectId } from './projectCreation'
@@ -31,8 +34,28 @@ export default function ProjectsPage() {
       setMessage(e instanceof Error && e.message === 'RATE_LIMITED' ? '今日开发环境创建额度已用完，请保留本机请求后重试。' : '尚未确认创建成功。已保存的请求可点击重试，不要重复新建。')
     } finally { setBusy(false) }
   }
-  async function copy(url: string) {
-    try { await navigator.clipboard.writeText(url); setMessage('链接已复制。管理链接只交给项目负责人保管。') } catch { setMessage('复制失败，请检查浏览器剪贴板权限。') }
+  async function copy(entry: SavedCreation, kind: 'collaboration' | 'management') {
+    if (busy) return
+    setBusy(true); setMessage('正在核对链接是否仍然有效…')
+    try {
+      const projectId = creationProjectId(entry.request.requestId)
+      const transport = gatewayTransport(projectId, entry.request.managementSecret, await connectGateway())
+      let url = projectLinks(window.location.origin, entry.request).management
+      if (kind === 'collaboration') {
+        const rotations = await openRotationVault()
+        try {
+          const secret = await currentCollaborationSecret(projectId, entry.request.collaborationSecret, await rotations.list(projectId), transport)
+          const link = new URL(`/fusion/p/${projectId}/guests`, window.location.origin)
+          link.hash = new URLSearchParams({ key: secret }).toString(); url = link.href
+        } finally { rotations.close() }
+      } else await transport.readAccess!()
+      await navigator.clipboard.writeText(url)
+      setMessage(kind === 'collaboration' ? '已在复制前核对有效协作链接，可分享给家人。' : '已核对并复制管理链接，请仅由项目负责人保管。')
+    } catch (error) {
+      setMessage(error instanceof Error && error.message === 'CURRENT_LINK_NOT_ON_DEVICE'
+        ? '当前协作链接已更换，此设备没有有效的新链接。请打开项目，在“协作链接”中核对本机记录，或明确准备并更换新链接。'
+        : '未能核对或复制有效链接。请检查网络、项目权限和剪贴板权限；不会回退复制旧链接。')
+    } finally { setBusy(false) }
   }
   return <main className="planner-projects planner-page max-w-3xl mx-auto p-6 space-y-5">
     <p className="planner-eyebrow">喜事 · A LITTLE FOREVER</p>
@@ -43,7 +66,6 @@ export default function ProjectsPage() {
     <p role="status">{message}</p>
     {entries.length === 0 && <section className="planner-empty"><h2>从一个婚礼项目开始</h2><p>填写名称后创建，邀请家人共同完成宾客、座位与住宿安排。</p></section>}
     {entries.map(entry => {
-      const links = projectLinks(window.location.origin, entry.request)
       return <section key={entry.request.requestId} className="bg-white border rounded-xl p-4 space-y-3">
         <h2 className="font-semibold">{entry.request.title}</h2>
         {!entry.confirmed ? <button disabled={busy} onClick={() => void create(entry.request)}>重试并确认创建结果</button> : <div className="flex flex-wrap gap-4">
@@ -52,8 +74,8 @@ export default function ProjectsPage() {
             sessionStorage.setItem(`planner-access:${projectId}`, entry.request.managementSecret)
             window.location.assign(`/fusion/p/${projectId}/seating`)
           }}>打开项目</button>
-          <button onClick={() => void copy(links.collaboration)}>复制协作链接</button>
-          <button onClick={() => void copy(links.management)}>复制管理链接</button>
+          <button disabled={busy} onClick={() => void copy(entry, 'collaboration')}>复制协作链接</button>
+          <button disabled={busy} onClick={() => void copy(entry, 'management')}>复制管理链接</button>
         </div>}
       </section>
     })}

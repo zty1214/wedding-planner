@@ -1,7 +1,9 @@
+import FusionDialog from '../fusion/FusionDialog'
+import FusionRoomArrangement from '../fusion/FusionRoomArrangement'
 import FusionFieldEditor from '../fusion/FusionFieldEditor'
 import { RepositoryContext } from '../fusion/RepositoryContext'
 import { ExportContext } from '../fusion/ExportContext'
-import { useContext, useMemo, useState } from 'react'
+import { useContext, useEffect, useMemo, useState } from 'react'
 import { BedDouble, Bed, DoorOpen, Plus, Download, Trash2, Search, X, UserPlus, Pencil, CalendarPlus } from 'lucide-react'
 import { useWeddingStore, useFusionMode } from '../fusion/PageContext'
 import { ROOM_CAPACITY, type Guest, type Room } from '../types'
@@ -28,10 +30,27 @@ export default function AccommodationPage() {
 
   const [selectedDate, setDateFilter] = useState<string>(ALL)
   const [typeFilter, setTypeFilter] = useState<string>(ALL)
+  const [roomSort, setRoomSort] = useState('type')
+  const sortKey = fusion ? `planner-room-sort:${fusion.projectId}` : ''
+  useEffect(() => {
+    if (!sortKey) return
+    try { const saved = localStorage.getItem(sortKey); setRoomSort(saved && ['type', 'number', 'original'].includes(saved) ? saved : 'type') } catch { setRoomSort('type') }
+  }, [sortKey])
+  function changeRoomSort(value: string) {
+    setRoomSort(value)
+    try { localStorage.setItem(sortKey, value) } catch { setRoomMessage('排序已切换，但此浏览器未能记住偏好。') }
+  }
   const [pickerRoomId, setPickerRoomId] = useState<string | null>(null)
   const [editingRoomId, setEditingRoomId] = useState<string | null>(null)
   const [labelDraft, setLabelDraft] = useState('')
   const [addingDate, setAddingDate] = useState(false)
+  const [creatingRoom, setCreatingRoom] = useState(false)
+  const [roomMessage, setRoomMessage] = useState('')
+  async function createRoom(type: Room['type']) {
+    if (creatingRoom) return
+    setCreatingRoom(true)
+    try { const id = await addRoom(type); if (typeof id === 'string') { setPickerRoomId(id); setTypeFilter(ALL); setRoomMessage('新房已保存在本机，取消安排后可在全部日期查看。') } else if (fusion) setRoomMessage('未能创建房间，请核对顶部状态与本机草稿后重试。') } finally { setCreatingRoom(false) }
+  }
 
   const dateFilter = stayDates.includes(selectedDate) ? selectedDate : ALL
   const todos = useMemo(() => accommodationTodos(guests), [guests])
@@ -40,10 +59,16 @@ export default function AccommodationPage() {
   const occupantsOf = (room: Room): Guest[] => {
     const all = guests.filter((g) => g.roomId === room.id)
     if (dateFilter === ALL) return all
-    return all.filter((g) => (g.stayDates || []).includes(dateFilter))
+    return fusion ? (room.stayDates?.includes(dateFilter) ? all : []) : all.filter((g) => (g.stayDates || []).includes(dateFilter))
   }
 
-  const visibleRooms = rooms.filter((r) => typeFilter === ALL || r.type === typeFilter)
+  const visibleRooms = rooms.filter((r) => (typeFilter === ALL || r.type === typeFilter) && (!fusion || dateFilter === ALL || (r.stayDates?.includes(dateFilter) && guests.some(g => g.roomId === r.id))))
+  if (fusion && roomSort !== 'original') visibleRooms.sort((a, b) => {
+    const type = roomSort === 'type' ? (a.type === '大床房' ? 0 : 1) - (b.type === '大床房' ? 0 : 1) : 0
+    return type || a.label.localeCompare(b.label, 'zh-CN', { numeric: true })
+  })
+  const duplicateLabels = [...new Set(rooms.filter((room, index) => rooms.findIndex(other => other.label.trim() === room.label.trim()) !== index).map(room => room.label))]
+
 
   const stats = useMemo(() => {
     const king = rooms.filter((r) => r.type === '大床房').length
@@ -72,23 +97,26 @@ export default function AccommodationPage() {
   }
 
   return (
-    <div className={`${fusion ? 'planner-page ' : ''}h-full [overflow-wrap:anywhere] overflow-y-auto`}>
+    <div className={`${fusion ? 'planner-page planner-stay ' : ''}h-full [overflow-wrap:anywhere] overflow-y-auto`}>
       <div className="max-w-7xl mx-auto p-3 sm:p-6">
         {/* 顶部：标题 + 操作 */}
-        <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
+        <div className="planner-stay-heading flex items-center justify-between mb-4 flex-wrap gap-3">
           <div>
             <h2 className="text-lg font-semibold text-gray-800">住宿安排</h2>
-            <p className="text-sm text-gray-400 mt-0.5">为宾客安排房间，按个人住宿晚次统计用房；请先在名单中确认住宿需求</p>
+            <p className="text-sm text-gray-400 mt-0.5">{fusion ? '根据宾客安排房间，统一选择房间晚次，按晚汇总酒店用房。' : '为宾客安排房间，按个人住宿晚次统计用房；请先在名单中确认住宿需求'}</p>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="planner-stay-actions flex flex-wrap items-center gap-2">
+            {fusion && <select aria-label="添加房间" disabled={creatingRoom} value="" onChange={e => { if (e.target.value) void createRoom(e.target.value as Room['type']) }} className="md:hidden">
+              <option value="">添加房间</option><option value="大床房">大床房</option><option value="标间">标间</option>
+            </select>}
             <button
-              onClick={() => addRoom('大床房')}
+              disabled={creatingRoom} onClick={() => void createRoom('大床房')}
               className="flex items-center gap-1.5 px-3 py-2 text-sm rounded-lg border border-[#f0c4d0] text-[#d4728a] hover:bg-[#fdf5f7] transition-colors"
             >
               <Plus className="w-4 h-4" /> 添加大床房
             </button>
             <button
-              onClick={() => addRoom('标间')}
+              disabled={creatingRoom} onClick={() => void createRoom('标间')}
               className="flex items-center gap-1.5 px-3 py-2 text-sm rounded-lg border border-[#f0c4d0] text-[#d4728a] hover:bg-[#fdf5f7] transition-colors"
             >
               <Plus className="w-4 h-4" /> 添加标间
@@ -103,8 +131,9 @@ export default function AccommodationPage() {
           </div>
         </div>
 
+        {roomMessage && <p role="status" className="mb-3 text-sm">{roomMessage}</p>}
         {/* 筛选栏 */}
-        <div className="bg-white rounded-xl border border-gray-100 p-3 mb-4 flex flex-col gap-2.5">
+        <div className="planner-stay-filters bg-white rounded-xl border border-gray-100 p-3 mb-4 flex flex-col gap-2.5">
           {/* 日期 */}
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-xs text-gray-400 w-8 shrink-0">日期</span>
@@ -156,25 +185,31 @@ export default function AccommodationPage() {
             <StatCard value={nightStats.king} label="大床房·当晚" color="#d4728a" />
             <StatCard value={nightStats.twin} label="标间·当晚" color="#7c9ec9" />
             <StatCard value={nightStats.total} label="当晚房间数" color="#5fae8f" />
-            <StatCard value={nightStats.people} label="当晚总人数" color="#d99a4e" />
-            <StatCard value={nightStats.checkIn} label="该晚开始住宿人数" color="#b07cc6" />
+            <StatCard value={nightStats.people} label={fusion ? "当晚安排人数" : "当晚总人数"} color="#d99a4e" />
+            <StatCard value={nightStats.checkIn} label={fusion ? "该晚开始安排人数" : "该晚开始住宿人数"} color="#b07cc6" />
           </div>
         ) : (
           <div className="flex gap-4 mb-6 flex-wrap">
             <StatCard value={stats.king} label="大床房" color="#d4728a" />
             <StatCard value={stats.twin} label="标间" color="#7c9ec9" />
-            <StatCard value={stats.total} label="合计房间" color="#5fae8f" />
+            <StatCard value={stats.total} label={fusion ? "全部房间安排" : "合计房间"} color="#5fae8f" />
             <StatCard value={stats.stayed} label="已安排住宿" color="#d99a4e" />
 
           </div>
         )}
 
-        <div className="flex gap-4 mb-4 flex-wrap" aria-label="住宿待办">
+        <div className="planner-stay-stats flex gap-4 mb-4 flex-wrap" aria-label="住宿待办">
           <StatCard value={todos.needsRoom.length} label="需要住宿·待分房" color="#9ca3af" names={todos.needsRoom.map(g => g.name)} />
           <StatCard value={todos.needsDecision.length} label="住宿需求待确认" color="#9ca3af" names={todos.needsDecision.map(g => g.name)} />
           <StatCard value={todos.needsDates.length} label="已分房·晚次待定" color="#d99a4e" names={todos.needsDates.map(g => g.name)} />
         </div>
 
+        {fusion && <div className="planner-room-sort flex items-center gap-2 mb-3 text-sm">
+          <label htmlFor="planner-room-sort">房间排序</label>
+          <select id="planner-room-sort" value={roomSort} onChange={e => changeRoomSort(e.target.value)}><option value="type">房型分组</option><option value="number">房号</option><option value="original">原始顺序</option></select>
+          <span className="text-xs text-gray-500">{roomSort === 'original' ? '保留导入或添加顺序' : '房号按数字自然升序'} · 仅本机</span>
+        </div>}
+        {fusion && duplicateLabels.length > 0 && <p role="alert">已有重名房间：{duplicateLabels.join('、')}。请核对后修改房号，系统不会自动改名。</p>}
         {/* 房间卡片 */}
         {visibleRooms.length === 0 ? (
           <div className="bg-white rounded-xl border border-gray-100 py-16 text-center">
@@ -190,7 +225,7 @@ export default function AccommodationPage() {
               const capacity = ROOM_CAPACITY[room.type]
               const occupancy = roomOccupancy(room, guests, stayDates)
               const overNights = occupancy.over.filter(n => dateFilter === ALL || n.date === dateFilter)
-              const over = overNights.length > 0
+              const over = fusion ? occupancy.assigned.length > capacity : overNights.length > 0
               const emptyThisNight = dateFilter !== ALL && occupants.length === 0
               return (
                 <div key={room.id} className={`bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col transition-opacity ${emptyThisNight ? 'opacity-60' : ''}`}>
@@ -217,6 +252,7 @@ export default function AccommodationPage() {
                           </button>
                         )}
                       </div>
+                      {fusion && duplicateLabels.includes(room.label) && <p className="text-xs">标识：{room.id}</p>}
                       <span className={`text-xs ${room.type === '大床房' ? 'text-[#d4728a]' : 'text-[#7c9ec9]'}`}>{room.type}</span>
                     </div>
                     <button
@@ -230,6 +266,7 @@ export default function AccommodationPage() {
 
                   <div className="p-4 flex-1 flex flex-col">
 
+                  {fusion && <div className="mb-3 space-y-2"><FusionFieldEditor kind="roomNotes" entityId={room.id} label="房间备注" value={room.notes ?? ''} /><p className="text-sm">房间晚次：{room.stayDates?.length ? room.stayDates.join('、') : '待定'}</p><button className="text-sm underline" onClick={() => setPickerRoomId(room.id)}>调整宾客和房间晚次</button></div>}
                   {/* 入住人 */}
                   <div className="flex-1">
                     {occupants.length === 0 ? (
@@ -250,8 +287,8 @@ export default function AccommodationPage() {
                                 <X className="w-3.5 h-3.5" />
                               </button>
                             </div>
-                            {/* 住哪几晚 */}
-                            <div className="flex items-center gap-1 mt-1.5 flex-wrap">
+                            {/* 旧入口个人日期；Fusion统一房间晚次 */}
+                            {!fusion && <div className="flex items-center gap-1 mt-1.5 flex-wrap">
                               {stayDates.length === 0 ? (
                                 <span className="text-[11px] text-gray-300">先在上方「＋添加日期」，再点选住哪几晚</span>
                               ) : (
@@ -272,7 +309,7 @@ export default function AccommodationPage() {
                                   )
                                 })
                               )}
-                            </div>
+                            </div>}
                           </li>
                         ))}
                       </ul>
@@ -282,8 +319,8 @@ export default function AccommodationPage() {
                   {/* 容量 + 添加 */}
                   <div className="flex flex-wrap items-center justify-between gap-2 mt-3 pt-3 border-t border-gray-50">
                     <span className={`text-xs ${over ? 'text-red-400' : 'text-gray-400'}`}>
-                      每晚建议 {capacity} 人 · {dateFilter === ALL ? `共安排 ${occupants.length} 人，单晚最多 ${occupancy.peak} 人` : `当晚 ${occupants.length} 人`}
-                      {over && `（超员：${overNights.map(n => `${formatNight(n.date)} ${n.people}人`).join('、')}）`}
+                      {fusion ? `建议 ${capacity} 人 · 房内安排 ${occupancy.assigned.length} 人` : `每晚建议 ${capacity} 人 · ${dateFilter === ALL ? `共安排 ${occupants.length} 人，单晚最多 ${occupancy.peak} 人` : `当晚 ${occupants.length} 人`}`}
+                      {over && (fusion ? '（超过建议容量）' : `（超员：${overNights.map(n => `${formatNight(n.date)} ${n.people}人`).join('、')}）`)}
                       {occupancy.undated.length > 0 && `；${occupancy.undated.length} 人晚次待定，尚未计入每晚人数`}
                     </span>
                     <button
@@ -310,6 +347,7 @@ export default function AccommodationPage() {
           onClose={() => setPickerRoomId(null)}
         />
       )}
+      {fusion && pickerRoomId && rooms.find(room => room.id === pickerRoomId) && <FusionDialog label="房间住宿安排" onClose={() => document.querySelector<HTMLButtonElement>('dialog[open] button')?.click()}><FusionRoomArrangement key={pickerRoomId} room={rooms.find(room => room.id === pickerRoomId)!} guests={guests} dates={stayDates} suggestedDate={dateFilter === ALL ? undefined : dateFilter} onClose={() => { setPickerRoomId(null); setRoomMessage('安排请求已保存在本机或选择已保留；同步结果请查看顶部。当前筛选未显示的房间可在全部日期查看。') }} /></FusionDialog>}
     </div>
   )
 }
@@ -333,7 +371,7 @@ function StatCard({ value, label, color, names }: { value: number; label: string
   const palette: Record<string, string> = { '#d4728a': '#a44861', '#7c9ec9': '#426791', '#5fae8f': '#36734f', '#d99a4e': '#8b5e16', '#b07cc6': '#77518b', '#9ca3af': '#746870' }
   const visualColor = fusion ? palette[color] ?? color : color
   return (
-    <div className={`bg-white rounded-xl p-4 flex-1 min-w-[110px] border border-gray-100 relative group ${hoverable ? 'cursor-help' : ''}`}>
+    <div className={`planner-stat bg-white rounded-xl p-4 flex-1 min-w-[110px] border border-gray-100 relative group ${hoverable ? 'cursor-help' : ''}`}>
       <div className="text-2xl font-bold" style={{ color: visualColor }}>{value}</div>
       <div className="text-sm text-gray-500">{label}{hoverable && <span className="ml-1 text-gray-300">ⓘ</span>}</div>
       {names && (

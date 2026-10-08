@@ -25,14 +25,14 @@ function deriveStatus(guest: Guest): string {
  * 导出宾客名单为 Excel，格式与「宾客导入模板」一致：
  * 姓名 | 电话 | 分组标签 | 所属方 | 出席状态 | 桌号/桌名 | 备注
  */
-export function buildGuestWorkbook(guests: Guest[], tables: Table[]) {
+export function buildGuestWorkbook(guests: Guest[], tables: Table[], preserveFields = false) {
   const tableMap = new Map(tables.map((t) => [t.id, t.label]))
 
   const rows = guests.map((g) => ({
     姓名: g.name,
     电话: g.phone || '',
-    分组标签: cleanGroup(g.group),
-    所属方: deriveSide(g),
+    分组标签: preserveFields ? g.group : cleanGroup(g.group),
+    所属方: preserveFields ? (g.side && g.side !== 'unset' ? { bride: '女方', groom: '男方', shared: '共同' }[g.side] : '') : deriveSide(g),
     出席状态: deriveStatus(g),
     '桌号/桌名': g.tableId ? tableMap.get(g.tableId) || '' : '',
     备注: g.notes || '',

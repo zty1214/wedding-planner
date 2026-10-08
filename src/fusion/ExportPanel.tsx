@@ -1,3 +1,4 @@
+import { roomNights } from './roomNights'
 import { useState, useSyncExternalStore, useCallback } from 'react'
 import * as XLSX from 'xlsx'
 import { seatingExportModel } from './seatingExport'
@@ -14,6 +15,8 @@ export default function ExportPanel({ repo, initialKind, onClose }: { repo: Retu
   const [rendering, setRendering] = useState<ExportSnapshot | null>(null)
   const rendered = useCallback((message?: string, image?: string) => { setRendering(null); setError(message ?? ''); setPreview(image ?? null) }, [])
   const [capturing, setCapturing] = useState(false)
+  const pendingDates = value ? Object.values(value.snapshot.data.guests).filter(guest => guest.roomId && roomNights(value.snapshot.data, guest.roomId).length === 0).length : 0
+  const pendingRooms = value ? Object.values(value.snapshot.data.guests).filter(guest => !guest.roomId && guest.stayNeed === 'needed').length : 0
   async function capture(source: 'confirmed' | 'draft') {
     setPreview(null); setCapturing(true)
     try {
@@ -42,6 +45,7 @@ export default function ExportPanel({ repo, initialKind, onClose }: { repo: Retu
       {value.restoreTarget && <p>待恢复目标：{value.restoreTarget.name}。以下是目标安排，尚未执行恢复；版本号为恢复前核对的版本。</p>}
       <p className="text-xs">取样时间：{new Date(value.capturedAt).toLocaleString('zh-CN')}；{value.snapshot.data.guestOrder.length} 位宾客、{value.snapshot.data.roomOrder.length} 个房间。文件名标注来源及版本，表格属性或座位图侧栏也有标注。</p>
       <select disabled={!!rendering || capturing} aria-label="导出类型" value={kind} onChange={e => setKind(e.target.value as 'guests' | 'rooms' | 'seating')}><option value="guests">宾客名单</option><option value="rooms">住宿安排</option><option value="seating">座位图 PNG</option></select>
+      {kind === 'rooms' && <p className="text-sm">待确认住宿：已分房晚次待定 {pendingDates} 人，需要住宿未分房 {pendingRooms} 人。待确认项另列明细，不计入酒店每晚用房。</p>}
       <button className="ml-4 text-blue-800" disabled={!!rendering || capturing} onClick={download}>{kind === 'seating' ? '生成固定版本座位图' : '下载此固定版本'}</button>
     </>}
     {preview && value && <div><a className="text-blue-800 underline" href={preview} download={seatingExportModel(value).filename}>下载预览中的 PNG</a><p className="text-sm">本次座位图预览</p><img src={preview} alt="本次固定版本座位图" className="max-h-80 max-w-full object-contain" /></div>}

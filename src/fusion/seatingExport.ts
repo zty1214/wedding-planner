@@ -1,3 +1,4 @@
+import { DEFAULT_MAIN_STAGE } from '../utils/stageGeometry.ts'
 import type { ExportSnapshot } from './repository.ts'
 import type { Guest } from '../types/index.ts'
 import { TABLE_PRESETS } from '../types/index.ts'
@@ -8,7 +9,7 @@ export function seatingExportModel(value: ExportSnapshot) {
   const tables = core.tableOrder.map(id => core.tables[id])
   const guests: Guest[] = core.guestOrder.map(id => ({ ...core.guests[id], status: core.guests[id].attendance === 'confirmed' ? 'confirmed' : core.guests[id].tableId ? 'assigned' : 'unassigned' }))
   const width = 1200, height = 800
-  const mainStagePos = core.config.mainStagePos ?? { x: width / 2, y: 40 }
+  const mainStagePos = core.config.mainStagePos ?? DEFAULT_MAIN_STAGE
   let minX = mainStagePos.x - 140, maxX = mainStagePos.x + 140, minY = mainStagePos.y, maxY = mainStagePos.y + 60
   for (const table of tables) {
     const radius = (TABLE_PRESETS.find(p => p.seats === table.seats)?.radius ?? 60) + 60

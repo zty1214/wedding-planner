@@ -38,3 +38,8 @@ node --experimental-strip-types scripts/migration/source-backup-cli.mjs --source
 CloudBase完整包装备份解密后可直接输入Seating转换，sourceHash贯穿备份、布局裁决、转换和对账；不会为转换剥掉项目归属/时间信息。此功能尚未证明实际账号的读取权限、真实来源的归属或目标云端恢复。
 
 新Fusion项目级完整备份与隔离数据库恢复、平台回档及保管频率最小方案见[灾难备份恢复](disaster-backup-recovery.md)。已补齐离线/SDK边界能力，真实目标恢复仍待执行。
+
+
+## 环境备份文档ID边界
+
+当前工具支持非空字符串文档ID，包括业务记录及存储对象的字符串标识。普通字段中的BSON日期等仍以规范EJSON保留，但这不表示支持任意BSON类型的文档ID。遇到ObjectId、数值等非字符串ID，读取阶段明确返回 `UNSUPPORTED_SOURCE_ID_TYPE`，不得把失败或部分内容称作完整备份。已补虚构ObjectId/数值ID拒绝回归。若后续真实来源出现此类ID，先明确键排序、去重及恢复的兼容规则后增加支持，不静默转字符串，也不在本轮扩展恢复模型。

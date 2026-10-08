@@ -102,7 +102,7 @@ export default function HistoryPage() {
         {against && <ArrangementPreview core={against.data} label="预览时的当前安排" />}
         <ArrangementPreview core={preview.core} label="恢复后的目标安排" />
       </div>
-      <p className="text-sm text-gray-500">每日快照记录有已同步修改的日期，次日封存；自动和安全版本保留 90 天。</p>
+      <p className="text-sm text-gray-500">当前可创建手动版本，恢复前会保存安全版本。每日自动快照尚未启用；已有自动和安全版本保留 90 天。</p>
     </section>}
   </main>
 }

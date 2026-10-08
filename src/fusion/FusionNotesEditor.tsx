@@ -1,3 +1,4 @@
+import { usePendingInputGuard } from './PendingInputGuard'
 import { handoffForm } from './formHandoff'
 import { NOTE_CATEGORIES } from '../types'
 import { useContext, useEffect, useRef, useState } from 'react'
@@ -7,6 +8,7 @@ import type { NoteDraft, NoteDraftVault } from './noteDrafts'
 
 export default function FusionNotesEditor({ category, noteId, onClose }: { category: string; noteId: string | null; onClose(): void }) {
   const repo = useContext(RepositoryContext)!
+  const input = useRef<HTMLInputElement>(null)
   const submission = useRef<Promise<void> | null>(null)
   const [form, setForm] = useState<NoteDraft>(() => {
     const snapshot = repo.getSnapshot().snapshot!, note = snapshot.notes?.find(n => n.id === noteId)
@@ -16,6 +18,7 @@ export default function FusionNotesEditor({ category, noteId, onClose }: { categ
   const [discarding, setDiscarding] = useState(false)
   const [ready, setReady] = useState(false)
   const unsaved = useRef(false)
+  usePendingInputGuard(unsaved)
   const [drafts, setDrafts] = useState<NoteDraft[]>([]), [status, setStatus] = useState('正在打开本机草稿'), [busy, setBusy] = useState(false)
   const vault = useRef<NoteDraftVault | null>(null), revision = useRef<number | null>(null), current = useRef(form)
   const queue = useRef<Promise<unknown>>(Promise.resolve()), sequence = useRef(0), alive = useRef(true)
@@ -46,6 +49,9 @@ export default function FusionNotesEditor({ category, noteId, onClose }: { categ
       document.removeEventListener('click', guardNavigation, true)
     }
   }, [])
+  useEffect(() => {
+    if (ready) { input.current?.scrollIntoView({ block: 'center' }); input.current?.focus() }
+  }, [ready])
   function update(patch: Partial<Pick<NoteDraft, 'title' | 'content' | 'category'>>, fork = false) {
     if (current.current.handoff) return
     const next = { ...current.current, ...patch, projectId: repo.projectId, updatedAt: new Date().toISOString(), ...(fork ? { id: crypto.randomUUID() } : {}) }
@@ -121,12 +127,12 @@ export default function FusionNotesEditor({ category, noteId, onClose }: { categ
     <label className="block text-sm">分类 <select aria-label="笔记分类" disabled={busy || !ready || !!form.handoff} value={form.category} onChange={e => update({ category: e.target.value })} className="border rounded p-1">
       {[...new Set([...NOTE_CATEGORIES, form.category])].map(c => <option key={c}>{c}</option>)}
     </select></label>
-    <input aria-label="笔记标题" disabled={busy || !ready || !!form.handoff} value={form.title} onChange={e => update({ title: e.target.value })} placeholder="标题（选填）" className="w-full border-b p-2" />
+    <input ref={input} aria-label="笔记标题" disabled={busy || !ready || !!form.handoff} value={form.title} onChange={e => update({ title: e.target.value })} placeholder="标题（选填）" className="w-full border-b p-2" />
     <textarea aria-label="笔记正文" disabled={busy || !ready || !!form.handoff} value={form.content} onChange={e => update({ content: e.target.value })} rows={5} className="w-full border rounded p-2" placeholder="未发布的正文也会保存到本机" />
     <p className="text-sm text-gray-500">分类：{form.category}。关闭编辑器会保留已保存草稿；刷新后点“写笔记”可恢复。图片附件暂未接入。</p>
     <div className="flex flex-wrap gap-3">
       <button disabled={busy || !ready || !!form.handoff} onClick={() => update({}, true)}>另存本机草稿</button>
-      <button disabled={busy} onClick={() => void canLeave().then(ok => { if (ok) onClose() })}>关闭并保留草稿</button>
+      <button data-editor-close disabled={busy} onClick={() => void canLeave().then(ok => { if (ok) onClose() })}>关闭并保留草稿</button>
       <button disabled={busy || !ready} onClick={() => setDiscarding(true)}>放弃此表单草稿</button>
       <button disabled={busy || !ready || (!form.title.trim() && !form.content.trim())} onClick={() => void publish()} className="text-rose-700">{form.handoff ? '核对原提交' : form.noteId ? '保存修改' : '发布'}</button>
     </div>
