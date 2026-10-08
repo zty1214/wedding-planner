@@ -1,0 +1,25 @@
+import {spawn} from 'node:child_process'
+import {createRequire} from 'node:module'
+import {mkdir, writeFile} from 'node:fs/promises'
+import {fileURLToPath} from 'node:url'
+import {join} from 'node:path'
+import assert from 'node:assert/strict'
+const root=fileURLToPath(new URL('../../',import.meta.url)),require=createRequire(root+'/package.json'),{chromium}=require('playwright'),origin=`http://127.0.0.1:${process.env.S03_PORT ?? '4294'}`
+const fixture=spawn(process.execPath,['--experimental-strip-types','scripts/fusion/sol-s03-main-flow.mjs'],{cwd:root,env:{...process.env,S03_PORT:process.env.S03_PORT ?? '4294',VISUAL_SCALE_FIXTURE:'1'},stdio:'ignore'})
+let browser;const report={scope:'local fictitious 150-guest/30-room memory project only',limitations:['Phone native room-type select keyboard navigation was not confirmed in macOS headless Chromium; real device acceptance remains required.'],results:{}}
+try {
+ let response;for(let i=0;i<180;i++){try{response=await fetch(origin+'/demo',{redirect:'manual'});if(response.status===302)break}catch{}await new Promise(r=>setTimeout(r,100))}if(response?.status!==302)throw Error('FIXTURE_START_FAILED')
+ const url=new URL(response.headers.get('location'),origin),projectId=url.pathname.split('/')[3],secret=new URLSearchParams(url.hash.slice(1)).get('key')
+ const read=async()=>{const r=await(await fetch(origin+'/__sol_s03_gateway',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'read',projectId,secret})})).json();if(!r.ok)throw Error('READ_FAILED');return r.value}
+ browser=await chromium.launch({headless:true});const page=await browser.newPage({viewport:{width:390,height:844}})
+ page.on('pageerror',e=>{report.error=e.message})
+ await page.goto(url.href);await page.getByText('已同步到云端',{exact:true}).waitFor();const more=page.getByRole('button',{name:'更多操作',exact:true});await more.focus();await page.keyboard.press('Enter');const exportAction=page.getByRole('button',{name:'导出表格',exact:true});await exportAction.focus();await page.keyboard.press('Enter');const exportPanel=page.getByRole('dialog',{name:'导出固定版本',exact:true});await exportPanel.waitFor()
+ for(let i=0;i<14;i++){await page.keyboard.press(i%3===0?'Shift+Tab':'Tab');assert.equal(await page.evaluate(()=>document.activeElement?.closest('dialog')?.getAttribute('aria-label')),'导出固定版本')}
+ await page.keyboard.press('Escape');await exportPanel.waitFor({state:'hidden'});assert.equal(await exportAction.evaluate(button=>document.activeElement===button&&!!button.getClientRects().length),true)
+ const draftAction=page.getByRole('button',{name:'查看本机草稿',exact:true});await draftAction.focus();await page.keyboard.press('Enter');const drafts=page.getByRole('dialog',{name:'本机草稿',exact:true});await drafts.waitFor();await page.keyboard.press('Escape');await drafts.waitFor({state:'hidden'});assert.equal(await draftAction.evaluate(button=>document.activeElement===button&&!!button.getClientRects().length),true)
+ await page.keyboard.press('Escape');assert.equal(await more.getAttribute('aria-expanded'),'false');await page.getByRole('link',{name:'住宿安排',exact:true}).focus();await page.keyboard.press('Enter');await page.setViewportSize({width:1280,height:844});const create=page.getByRole('button',{name:'添加大床房',exact:true});await create.focus();await page.keyboard.press('Enter');const arrangement=page.getByRole('dialog',{name:'房间住宿安排'});await arrangement.waitFor();await page.setViewportSize({width:390,height:844});await arrangement.getByText('选人及房间晚次后，一次确认保存。',{exact:true}).waitFor();const date=arrangement.getByRole('checkbox',{name:'2026-12-31',exact:true});await date.focus();await page.keyboard.press('Space');await arrangement.getByText('选择已保存在本机，尚未提交。',{exact:true}).waitFor();await page.keyboard.press('Escape');await arrangement.waitFor({state:'hidden'})
+ const saved=await page.evaluate(async projectId=>{const {openFieldDraftVault}=await import('/src/fusion/fieldDrafts.ts');const vault=await openFieldDraftVault();try{return (await vault.list(projectId)).filter(d=>d.kind==='roomArrangement').map(d=>JSON.parse(d.value))}finally{vault.close()}},projectId);assert.equal(saved.length,1);assert.deepEqual(saved[0].dates,['2026-12-31']);const current=await read(),core=current.current?.data??current.data??current;const created=Object.values(core.rooms).find(room=>room.label==='01');assert.ok(created);assert.equal(created.stayDates,undefined);assert.equal(Object.values(core.guests).some(guest=>guest.roomId===created.id),false)
+ report.results={exportKeyboardFocusContained:true,exportEscapeReturnsVisibleOpener:true,draftEscapeReturnsVisibleOpener:true,desktopKeyboardRoomCreation:true,mobileKeyboardDateSelection:true,roomEscapeRetainsPrivateChoicesWithoutAssignment:true}
+ assert.equal(report.error,undefined)
+ const output=process.env.FEEDBACK_OUTPUT ?? '/private/tmp/planner-feedback-results';await mkdir(output,{recursive:true});await writeFile(join(output,'keyboard-report.json'),JSON.stringify(report,null,2));console.log(JSON.stringify(report))
+} catch(e){console.error(e.stack);process.exitCode=1} finally {await browser?.close();fixture.kill('SIGTERM')}

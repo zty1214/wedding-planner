@@ -64,6 +64,16 @@ export default function FusionLayout() {
   const { projectId = '' } = useParams()
   const [session, setSession] = useState<Session | null>(null)
   const [notice, setNotice] = useState('')
+  const [accessRevision, setAccessRevision] = useState(0)
+  useEffect(() => {
+    const acceptLink = () => {
+      if (window.location.pathname.split('/')[3] !== projectId) return
+      const incoming = new URLSearchParams(window.location.hash.slice(1)).get('key')
+      if (incoming && /^[a-f0-9]{64}$/.test(incoming) && incoming !== sessionStorage.getItem(`planner-access:${projectId}`)) setAccessRevision(value => value + 1)
+    }
+    window.addEventListener('hashchange', acceptLink)
+    return () => window.removeEventListener('hashchange', acceptLink)
+  }, [projectId])
   useEffect(() => {
     let stopped = false
     let close: (() => void) | undefined
@@ -95,7 +105,7 @@ export default function FusionLayout() {
       if (!stopped) setNotice(error instanceof Error && error.message === 'CONFIG' ? '新数据入口尚未配置 CloudBase 环境。' : '项目暂时无法打开。请检查链接凭证、网络和浏览器支持情况。')
     })
     return () => { stopped = true; close?.() }
-  }, [projectId])
+  }, [projectId, accessRevision])
   // Route changes render before effect cleanup: never mount the previous project's session under a new URL.
   if (!session || session.repo.projectId !== projectId) return <div className="p-8" role="status">{notice || '正在打开项目…'}</div>
   return <ProjectView key={projectId} session={session} projectId={projectId} notice={notice} />

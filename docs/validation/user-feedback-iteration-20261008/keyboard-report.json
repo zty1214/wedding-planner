@@ -1,0 +1,14 @@
+{
+  "scope": "local fictitious 150-guest/30-room memory project only",
+  "limitations": [
+    "Phone native room-type select keyboard navigation was not confirmed in macOS headless Chromium; real device acceptance remains required."
+  ],
+  "results": {
+    "exportKeyboardFocusContained": true,
+    "exportEscapeReturnsVisibleOpener": true,
+    "draftEscapeReturnsVisibleOpener": true,
+    "desktopKeyboardRoomCreation": true,
+    "mobileKeyboardDateSelection": true,
+    "roomEscapeRetainsPrivateChoicesWithoutAssignment": true
+  }
+}

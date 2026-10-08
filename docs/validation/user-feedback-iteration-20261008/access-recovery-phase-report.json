@@ -1,0 +1,39 @@
+{
+  "scope": "local fictitious memory projects; no CloudBase or real phone acceptance",
+  "baseline": "25baf5e3f90ff3785717fa697d24a6ea5b4f7bf5",
+  "sourceHashes": {
+    "src/fusion/FusionLayout.tsx": "82be33ed7be176f5b16dec6f0d7a8cebce29b16af5f277f4743ab1e7b60df417",
+    "scripts/fusion/validate-feedback.mjs": "22e62f2fa2faf425b7415f7c7a8ad271793ef12084ec4a6976fd7592278a82c0",
+    "scripts/fusion/visual-scale-fixture.mjs": "43585c7df6ac06625ae8fde4fccea31bda7a2df96f7f60be2dcacfee7890dda5",
+    "scripts/fusion/validate-feedback-room-permission.mjs": "a5c7392c81f497ff9fe2291ddb511b505d1a4979b01185f8ddb2fe1c01f2307f",
+    "scripts/fusion/validate-feedback-room-legacy.mjs": "c4080563f10c6e3b9b261f2930c7db1d513028c2e5b63d8b5bd64cffa546fb4c",
+    "scripts/fusion/validate-feedback-keyboard.mjs": "f9f073ef793aeb52433c7dc28a25bb535111351cd94edcd934141973a1aaa1d9",
+    "scripts/fusion/validate-feedback-export.mjs": "f5a8d2a69591abbb89513703c12fee10c8e3e5c394a435313f7460514d6942f0"
+  },
+  "checks": {
+    "npm run check": {
+      "exitCode": 0,
+      "tests": 258,
+      "failures": 0,
+      "log": "/private/tmp/planner-access-recovery-check.log"
+    },
+    "npm run test:e2e": {
+      "exitCode": 0,
+      "stages": 7,
+      "log": "/private/tmp/planner-main-flow-access-recovery.log"
+    },
+    "npm run test:e2e:business": {
+      "exitCode": 0,
+      "legacyPathsRedirected": 7,
+      "externalRequests": 0
+    },
+    "npm run test:e2e:feedback": {
+      "exitCode": 0,
+      "scenarios": 14
+    }
+  },
+  "limitations": [
+    "New candidate needs its own remote CI after commit; prior 25baf5e CI is not evidence for these uncommitted changes.",
+    "Phone native room-type select keyboard path, real touch/soft keyboard/back gestures/safe areas, CloudBase deployment and visual acceptance remain unverified."
+  ]
+}

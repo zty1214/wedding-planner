@@ -1,0 +1,13 @@
+{
+  "scope": "local fictitious 150-guest/31-room memory project only",
+  "results": {
+    "actualBrowserDownloadsReadBack": true,
+    "nightlyRoomCountsExcludePending": true,
+    "roomNightsEstimateAllRoomMembers": true,
+    "pendingStatusesSeparated": true,
+    "leadingZeroLabelsAndNotesPreserved": true,
+    "fullGuestGroupAndUnsetSidePreserved": true,
+    "phoneLeadingZerosPreserved": true,
+    "confirmedVersionProvenance": true
+  }
+}

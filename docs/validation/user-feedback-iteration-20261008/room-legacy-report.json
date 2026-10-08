@@ -1,0 +1,10 @@
+{
+  "scope": "local fictitious 150-guest/30-room memory project only",
+  "results": {
+    "legacyDuplicateVisibleWithDistinctIds": true,
+    "noAutomaticRenaming": true,
+    "explicitRenamePreservesGuestAssociations": true,
+    "deleteClearsOnlyThatRoomAssignments": true,
+    "recreationUsesNewIdentityAndAvailableNumber": true
+  }
+}

@@ -41,6 +41,22 @@
     {
       "name": "room-date-conflict",
       "exitCode": 0
+    },
+    {
+      "name": "room-permission",
+      "exitCode": 0
+    },
+    {
+      "name": "room-legacy",
+      "exitCode": 0
+    },
+    {
+      "name": "keyboard",
+      "exitCode": 0
+    },
+    {
+      "name": "export",
+      "exitCode": 0
     }
   ]
 }

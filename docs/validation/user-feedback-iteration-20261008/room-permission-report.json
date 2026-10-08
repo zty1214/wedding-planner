@@ -1,0 +1,11 @@
+{
+  "scope": "local fictitious independent permission project only",
+  "sharing": {
+    "revokedCollaborationRejectsWholeArrangement": true,
+    "unauthorizedSnapshotCleared": true,
+    "frozenPrivateDraftRetained": true,
+    "choicesRecoveredAfterValidAccess": true,
+    "noImplicitResubmission": true,
+    "serverUnchanged": true
+  }
+}

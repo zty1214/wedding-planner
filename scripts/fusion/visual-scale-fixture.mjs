@@ -17,9 +17,17 @@ export async function seedVisualScale(store) {
     const id = `r${i}`; data.roomOrder.push(id)
     data.rooms[id] = { id, revision: 0, label: `0${String(i + 1).padStart(2, '0')}`, type: '标间', notes: '虚构房间' }
   }
+  if (process.env.FEEDBACK_DUPLICATE_ROOMS === '1') { data.rooms.r0.label = '001'; data.rooms.r1.label = '001' }
   for (let i = 0; i < 150; i++) {
     const id = `g${i}`; data.guestOrder.push(id)
     data.guests[id] = { id, revision: 0, name: i % 10 === 0 ? `虚构长姓名欧阳司徒一家亲友代表${i + 1}` : `虚构宾客${i + 1}`, group: i % 2 ? '新郎亲属' : '新娘朋友', phone: `00${String(i).padStart(9, '0')}`, notes: '纯虚构验收数据', side: i % 2 ? 'groom' : 'bride', attendance: 'confirmed', tableId: `t${Math.floor(i / 10)}`, seatIndex: i % 10, roomId: i < 60 ? `r${Math.floor(i / 2)}` : null, stayNeed: i < 60 ? 'needed' : 'not_needed', stayDates: i < 60 ? (i % 2 ? ['2027-01-01'] : [...data.config.stayDates]) : [] }
+  }
+  if (process.env.FEEDBACK_EXPORT_FIXTURE === '1') {
+    data.guests.g60.stayNeed = 'needed'
+    data.guests.g61.roomId = 'pending-room'; data.guests.g61.stayNeed = 'needed'
+    data.guests.g62.group = '新娘同事'; data.guests.g62.side = 'unset'
+    data.rooms['pending-room'] = { id: 'pending-room', revision: 0, label: '01', type: '大床房', notes: '虚构待定安排', stayDates: [] }
+    data.roomOrder.push('pending-room')
   }
   assertCore(data)
   store.seed(projectId, { collaborationHash: hashSecret(randomBytes(32).toString('hex')), managementHash: hashSecret(secret) }, { dataEpoch: epoch, snapshotRevision: 0, data })
