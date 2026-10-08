@@ -268,7 +268,7 @@ U15纳入下一轮P1，按统一任务表分布于阶段A/B/C；当前仍是建�
 
 ## 十、实施进度（2026-10-08）
 
-用户已授权按方案实施。第一至八节的“当前代码”“未实施”均为实施前诊断，保留供复核原因；最终业务口径以第九节最后两项决定为准，当前实施状态以本节为准。实现工作树为 `/Users/baojie/.codex/worktrees/main-flow-acceptance/wedding-planner`，基线 `14a39fb`。本轮本地候选按完整阶段统一提交，提交号以Git记录与交付说明为准；尚未推送或部署。本地主仓库现有feat已快进集成本地候选8d41068，发布方案和原型改动的哈希保持不变。后续验收批次以Git记录为准。
+用户已授权按方案实施。第一至八节的“当前代码”“未实施”均为实施前诊断，保留供复核原因；最终业务口径以第九节最后两项决定为准，当前实施状态以本节为准。实现工作树为 `/Users/baojie/.codex/worktrees/main-flow-acceptance/wedding-planner`，基线 `14a39fb`。本轮本地候选按完整阶段统一提交，提交号以Git记录与交付说明为准；已推送现有迁移feat，尚未部署。本地主仓库现有feat已快进集成本地候选8d41068，发布方案和原型改动的哈希保持不变。后续验收批次以Git记录为准。
 
 | 范围 | 已实现及证据范围 | 剩余验收与交付 |
 | --- | --- | --- |
@@ -301,4 +301,10 @@ U15纳入下一轮P1，按统一任务表分布于阶段A/B/C；当前仍是建�
 
 新增 `npm run test:e2e:feedback` 统一顺序执行10个虚构浏览器场景，每场景独立端口防止夹具关闭竞态。[套件报告](validation/user-feedback-iteration-20261008/feedback-suite-report.json)记录Node版本与逐项退出码；[日期并发报告](validation/user-feedback-iteration-20261008/room-date-conflict-report.json)证明原选择可见和原请求保留。Node v22.18.0下套件退出0，十项均退出0；完整npm run check退出0、258/258通过。
 
-现有Check planner工作流新增该命令及feedback-e2e JSON附件；发布工作流未改。接下来仅向现有迁移feat推送候选以取得远端CI证据，不因CI接入或本地套件通过宣称远端已通过；云端、真机及表中其余任务仍分别验收。
+现有Check planner工作流新增该命令及feedback-e2e JSON附件；发布工作流未改。候选73acc86已推送现有迁移feat以取得远端CI证据，不因CI接入或本地套件通过宣称远端已通过；云端、真机及表中其余任务仍分别验收。
+
+首次同提交远端CI：[Check planner #37786329188](https://github.com/zty1214/wedding-planner/actions/runs/37786329188)，提交`73acc869402eb222d474a85652a16b6c4c7f6025`。完整npm run check通过，旧test:e2e失败，业务/反馈套件被跳过；[首次失败记录](validation/user-feedback-iteration-20261008/remote-ci-first-attempt-report.json)保留步骤状态，不声称通过。
+
+本地相同入口复现首个失败：复制协作链接已增加异步有效性核对，旧脚本点击后立即读取剪贴板。修订为等待核对成功文案；同时将旧的逐人晚次断言升级为最终房间晚次规则，覆盖A→01→第一晚、B→02→第二晚各计1间，再将AB移入03住两晚，各晚只显示03且计1间、原空房不计、出席状态保留。保留刷新、同上下文离线队列和独立协作者的完整回读。修订脚本7阶段本地通过，业务生产构建隔离验收通过（7个旧路径重定向、0外部请求），lint退出0。详见[主流程修复报告](validation/user-feedback-iteration-20261008/main-flow-ci-repair-report.json)，报告绑定脚本hash，baseline表示修改脚本前的提交，不冒充未修改73acc86的回归通过。
+
+远端CI须使用修订脚本的新提交再次验证；本地通过仍不代表远端通过。此批仅修订验收脚本与证据，不改发布工作流或执行部署。

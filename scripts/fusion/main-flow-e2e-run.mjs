@@ -85,17 +85,16 @@ async function night(year, month, day) {
   assert.equal(await heading.textContent(), `${year} 年 ${month} 月`)
   await heading.locator('../..').getByRole('button', { name: String(day), exact: true }).click()
 }
-async function verifyNights(target = page) {
-  for (const [name, date, pressed] of [['虚构甲', '2026-12-31', 'true'], ['虚构甲', '2027-01-01', 'true'], ['虚构乙', '2026-12-31', 'false'], ['虚构乙', '2027-01-01', 'true']]) {
-    await wait(async () => await target.getByRole('button', { name: `${name}住宿${date}`, exact: true }).getAttribute('aria-pressed') === pressed)
-  }
-  for (const [label, people] of [['12.31', '1'], ['1.1', '2']]) {
+async function verifyNights(target = page, shared = true) {
+  for (const [label, room] of [['12.31', shared ? '03' : '01'], ['1.1', shared ? '03' : '02']]) {
     await target.getByRole('button', { name: label, exact: true }).click()
-    await wait(async () => (await target.getByText('当晚总人数', { exact: true }).locator('..').innerText()).split('\n')[0] === people)
+    await wait(async () => (await target.getByText('当晚安排人数', { exact: true }).locator('..').innerText()).split('\n')[0] === (shared ? '2' : '1'))
     assert.equal((await target.getByText('当晚房间数', { exact: true }).locator('..').innerText()).split('\n')[0], '1')
+    assert.deepEqual(await target.getByLabel('房号', { exact: true }).evaluateAll(inputs => inputs.map(input => input.value)), [room])
   }
   await target.getByRole('button', { name: '全部', exact: true }).first().click()
 }
+
 try {
   // Never attach to or stop a pre-existing 4196 service.
   await new Promise((res, rej) => {
@@ -132,6 +131,7 @@ try {
     await page.getByLabel('新项目名称').fill('自动回归虚构项目')
     await button('新建独立项目').click()
     await button('复制协作链接').click()
+    await page.getByText('已在复制前核对有效协作链接，可分享给家人。', { exact: true }).waitFor()
     collaborationLink = await page.evaluate(() => navigator.clipboard.readText())
     assert.ok(collaborationLink.startsWith(`${origin}/fusion/p/`) && /#key=[a-f0-9]{64}$/.test(collaborationLink))
     await button('打开项目').click()
@@ -141,7 +141,6 @@ try {
     await navigate('宾客名单')
     await addGuest('虚构甲', '00123456789')
     await addGuest('虚构乙')
-    for (const name of ['虚构甲', '虚构乙']) await page.getByLabel(`${name}的住宿需求`).selectOption('needed')
     await page.getByText('00123456789', { exact: true }).waitFor()
     await screenshot('guests')
   })
@@ -168,21 +167,31 @@ try {
     await page.getByText('10 人桌 · 已坐 1 人', { exact: false }).waitFor()
     await screenshot('seating')
   })
-  await step('stay-different-nights', async () => {
+  await step('stay-room-nights', async () => {
     await navigate('住宿安排')
-    await button('添加标间').click()
-    await page.getByLabel('房号', { exact: true }).fill('001')
-    await button('保存房号').click()
-    await button('添加宾客').click()
-    for (const name of ['虚构甲', '虚构乙']) await page.getByRole('listitem').filter({ hasText: name }).getByRole('button', { name: '安排住宿', exact: true }).click()
-    await button('关闭宾客选择').click()
     await night(2026, 12, 31)
     await night(2027, 1, 1)
-    for (const [name, date] of [['虚构甲', '2026-12-31'], ['虚构甲', '2027-01-01'], ['虚构乙', '2027-01-01']]) {
-      await button(`${name}住宿${date}`).click()
-      await wait(async () => await button(`${name}住宿${date}`).getAttribute('aria-pressed') === 'true')
+    async function arrange(names, dates) {
+      await button('添加标间').click()
+      const dialog = page.getByRole('dialog', { name: '房间住宿安排' })
+      await dialog.getByText('选人及房间晚次后，一次确认保存。', { exact: true }).waitFor()
+      for (const name of names) await dialog.locator('label').filter({ hasText: name }).getByRole('checkbox').check()
+      for (const date of dates) await dialog.getByRole('checkbox', { name: date, exact: true }).check()
+      await dialog.getByRole('button', { name: '确认整批安排', exact: true }).click()
+      await dialog.waitFor({ state: 'hidden' })
+      await page.locator('.planner-sync[data-state="synced"]').waitFor()
     }
+    await arrange(['虚构甲'], ['2026-12-31'])
+    await arrange(['虚构乙'], ['2027-01-01'])
+    await verifyNights(page, false)
+    const split = await serverRead(page, collaborationLink)
+    assert.deepEqual(split.data.rooms.map(room => [room.label, room.stayDates]), [['01', ['2026-12-31']], ['02', ['2027-01-01']]])
+    await arrange(['虚构甲', '虚构乙'], ['2026-12-31', '2027-01-01'])
     await verifyNights()
+    const shared = await serverRead(page, collaborationLink), room = shared.data.rooms.find(room => room.label === '03')
+    assert.deepEqual(room.stayDates, ['2026-12-31', '2027-01-01'])
+    assert.ok(shared.data.guests.every(guest => guest.roomId === room.id && guest.attendance === 'pending'))
+    report.roomNights = { independentRoomsByNight: true, sharedRoomCountsOnceEachNight: true, emptyPreviousRoomsExcluded: true, attendancePreserved: true }
     await screenshot('stay')
   })
   await step('notes-and-refresh', async () => {
@@ -206,7 +215,7 @@ try {
     await page.getByText('00123456789', { exact: true }).waitFor()
     await navigate('住宿安排')
     await verifyNights()
-    assert.equal(await page.getByLabel('房号', { exact: true }).inputValue(), '001')
+    assert.deepEqual(await page.getByLabel('房号', { exact: true }).evaluateAll(inputs => inputs.map(input => input.value)), ['01', '02', '03'])
     await navigate('座位安排')
     await page.getByTitle('定位所有桌子', { exact: true }).click()
     await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))))
@@ -260,7 +269,7 @@ try {
     const independent = await browser.newContext({ viewport: { width: 1280, height: 900 } })
     await independent.route('**/*', route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort())
     const other = await independent.newPage()
-    await other.goto(collaborationLink.replace('/seating', '/stay'))
+    const stayLink = new URL(collaborationLink); stayLink.pathname = stayLink.pathname.replace(/\/(seating|guests)$/, '/stay'); await other.goto(stayLink.href)
     await verifyNights(other)
     assert.equal((await queueSummary(other)).length, 0)
     await navigate('宾客名单', other)

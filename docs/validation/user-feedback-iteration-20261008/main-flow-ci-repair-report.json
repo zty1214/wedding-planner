@@ -1,0 +1,66 @@
+{
+  "scope": "real App + local fictitious gateway; isolated Chromium",
+  "baseline": "73acc869402eb222d474a85652a16b6c4c7f6025",
+  "startedAt": "2026-10-08T13:44:49.162Z",
+  "results": [
+    {
+      "name": "create-project",
+      "status": "passed",
+      "elapsedMs": 621
+    },
+    {
+      "name": "guests-leading-zero",
+      "status": "passed",
+      "elapsedMs": 337
+    },
+    {
+      "name": "seating-visible-canvas",
+      "status": "passed",
+      "elapsedMs": 332
+    },
+    {
+      "name": "stay-room-nights",
+      "status": "passed",
+      "elapsedMs": 1127
+    },
+    {
+      "name": "notes-and-refresh",
+      "status": "passed",
+      "elapsedMs": 698
+    },
+    {
+      "name": "same-context-shared-queue",
+      "status": "passed",
+      "elapsedMs": 859
+    },
+    {
+      "name": "independent-context-local-collaboration",
+      "status": "passed",
+      "elapsedMs": 759
+    }
+  ],
+  "browserVersion": "151.0.7922.34",
+  "roomNights": {
+    "independentRoomsByNight": true,
+    "sharedRoomCountsOnceEachNight": true,
+    "emptyPreviousRoomsExcluded": true,
+    "attendancePreserved": true
+  },
+  "sharedQueue": {
+    "operationId": "d0dc7f8c-e23b-4fcb-ba0e-425b626302b4",
+    "offlinePending": 1,
+    "afterReconnectPending": 0,
+    "serverGuestCount": 1
+  },
+  "serverFinal": {
+    "guests": 4,
+    "tables": 1,
+    "rooms": 3,
+    "notes": 1,
+    "snapshotRevision": 15
+  },
+  "status": "passed",
+  "finishedAt": "2026-10-08T13:44:54.928Z",
+  "harnessSha256": "93d24b72306f8e38280ce766955c06a0c4e6bb131df43320b6ecce2e4753601f",
+  "baselineMeaning": "base commit plus updated E2E harness; not an unmodified baseline run"
+}
