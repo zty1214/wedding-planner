@@ -307,7 +307,7 @@ export function projectRepository(projectId: string, storage: OutboxStorage, tra
       return task
     },
     /** Payload and expected revisions are frozen before network I/O. */
-    dispatch(type: string, payload: Json, expectedRevisions: Record<string, number>, dataEpoch = view.snapshot?.dataEpoch, operationId: string = crypto.randomUUID()) {
+    dispatch(type: string, payload: Json, expectedRevisions: Record<string, number>, dataEpoch = view.snapshot?.dataEpoch, operationId: string = crypto.randomUUID(), onLocalSave?: () => void) {
       const frozen = structuredClone({ type, payload, expectedRevisions })
       const task = edits.then(async () => {
         if (stopped || !confirmed || !view.snapshot || ['conflict', 'forbidden', 'failed'].includes(view.status)) throw new Error('EDITING_PAUSED')
@@ -322,6 +322,8 @@ export function projectRepository(projectId: string, storage: OutboxStorage, tra
         approved.add(draftKey(command))
         if (!projected.complete) projectedDrafts = false
         publish({ snapshot: projected.snapshot, status: 'local', pending: view.pending + 1 })
+        // The UI may continue with a durable local entity while this request awaits cloud confirmation.
+        onLocalSave?.()
         try { await flush() } catch (error) { await failure(error) }
         return true // The frozen request is durable even when cloud confirmation is pending.
       })

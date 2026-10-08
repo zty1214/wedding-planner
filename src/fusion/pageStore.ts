@@ -13,13 +13,13 @@ export function createPageStore(projectId: string, repo: ReturnType<typeof proje
     return snapshot.data
   }
   const unsupported = () => notice('此操作正在接入恢复机制，暂不可用。')
-  const send = (type: string, payload: Json, refs: string[] = []) => {
+  const send = (type: string, payload: Json, refs: string[] = [], onLocalSave?: () => void) => {
     const c = current(), revisions: Record<string, number> = {}
     for (const ref of refs) {
       const [kind, id] = ref.split(':')
       revisions[ref] = kind === 'guest' ? c.guests[id]?.revision : kind === 'table' ? c.tables[id]?.revision : kind === 'room' ? c.rooms[id]?.revision : kind === 'note' ? repo.getSnapshot().snapshot?.notes?.find(n => n.id === id)?.revision ?? -1 : c.config.revision
     }
-    return repo.dispatch(type, payload, revisions)
+    return repo.dispatch(type, payload, revisions, undefined, undefined, onLocalSave)
   }
   const store = createStore<WeddingState>()(() => ({
     projectId, projectTitle: '', mainStagePos: null, guests: [], tables: [], rooms: [], notes: [], customGroups: [], stayDates: [], sharedLinks: [],
@@ -60,7 +60,9 @@ export function createPageStore(projectId: string, repo: ReturnType<typeof proje
       const id = crypto.randomUUID(), used = new Set(Object.values(current().rooms).map(room => room.label.trim()))
       let number = 1
       while (used.has(String(number).padStart(2, '0'))) number++
-      return await send('room.add', { id, label: String(number).padStart(2, '0'), type }) ? id : null
+      return new Promise<string | null>(resolve => {
+        void send('room.add', { id, label: String(number).padStart(2, '0'), type }, [], () => resolve(id)).then(saved => { if (!saved) resolve(null) })
+      })
     },
     arrangeRoom: (roomId, guestIds, dates) => {
       const affected = [...new Set([...Object.values(current().guests).filter(g => g.roomId === roomId).map(g => g.id), ...guestIds])]

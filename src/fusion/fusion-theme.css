@@ -64,3 +64,5 @@
 @media(min-width:768px){.planner-editor:not(.planner-editor-modal) button{border:revert-layer;min-height:36px;border-radius:revert-layer}}
 
 @media(max-width:767px){.planner-dialog label:has(input[type=checkbox]){min-height:44px;display:flex;align-items:center;gap:6px}.planner-dialog input[type=checkbox]{flex-shrink:0}}
+
+@media(max-width:767px){.planner-recovery-notice{order:3}}

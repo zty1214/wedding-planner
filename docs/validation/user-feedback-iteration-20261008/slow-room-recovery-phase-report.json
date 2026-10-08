@@ -1,0 +1,52 @@
+{
+  "scope": "local fictitious projects only; no deployment or real phone acceptance",
+  "baseline": "59342e30a3ff897336d097448b3025c5442a126b",
+  "sourceHashes": {
+    "src/fusion/repository.ts": "24bb1d33a392d7d6c332bab981225f5907e8076d26d183d740ce53d30d471ab8",
+    "src/fusion/pageStore.ts": "1a67bc526c3c996d963320d4119a077f61f2f9011be2af81d25b660f88981669",
+    "src/fusion/FusionDialog.tsx": "0d8c3e529c53497b5a4afeb5011da0a58f3653a6545334506d447b555e70cdb4",
+    "src/fusion/FusionLayout.tsx": "711d2136720f3d81e8ecd4e2a01e1a4f052ccf3f0579bcda43f4879e45cb2348",
+    "src/fusion/fusion-theme.css": "c8e3de481718bd2b2cb4ca9921bbb84b73668b22168a248c429e4941b12cb326",
+    "tests/fusion/repository.test.ts": "c4a47cb8b94b11e68da16eb590936fc7209c78b47dc9e6276b7e4b2c7d9781d5",
+    "scripts/fusion/validate-feedback-mobile-states.mjs": "dd0906a2e678aa51b57571ce522b33c183794c448f9361e93549e678129591e5",
+    "scripts/fusion/validate-feedback-release-entry.mjs": "928aec8ea315d76bca0404c63d1f0228b6a1b3c9aa3e7e305caccdac6ac6259f",
+    "scripts/fusion/validate-feedback-history.mjs": "000b2bec3a256b3123a6a9cdef8055b0c318206ebea80725ba4b372a30da1f70",
+    "scripts/fusion/validate-feedback.mjs": "d3fc23c2b450f078e4e85be87ddff9472eff690ba9d3675ed8b6be2a805a17a6",
+    "scripts/release/verify-reused-dev-browser.mjs": "8a32b349f39ce729a11ac843e9251d09d9e58f45e8dee757387138aaac4346ce"
+  },
+  "redEvidence": {
+    "roomCreation": "cloud response held; room dialog never opened although local room was durable",
+    "unit": "LOCAL_SAVE_NOTIFICATION_TIMEOUT; 37 pass / 1 fail before fix",
+    "conflictClose": {
+      "buttonDisabledAttribute": false,
+      "inheritedDisabled": true,
+      "disabledFieldset": true
+    },
+    "mobileNotice": "headerTop=88 before fix"
+  },
+  "greenChecks": {
+    "npm run check": {
+      "exitCode": 0,
+      "tests": 260,
+      "failures": 0
+    },
+    "npm run test:e2e": {
+      "exitCode": 0,
+      "stages": 7
+    },
+    "npm run test:e2e:business": {
+      "exitCode": 0,
+      "externalRequests": 0
+    },
+    "npm run test:e2e:feedback": {
+      "exitCode": 0,
+      "scenarios": 16
+    }
+  },
+  "remaining": [
+    "New candidate same-commit CI",
+    "CloudBase deployed package/readback and fictitious cloud room.arrange regression",
+    "Real phone soft keyboard/touch/back gesture/safe areas/download",
+    "User visual acceptance"
+  ]
+}

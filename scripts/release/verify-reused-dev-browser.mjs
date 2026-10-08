@@ -2,11 +2,13 @@
 import assert from 'node:assert/strict'
 import { chromium } from 'playwright'
 import { mkdir, writeFile } from 'node:fs/promises'
-const origin = 'https://dev-d1gh3jw1gdf06af22-1456231968.tcloudbaseapp.com'
+const localFixture = process.argv.includes('--local-fixture')
+const origin = localFixture ? process.env.RELEASE_ACCEPTANCE_ORIGIN : 'https://dev-d1gh3jw1gdf06af22-1456231968.tcloudbaseapp.com'
+if (!origin || (localFixture && !/^http:\/\/127\.0\.0\.1:[0-9]+$/.test(origin))) throw Error('LOCAL_FIXTURE_ORIGIN_REQUIRED')
 const output = process.argv[2]
 if (!output) throw Error('FRESH_OUTPUT_REQUIRED')
 await mkdir(output, { mode: 0o700 })
-const report = { scope: 'deployed browser UI and real business gateway; fictitious new project only', status: 'RUNNING', checks: [], supabaseRequests: 0 }
+const report = { scope: localFixture ? 'local fictitious gateway; deployed acceptance entry rehearsal only' : 'deployed browser UI and real business gateway; fictitious new project only', status: 'RUNNING', checks: [], supabaseRequests: 0 }
 let stage = 'browser-start', browser, page
 try {
   browser = await chromium.launch({ headless: true })
@@ -19,7 +21,7 @@ try {
   const nav = name => page.getByRole('link', { name, exact: true }).click()
   let collaboration
   await step('root-fusion-project-entry', async () => {
-    await page.goto(origin)
+    await page.goto(localFixture ? origin + '/fusion' : origin)
     await page.getByRole('heading', { name: '我的备婚项目', exact: true }).waitFor()
     assert.equal(new URL(page.url()).pathname, '/fusion')
   })
@@ -27,6 +29,7 @@ try {
     await page.getByLabel('新项目名称').fill('部署验收虚构婚礼')
     await button('新建独立项目').click()
     await button('复制协作链接').waitFor(); await button('复制协作链接').click()
+    await page.getByText('已在复制前核对有效协作链接，可分享给家人。', { exact: true }).waitFor()
     collaboration = await page.evaluate(() => navigator.clipboard.readText())
     assert.ok(collaboration.startsWith(origin + '/fusion/p/fusion-created-'))
     await button('打开项目').click()
@@ -43,7 +46,10 @@ try {
     await nav('座位安排'); await page.getByRole('button', { name: /10人.*点击添加到画布/ }).click()
     await page.getByText('桌数：1 桌', { exact: true }).waitFor()
     assert.ok(await page.locator('.konvajs-content canvas').first().isVisible())
-    await synced(); await nav('住宿安排'); await button('添加标间').click(); await page.getByLabel('房号', { exact: true }).fill('001'); await button('保存房号').click()
+    await synced(); await nav('住宿安排'); await button('添加标间').click()
+    const arrangement = page.getByRole('dialog', { name: '房间住宿安排', exact: true })
+    await arrangement.waitFor(); await arrangement.getByRole('button', { name: '关闭', exact: true }).click()
+    await page.getByLabel('房号', { exact: true }).fill('001'); await button('保存房号').click()
     await button('保存房号').waitFor({ state: 'hidden' }); await synced(); await page.reload(); await page.getByLabel('房号', { exact: true }).waitFor(); assert.equal(await page.getByLabel('房号', { exact: true }).inputValue(), '001')
   })
   await step('notes-published-and-refresh', async () => {

@@ -1,0 +1,227 @@
+{
+  "scope": "local fictitious 150-guest/30-room memory project only",
+  "results": {
+    "privateChoicesSavedWhileCloudDelayed": true,
+    "concurrentChangeRejectsWholeBatch": true,
+    "privateFrozenDraftRetained": true,
+    "conflictDialogCanCloseToReachRecoveryActions": true
+  },
+  "mobileStates": [
+    {
+      "name": "normal",
+      "width": 360,
+      "height": 844,
+      "state": "synced",
+      "headerTop": 0,
+      "header": 53,
+      "nav": 44,
+      "overflow": false,
+      "dialog": null,
+      "statusVisible": true
+    },
+    {
+      "name": "normal",
+      "width": 390,
+      "height": 844,
+      "state": "synced",
+      "headerTop": 0,
+      "header": 53,
+      "nav": 44,
+      "overflow": false,
+      "dialog": null,
+      "statusVisible": true
+    },
+    {
+      "name": "normal",
+      "width": 430,
+      "height": 844,
+      "state": "synced",
+      "headerTop": 0,
+      "header": 53,
+      "nav": 44,
+      "overflow": false,
+      "dialog": null,
+      "statusVisible": true
+    },
+    {
+      "name": "syncing",
+      "width": 360,
+      "height": 844,
+      "state": "syncing",
+      "headerTop": 0,
+      "header": 78.59375,
+      "nav": 44,
+      "overflow": false,
+      "dialog": {
+        "top": 11.625,
+        "bottom": 832.375,
+        "width": 322
+      },
+      "statusVisible": true
+    },
+    {
+      "name": "syncing",
+      "width": 390,
+      "height": 844,
+      "state": "syncing",
+      "headerTop": 0,
+      "header": 78.59375,
+      "nav": 44,
+      "overflow": false,
+      "dialog": {
+        "top": 11.625,
+        "bottom": 832.375,
+        "width": 352
+      },
+      "statusVisible": true
+    },
+    {
+      "name": "syncing",
+      "width": 430,
+      "height": 844,
+      "state": "syncing",
+      "headerTop": 0,
+      "header": 78.59375,
+      "nav": 44,
+      "overflow": false,
+      "dialog": {
+        "top": 11.625,
+        "bottom": 832.375,
+        "width": 392
+      },
+      "statusVisible": true
+    },
+    {
+      "name": "private-form-draft",
+      "width": 360,
+      "height": 844,
+      "state": "synced",
+      "headerTop": 0,
+      "header": 53,
+      "nav": 44,
+      "overflow": false,
+      "dialog": {
+        "top": 115.125,
+        "bottom": 728.875,
+        "width": 322
+      },
+      "statusVisible": true
+    },
+    {
+      "name": "private-form-draft",
+      "width": 390,
+      "height": 844,
+      "state": "synced",
+      "headerTop": 0,
+      "header": 53,
+      "nav": 44,
+      "overflow": false,
+      "dialog": {
+        "top": 115.125,
+        "bottom": 728.875,
+        "width": 352
+      },
+      "statusVisible": true
+    },
+    {
+      "name": "private-form-draft",
+      "width": 430,
+      "height": 844,
+      "state": "synced",
+      "headerTop": 0,
+      "header": 53,
+      "nav": 44,
+      "overflow": false,
+      "dialog": {
+        "top": 127.125,
+        "bottom": 716.875,
+        "width": 392
+      },
+      "statusVisible": true
+    },
+    {
+      "name": "conflict",
+      "width": 360,
+      "height": 844,
+      "state": "conflict",
+      "headerTop": 0,
+      "header": 78.59375,
+      "nav": 44,
+      "overflow": false,
+      "dialog": {
+        "top": 87.9375,
+        "bottom": 756.0625,
+        "width": 322
+      },
+      "statusVisible": true
+    },
+    {
+      "name": "conflict",
+      "width": 390,
+      "height": 844,
+      "state": "conflict",
+      "headerTop": 0,
+      "header": 78.59375,
+      "nav": 44,
+      "overflow": false,
+      "dialog": {
+        "top": 87.9375,
+        "bottom": 756.0625,
+        "width": 352
+      },
+      "statusVisible": true
+    },
+    {
+      "name": "conflict",
+      "width": 430,
+      "height": 844,
+      "state": "conflict",
+      "headerTop": 0,
+      "header": 78.59375,
+      "nav": 44,
+      "overflow": false,
+      "dialog": {
+        "top": 99.9375,
+        "bottom": 744.0625,
+        "width": 392
+      },
+      "statusVisible": true
+    },
+    {
+      "name": "conflict-panel-closed",
+      "width": 360,
+      "height": 844,
+      "state": "conflict",
+      "headerTop": 0,
+      "header": 78.59375,
+      "nav": 44,
+      "overflow": false,
+      "dialog": null,
+      "statusVisible": true
+    },
+    {
+      "name": "conflict-panel-closed",
+      "width": 390,
+      "height": 844,
+      "state": "conflict",
+      "headerTop": 0,
+      "header": 78.59375,
+      "nav": 44,
+      "overflow": false,
+      "dialog": null,
+      "statusVisible": true
+    },
+    {
+      "name": "conflict-panel-closed",
+      "width": 430,
+      "height": 844,
+      "state": "conflict",
+      "headerTop": 0,
+      "header": 78.59375,
+      "nav": 44,
+      "overflow": false,
+      "dialog": null,
+      "statusVisible": true
+    }
+  ]
+}

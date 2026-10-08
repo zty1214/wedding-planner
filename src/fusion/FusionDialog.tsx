@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import type { ReactNode } from 'react'
 
 /** Native modal provides keyboard containment and returns focus to its opener. */
@@ -16,7 +17,7 @@ export default function FusionDialog({ label, onClose, children }: { label: stri
       else fallback?.focus()
     }
   }, [])
-  return <dialog ref={ref} className="planner-dialog" aria-label={label} onKeyDown={event => {
+  return createPortal(<dialog ref={ref} className="planner-dialog" aria-label={label} onKeyDown={event => {
     if (event.key !== 'Tab') return
     const controls = Array.from(ref.current?.querySelectorAll<HTMLElement>('button:not(:disabled), a[href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), summary, [tabindex="0"]') ?? []).filter(node => node.getClientRects().length > 0)
     const first = controls[0], last = controls.at(-1)
@@ -28,5 +29,5 @@ export default function FusionDialog({ label, onClose, children }: { label: stri
     // Keep the existing panel's busy/confirmation rules for closing.
     const close = Array.from(ref.current?.querySelectorAll('button') ?? []).find(button => button.textContent === '关闭')
     if (!close?.disabled) onClose()
-  }}>{children}</dialog>
+  }}>{children}</dialog>, document.body)
 }

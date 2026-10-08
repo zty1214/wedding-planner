@@ -277,7 +277,7 @@ U15纳入下一轮P1，按统一任务表分布于阶段A/B/C；当前仍是建�
 | C：U6/U8/U12及U15编辑 | 弹层关闭返回可见入口；宾客/笔记手机单份表单弹窗，桌面编辑滚动聚焦、关闭返回记录；长名单/长笔记完整页面通过。历史导航中央保护已实现；宾客、笔记、字段及住宿选择四类实际本机写失败后退保护通过；输入保留、显式重试及落盘后离开已验证 | 导出/草稿弹窗键盘焦点与Esc返回、桌面键盘建房、手机弹窗日期键盘选择及关闭保留已通过；手机原生房型下拉框纯键盘行为尚未确认，真机侧滑/软键盘/安全区仍待验 |
 | D：U2/U10/U11/U13 | 排序可切换且本机记忆；自然排序及原顺序刷新通过，默认桌名避开已占编号。Fusion宾客导出保留完整组名和unset来源字段，实际XLSX回读通过。分享复制前核对当前凭证；本机轮换、另一设备缺少新凭证、离线拒绝复制及新接收端打开通过。历史文案明确每日自动快照未启用 | 混合数字/中文/前导零、默认分组、独立客户端偏好及刷新、服务端并发重名拒绝通过；旧重名展示、人工改名保持关联、删除及新身份重建已通过；实际页面下载回读确认完整分组、unset所属方、电话前导零及房号备注；真机分享仍待验；不新增每日调度 |
 | M：U5/U14/V2 | 纯图片笔记未处置阻断候选/独立对账/publish；补文字或确认排除须绑定来源项目/hash/笔记ID，排除独立计数，不冒充完整保留。旧房间晚次并集映射及按房报房独立对账；额外合法分类页面可见。备份明确仅支持字符串ID，ObjectId/数值ID明确拒绝并有虚构用例；操作手册已补充 | 无真实数据重导入/覆盖；下次真实迁移必须提供绑定来源的处置记录，不能把虚构样本结果当成真实来源已处置 |
-| R：V1及整体交付 | Node v22.18.0完整 `npm run check` 通过：258/258测试，规模检查、Fusion类型检查、lint、普通及虚构配置Fusion构建 | 25baf5e同提交远端CI已通过，覆盖完整检查/主流程/业务构建/10场景反馈套件；随后新增凭证恢复修复与4项验收尚需阶段提交、集成及新的同提交CI。本轮云端及真机验收仍未完成，部署须单独核对范围、备份和授权 |
+| R：V1及整体交付 | Node v22.18.0完整 `npm run check` 通过：260/260测试，规模检查、Fusion类型检查、lint、普通及虚构配置Fusion构建 | 59342e3同提交远端CI已通过，覆盖完整检查/主流程/业务构建/14场景反馈套件；随后慢网建房、冲突退出与提示排序修复已通过260项检查及16场景套件，尚需本阶段提交、集成及新的同提交CI。本轮云端及真机验收仍未完成，部署须单独核对范围、备份和授权 |
 
 本地报告使用虚构内存项目（一般150位宾客/30间房，导出专用31间房，权限专用独立小项目），不读取真实名单或写CloudBase：
 
@@ -291,7 +291,7 @@ U15纳入下一轮P1，按统一任务表分布于阶段A/B/C；当前仍是建�
 - [冻结住宿草稿恢复](validation/user-feedback-iteration-20261008/room-recovery-report.json)：原请求已同步后由其他协作者清空房间，恢复表单仍可核对回执，查询不修改当前数据，确认后清除该冻结表单。
 - [住宿并发整批拒绝](validation/user-feedback-iteration-20261008/room-conflict-report.json)：虚构另一协作者改宾客后零整批写入、原选择和冻结草稿保留。
 
-可复现入口：实施工作树 `scripts/fusion/validate-feedback-{accommodation,seating,drag-failure,history,editors,sharing,room-conflict,room-sort,room-recovery,room-date-conflict}.mjs`，使用Node 22分别运行。默认端口4294，可用S03_PORT调整；同端口顺序运行。默认报告输出 `/private/tmp/planner-feedback-results`，可用FEEDBACK_OUTPUT指定；源码不固定个人checkout/Node路径，不输出访问凭证。完整检查原日志在 `/private/tmp/planner-iteration-check.log`，属本地临时文件；未形成新提交前不称“同提交CI通过”。
+可复现入口：实施工作树 `scripts/fusion/validate-feedback-{accommodation,seating,drag-failure,history,editors,sharing,room-conflict,room-sort,room-recovery,room-date-conflict,room-permission,room-legacy,keyboard,export,release-entry,mobile-states}.mjs`，使用Node 22分别运行。默认端口4294，可用S03_PORT调整；同端口顺序运行。默认报告输出 `/private/tmp/planner-feedback-results`，可用FEEDBACK_OUTPUT指定；源码不固定个人checkout/Node路径，不输出访问凭证。完整检查原日志在 `/private/tmp/planner-iteration-check.log`，属本地临时文件；未形成新提交前不称“同提交CI通过”。
 
 后续关闭表内剩余本地矩阵并审查集成，完成一个可验证阶段后显式暂存任务文件、统一提交。只维护现有main与迁移feat远端分支。云端、CI、真机分别记录，整体仍进行中，不能宣布新版上线或全项验收完成。
 
@@ -325,3 +325,16 @@ U15纳入下一轮P1，按统一任务表分布于阶段A/B/C；当前仍是建�
 统一反馈入口扩展为14项；新增脚本为 `validate-feedback-room-permission.mjs`、`validate-feedback-room-legacy.mjs`、`validate-feedback-keyboard.mjs`、`validate-feedback-export.mjs`，夹具开关仅用于本地内存项目，不读真实数据。最终阶段检查、套件结果与提交绑定在本阶段验收报告中。
 
 本阶段本地收尾：完整检查退出0（258/258）、完整主流程7阶段退出0、生产构建业务验收退出0、14项反馈场景均退出0。[阶段报告](validation/user-feedback-iteration-20261008/access-recovery-phase-report.json)绑定业务改动及验收脚本hash；baseline仅为修改前提交，不冒充该提交已包含新修复。阶段候选提交后仍需新的同提交远端CI。
+
+### 慢网建房、冲突退出与发布验收收尾
+
+`59342e30a3ff897336d097448b3025c5442a126b` 的 [远端CI #37790616025](https://github.com/zty1214/wedding-planner/actions/runs/37790616025) 已全部成功，完整检查、主流程、业务构建及14项反馈套件均通过；[步骤回读](validation/user-feedback-iteration-20261008/remote-ci-59342e3-report.json)绑定该SHA。以下是随后发现的候选修复，须使用新提交再跑CI。
+
+- U3慢网遗漏：原新房流程在本机落盘后仍await整个云端flush，响应延迟时不打开选人弹窗。增加持久保存完成通知，只在本机插入成功后返回本次房间ID并打开弹窗，云端同步及冻结请求保持原流程；落盘失败不通知、不虚构房卡。页面已确认云端请求仍被延迟时可选人/日期并保存私有草稿。
+- U6/U8冲突恢复遗漏：业务页面外层fieldset禁用会被住宿弹窗的关闭按钮继承，导致冲突后无法关闭弹窗处理顶部草稿入口。FusionDialog通过portal呈现在禁用区域外，仍保留自身busy/frozen控制及原权限/提交规则。实际并发冲突仍整批拒绝、冻结草稿保留，弹窗能关闭，顶部处理入口可达；既有权限撤销场景仍通过。
+- U15异常提示顺序：手机flex布局中额外恢复说明缺少order，页头被下推88px。仅手机断点将恢复说明放到页头/导航之后。360/390/430下正常、同步中、私有表单草稿、冲突及关闭冲突弹窗五种状态均无横溢出、页头top=0，提示可见；正常头部53px+导航44px，异常头部约78.59px+导航44px，不为凑正常112px目标隐藏冲突信息。弹窗边界在视口内；截图已在本机复核，不能代替真机键盘/安全区。
+- 部署后的网页验收入口已适配异步复制核对、新房自动弹窗；新增显式`--local-fixture`演练模式，只允许127.0.0.1来源，默认仍验实际CloudBase网址。演练六项通过，不声称新候选已部署。历史字段失败重试用原失败输入，避免重新输入已自动成功保存后寻找消失的重试按钮；未删离开保护断言。
+
+[本阶段报告](validation/user-feedback-iteration-20261008/slow-room-recovery-phase-report.json)记录红/绿证据及源码hash；[手机异常状态](validation/user-feedback-iteration-20261008/mobile-states-report.json)、[发布验收演练](validation/user-feedback-iteration-20261008/release-entry-report.json)、[16项统一套件](validation/user-feedback-iteration-20261008/feedback-suite-report.json)均为本地虚构数据。Node22完整检查260/260、主流程7阶段、业务生产构建和16项套件均退出0。阶段提交后核对新CI；尚未更新CloudBase或真实婚礼数据。
+
+发布剩余门槛保持明确：候选前端和网关同版本、目标dev当前数据备份、实际活跃包及配置回读、虚构新项目的房间统一晚次/冲突/权限/导出云端验收；手机微信/Safari/Android的触摸、软键盘、侧滑、切后台、安全区和文件保存，以及用户整体观感。不能将桌面窄屏、合成触摸或旧候选CI代替这些结果。真实数据不重导入、不自动改号、不购买环境、不增加定时任务。

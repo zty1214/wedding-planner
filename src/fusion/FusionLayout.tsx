@@ -46,7 +46,7 @@ function ProjectView({ session, projectId, notice }: { session: Session; project
         ? '本机参考快照清理失败，页面已停止展示；请保留自己的草稿后清理此站点缓存。'
         : '云端读取已完成，但参考快照未能保存在本机。原有草稿仍保留，暂不能保证重开后的参考版本可用。'}</p>}
       {(notice || state.error) && <div role="alert" className="bg-amber-50 text-amber-900 px-4 py-2">{notice || errorLabels[state.error!] || '操作未完成，请保留本地草稿并重试。'}</div>}
-      {['REJECTED_CURRENT_CONFIRMED', 'CONFIRMED_READ_FAILED'].includes(state.error ?? '') && <p className="bg-amber-50 text-amber-900 px-4 py-2">
+      {['REJECTED_CURRENT_CONFIRMED', 'CONFIRMED_READ_FAILED'].includes(state.error ?? '') && <p role="status" className="planner-recovery-notice bg-amber-50 text-amber-900 px-4 py-2">
         {state.error === 'CONFIRMED_READ_FAILED' ? '暂未读到最新云端安排，页面显示最近确认的副本。' : '页面显示云端确认的安排。'}
         被拒绝的修改及后续操作保留在本机草稿，后续发送已暂停；请查看草稿核对。
       </p>}

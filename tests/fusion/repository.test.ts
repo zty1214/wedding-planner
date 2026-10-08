@@ -730,3 +730,37 @@ test('a retained version-name form uses its original operation ID after command 
     assert.ok(await transport.queryReceipt(frozen))
   } finally { repo.stop(); storage.close() }
 })
+
+
+test('room local-save notification precedes a delayed cloud response', async () => {
+  const { transport } = setup(), storage = await openIndexedDbOutbox(new IDBFactory())
+  let release!: () => void
+  const gate = new Promise<void>(resolve => { release = resolve })
+  const execute = transport.execute
+  transport.execute = async command => { await gate; return execute(command) }
+  const repo = projectRepository('a', storage, transport, exclusive)
+  await repo.open()
+  let prepared!: () => void
+  const local = new Promise<void>(resolve => { prepared = resolve })
+  const completed = repo.dispatch('room.add', { id: 'slow-room', label: '01', type: '大床房' }, {}, undefined, undefined, prepared)
+  try {
+    await Promise.race([local, new Promise<never>((_, reject) => setTimeout(() => reject(Error('LOCAL_SAVE_NOTIFICATION_TIMEOUT')), 1000))])
+    assert.equal(repo.getSnapshot().snapshot!.data.rooms['slow-room'].label, '01')
+    assert.equal((await storage.list('a')).length, 1)
+    assert.equal((await transport.read()).data.rooms['slow-room'], undefined)
+  } finally { release(); await completed; repo.stop(); storage.close() }
+})
+
+
+test('local-save notification is not emitted if durable insertion fails', async () => {
+  const { transport } = setup(), storage = await openIndexedDbOutbox(new IDBFactory())
+  const repo = projectRepository('a', storage, transport, exclusive)
+  await repo.open()
+  storage.insert = async () => { throw Error('FICTITIOUS_LOCAL_FAILURE') }
+  let notified = false
+  assert.equal(await repo.dispatch('room.add', { id: 'failed-room', label: '01', type: '大床房' }, {}, undefined, undefined, () => { notified = true }), false)
+  assert.equal(notified, false)
+  assert.equal(repo.getSnapshot().status, 'local_error')
+  assert.equal(repo.getSnapshot().snapshot!.data.rooms['failed-room'], undefined)
+  repo.stop(); storage.close()
+})

@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url'
 import { join } from 'node:path'
 
 const root = fileURLToPath(new URL('../../', import.meta.url))
-const scenarios = ['accommodation', 'seating', 'drag-failure', 'history', 'editors', 'sharing', 'room-conflict', 'room-sort', 'room-recovery', 'room-date-conflict', 'room-permission', 'room-legacy', 'keyboard', 'export']
+const scenarios = ['accommodation', 'seating', 'drag-failure', 'history', 'editors', 'sharing', 'room-conflict', 'room-sort', 'room-recovery', 'room-date-conflict', 'room-permission', 'room-legacy', 'keyboard', 'export', 'release-entry', 'mobile-states']
 const basePort = Number(process.env.FEEDBACK_PORT_BASE ?? 4294)
 if (!Number.isInteger(basePort) || basePort < 1024 || basePort + scenarios.length > 65535) throw Error('INVALID_FEEDBACK_PORT_BASE')
 const output = process.env.FEEDBACK_OUTPUT ?? '/private/tmp/planner-feedback-results'

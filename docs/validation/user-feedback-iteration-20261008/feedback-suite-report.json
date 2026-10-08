@@ -57,6 +57,14 @@
     {
       "name": "export",
       "exitCode": 0
+    },
+    {
+      "name": "release-entry",
+      "exitCode": 0
+    },
+    {
+      "name": "mobile-states",
+      "exitCode": 0
     }
   ]
 }
