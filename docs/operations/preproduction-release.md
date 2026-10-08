@@ -1,6 +1,6 @@
 # 独立预发部署准备
 
-2026-10-08。实现了独立业务入口与离线打包，未创建环境、下单、部署、迁移或改变现有线上配置。依据[计划](../2026-10-08-visual-migration-release-plan.md)R1，候选网址/环境、试用者和副本范围仍需确认。
+2026-10-08。初始独立环境准备记录保留；用户后续授权复用dev，实际部署结果见文末。依据[计划](../2026-10-08-visual-migration-release-plan.md)R1，候选网址/环境、试用者和副本范围仍需确认。
 
 ## 入口与配置
 
@@ -61,3 +61,7 @@ node scripts/release/build-business-frontend.mjs \
 在全数据库/云存储加密备份完成后，用户明确授权在现有dev部署。业务配置仍默认拒绝该来源环境；此次通过显式FUSION_ALLOW_REUSED_DEV=true（打包参数--allow-reused-dev true）启用复用，且禁止planner_fusion_probe命名空间。新业务集合为planner_fusion_preprod_*，新函数planner-fusion-gateway/planner-fusion-retention，不覆盖原weddings和探针集合/函数。前端仍为Fusion-only，无Supabase配置。
 
 共享环境的地域/匿名登录/资源配额与旧资源相同，不能称独立环境。部署不购买第二环境，不推送main或触发GitHub Pages正式发布。现有静态站点部署采用safe备份和verify，不prune旧文件；SPA深链回退需实际配置并回读。内部retention调用规则必须显式deny；不启用每日业务快照。
+
+## 实际部署结果
+
+新业务命名空间及Fusion-only网页已部署，运行候选c0a7f1a；[真实代码/配置、权限、两端和网页验收证据](../validation/reused-dev-deployment-20261008/README.md)。未购买环境、未迁移真实来源、未发布GitHub Pages。清理客户端deny已验证，管理员实际清理被自动审批拒绝、未启用定时器，另待授权。

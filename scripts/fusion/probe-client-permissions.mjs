@@ -5,17 +5,19 @@ import { randomUUID } from 'node:crypto'
 import { cloudApi } from './cloudbase-cli.mjs'
 import { PROBE_COLLECTIONS, documentKey } from '../../server/fusion/cloudBaseTransactionStore.ts'
 
-const [configFile, fixtureReport, output] = process.argv.slice(2)
-if (!configFile || !fixtureReport || !output) throw Error('Provide source public env file, successful live fixture report, and new report path')
+const [configFile, fixtureReport, output, mode] = process.argv.slice(2)
+if ((mode !== undefined && mode !== '--business') || !configFile || !fixtureReport || !output) throw Error('Provide source public env file, successful live fixture report, and new report path')
 const config = parseEnv(await readFile(configFile, 'utf8'))
 const env = config.VITE_CLOUDBASE_ENV_ID
 if (env !== 'dev-d1gh3jw1gdf06af22') throw Error('UNEXPECTED_ENVIRONMENT')
 const fixture = JSON.parse(await readFile(fixtureReport, 'utf8'))
 if (fixture.status !== 'PASS' || fixture.env !== env || !fixture.fixtureProjectIds?.[0]) throw Error('VERIFIED_FIXTURE_REQUIRED')
+if (mode === '--business' && fixture.functionName !== 'planner-fusion-gateway') throw Error('VERIFIED_BUSINESS_FIXTURE_REQUIRED')
+const collections = mode === '--business' ? Object.fromEntries(['access', 'current', 'receipts', 'activity'].map(k => [k, 'planner_fusion_preprod_' + k])) : PROBE_COLLECTIONS
 const report = { observedAt: new Date().toISOString(), env, checks: [], acl: [] }
 let stage = 'acl-readback'
 try {
-  for (const name of Object.values(PROBE_COLLECTIONS)) {
+  for (const name of Object.values(collections)) {
     const rule = cloudApi('DescribeDatabaseACL', { EnvId: env, CollectionName: name })
     report.acl.push({ collection: name, aclTag: rule.AclTag })
     if (rule.AclTag !== 'ADMINONLY') throw Error('ACL_NOT_ADMINONLY')
@@ -28,7 +30,7 @@ try {
   const db = app.database()
   const absent = `fusion-permission-probe-${randomUUID()}`
   report.attemptedDocumentId = absent
-  for (const name of Object.values(PROBE_COLLECTIONS)) {
+  for (const name of Object.values(collections)) {
     let transportCodes = []
     function track(ref) {
       if (!ref.request?.send) return ref

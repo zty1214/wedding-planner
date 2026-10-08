@@ -1,0 +1,21 @@
+{
+  "status": "PASS",
+  "url": "https://dev-d1gh3jw1gdf06af22-1456231968.tcloudbaseapp.com/",
+  "baselineSha": "c0a7f1a879e863de763d0b0bd733e63f5c6c796c",
+  "mode": "fusion-only",
+  "deployment": {
+    "safe": true,
+    "verify": true,
+    "prune": false,
+    "totalFiles": 7,
+    "successCount": 7,
+    "failedCount": 0,
+    "backupPrefix": ".cloudbase-backup/1791426057634/"
+  },
+  "spa": {
+    "IndexDocument": "index.html",
+    "ErrorDocument": "index.html",
+    "actualReadbackVerified": true
+  },
+  "publicBuildInfoReadbackVerified": true
+}

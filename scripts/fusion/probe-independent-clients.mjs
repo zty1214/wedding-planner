@@ -31,7 +31,7 @@ if (process.argv[2] === '--worker') {
  const [configPath, manifestPath, output] = process.argv.slice(2)
  if (!configPath || !manifestPath || !output) throw Error('Provide config, manifest and fresh report path')
  const config = parseEnv(await readFile(configPath, 'utf8')), manifest = JSON.parse(await readFile(manifestPath, 'utf8'))
- if (manifest.env !== 'dev-d1gh3jw1gdf06af22' || config.VITE_CLOUDBASE_ENV_ID !== manifest.env || manifest.functionName !== 'planner-fusion-gateway-probe') throw Error('INVALID_TARGET')
+ if (manifest.env !== 'dev-d1gh3jw1gdf06af22' || config.VITE_CLOUDBASE_ENV_ID !== manifest.env || !['planner-fusion-gateway-probe', 'planner-fusion-gateway'].includes(manifest.functionName)) throw Error('INVALID_TARGET')
  await (await open(output, 'wx', 0o600)).close()
  const report = { observedAt: new Date().toISOString(), env: manifest.env, functionName: manifest.functionName, deploymentManifestSha256: manifest.sha256, mode: 'TWO_INDEPENDENT_NODE_SDK_IDENTITIES', status: 'RUNNING', checks: [] }
  const save = () => writeFile(output, JSON.stringify(report, null, 2))
@@ -52,7 +52,9 @@ if (process.argv[2] === '--worker') {
   const detail = functionDetail(manifest.env, manifest.functionName)
   assert.equal(detail.Status, 'Active')
   const vars = Object.fromEntries(detail.Environment.Variables.map(v => [v.Key, v.Value]))
-  assert.equal(vars.FUSION_PROBE_PROJECTS, manifest.projects.join(',')); assert.equal(vars.LOG_EVENT_CONTEXT, 'false')
+  if (manifest.functionName === 'planner-fusion-gateway-probe') assert.equal(vars.FUSION_PROBE_PROJECTS, manifest.projects.join(','))
+  else { assert.equal(vars.FUSION_COLLECTION_PREFIX, 'planner_fusion_preprod'); assert.equal(vars.FUSION_ALLOW_REUSED_DEV, 'true') }
+  assert.equal(vars.LOG_EVENT_CONTEXT, 'false')
   const a = client(), b = client(), init = { env: manifest.env, functionName: manifest.functionName, accessKey: config.VITE_CLOUDBASE_PUBLISHABLE_KEY }
   stage = 'independent-anonymous-login'
   const [identityA, identityB] = await Promise.all([a('init', init), b('init', init)])

@@ -1,0 +1,28 @@
+{
+  "scope": "deployed browser UI and real business gateway; fictitious new project only",
+  "status": "FAIL",
+  "checks": [
+    {
+      "name": "root-fusion-project-entry",
+      "status": "PASS"
+    },
+    {
+      "name": "real-gateway-project-creation",
+      "status": "PASS"
+    },
+    {
+      "name": "guest-leading-zero-and-refresh-deep-link",
+      "status": "PASS"
+    },
+    {
+      "name": "seating-and-stay-real-pages",
+      "status": "PASS"
+    }
+  ],
+  "supabaseRequests": 0,
+  "failedStage": "notes-published-and-refresh",
+  "visibleHeadings": [
+    "备婚笔记"
+  ],
+  "visibleAlerts": []
+}

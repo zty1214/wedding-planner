@@ -1,0 +1,17 @@
+{
+  "status": "PASS",
+  "baselineSha": "c0a7f1a879e863de763d0b0bd733e63f5c6c796c",
+  "activeCodeDownloaded": true,
+  "rows": [
+    {
+      "functionName": "planner-fusion-gateway",
+      "sha256": "3b51d02a0dd1a00c22926c01cc52aac18c2265908be07f5600926b8fd4045cea",
+      "matched": true
+    },
+    {
+      "functionName": "planner-fusion-retention",
+      "sha256": "386081dd2de7c20dd962e36e91970a6031626d482a5a9e5994c19dca9c3bdbcb",
+      "matched": true
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "before": {
+    "*": {
+      "invoke": "auth != null && auth.loginType != 'ANONYMOUS'"
+    },
+    "planner-fusion-gateway-probe": {
+      "invoke": "auth != null"
+    }
+  },
+  "expected": {
+    "*": {
+      "invoke": "auth != null && auth.loginType != 'ANONYMOUS'"
+    },
+    "planner-fusion-gateway-probe": {
+      "invoke": "auth != null"
+    },
+    "planner-fusion-gateway": {
+      "invoke": "auth != null"
+    },
+    "planner-fusion-retention": {
+      "invoke": false
+    }
+  },
+  "actual": {
+    "*": {
+      "invoke": "auth != null && auth.loginType != 'ANONYMOUS'"
+    },
+    "planner-fusion-gateway-probe": {
+      "invoke": "auth != null"
+    },
+    "planner-fusion-gateway": {
+      "invoke": "auth != null"
+    },
+    "planner-fusion-retention": {
+      "invoke": false
+    }
+  },
+  "status": "PASS",
+  "updateSuccess": true
+}

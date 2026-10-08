@@ -1,0 +1,291 @@
+{
+  "observedAt": "2026-10-08T02:22:51.933Z",
+  "env": "dev-d1gh3jw1gdf06af22",
+  "checks": [
+    {
+      "collection": "planner_fusion_preprod_access",
+      "action": "read",
+      "denied": true,
+      "code": "DATABASE_PERMISSION_DENIED",
+      "diagnostic": "",
+      "resultShape": {
+        "requestId": "string",
+        "data": "object",
+        "response": "object",
+        "code": "string"
+      },
+      "sdkSurfaceOmittedDenial": false
+    },
+    {
+      "collection": "planner_fusion_preprod_access",
+      "action": "list",
+      "denied": true,
+      "code": "DATABASE_PERMISSION_DENIED",
+      "diagnostic": "",
+      "resultShape": {
+        "requestId": "string",
+        "data": "object",
+        "response": "object",
+        "code": "string"
+      },
+      "sdkSurfaceOmittedDenial": false
+    },
+    {
+      "collection": "planner_fusion_preprod_access",
+      "action": "create",
+      "denied": true,
+      "code": "DATABASE_PERMISSION_DENIED",
+      "diagnostic": "",
+      "resultShape": {
+        "updated": "undefined",
+        "upsertedId": "undefined",
+        "requestId": "string"
+      },
+      "sdkSurfaceOmittedDenial": true
+    },
+    {
+      "collection": "planner_fusion_preprod_access",
+      "action": "update",
+      "denied": true,
+      "code": "DATABASE_PERMISSION_DENIED",
+      "diagnostic": "",
+      "resultShape": {
+        "updated": "undefined",
+        "upsertedId": "undefined",
+        "requestId": "string"
+      },
+      "sdkSurfaceOmittedDenial": true
+    },
+    {
+      "collection": "planner_fusion_preprod_access",
+      "action": "delete",
+      "denied": true,
+      "code": "DATABASE_PERMISSION_DENIED",
+      "diagnostic": "",
+      "resultShape": {
+        "deleted": "undefined",
+        "requestId": "string"
+      },
+      "sdkSurfaceOmittedDenial": true
+    },
+    {
+      "collection": "planner_fusion_preprod_current",
+      "action": "read",
+      "denied": true,
+      "code": "DATABASE_PERMISSION_DENIED",
+      "diagnostic": "",
+      "resultShape": {
+        "requestId": "string",
+        "data": "object",
+        "response": "object",
+        "code": "string"
+      },
+      "sdkSurfaceOmittedDenial": false
+    },
+    {
+      "collection": "planner_fusion_preprod_current",
+      "action": "list",
+      "denied": true,
+      "code": "DATABASE_PERMISSION_DENIED",
+      "diagnostic": "",
+      "resultShape": {
+        "requestId": "string",
+        "data": "object",
+        "response": "object",
+        "code": "string"
+      },
+      "sdkSurfaceOmittedDenial": false
+    },
+    {
+      "collection": "planner_fusion_preprod_current",
+      "action": "create",
+      "denied": true,
+      "code": "DATABASE_PERMISSION_DENIED",
+      "diagnostic": "",
+      "resultShape": {
+        "updated": "undefined",
+        "upsertedId": "undefined",
+        "requestId": "string"
+      },
+      "sdkSurfaceOmittedDenial": true
+    },
+    {
+      "collection": "planner_fusion_preprod_current",
+      "action": "update",
+      "denied": true,
+      "code": "DATABASE_PERMISSION_DENIED",
+      "diagnostic": "",
+      "resultShape": {
+        "updated": "undefined",
+        "upsertedId": "undefined",
+        "requestId": "string"
+      },
+      "sdkSurfaceOmittedDenial": true
+    },
+    {
+      "collection": "planner_fusion_preprod_current",
+      "action": "delete",
+      "denied": true,
+      "code": "DATABASE_PERMISSION_DENIED",
+      "diagnostic": "",
+      "resultShape": {
+        "deleted": "undefined",
+        "requestId": "string"
+      },
+      "sdkSurfaceOmittedDenial": true
+    },
+    {
+      "collection": "planner_fusion_preprod_receipts",
+      "action": "read",
+      "denied": true,
+      "code": "DATABASE_PERMISSION_DENIED",
+      "diagnostic": "",
+      "resultShape": {
+        "requestId": "string",
+        "data": "object",
+        "response": "object",
+        "code": "string"
+      },
+      "sdkSurfaceOmittedDenial": false
+    },
+    {
+      "collection": "planner_fusion_preprod_receipts",
+      "action": "list",
+      "denied": true,
+      "code": "DATABASE_PERMISSION_DENIED",
+      "diagnostic": "",
+      "resultShape": {
+        "requestId": "string",
+        "data": "object",
+        "response": "object",
+        "code": "string"
+      },
+      "sdkSurfaceOmittedDenial": false
+    },
+    {
+      "collection": "planner_fusion_preprod_receipts",
+      "action": "create",
+      "denied": true,
+      "code": "DATABASE_PERMISSION_DENIED",
+      "diagnostic": "",
+      "resultShape": {
+        "updated": "undefined",
+        "upsertedId": "undefined",
+        "requestId": "string"
+      },
+      "sdkSurfaceOmittedDenial": true
+    },
+    {
+      "collection": "planner_fusion_preprod_receipts",
+      "action": "update",
+      "denied": true,
+      "code": "DATABASE_PERMISSION_DENIED",
+      "diagnostic": "",
+      "resultShape": {
+        "updated": "undefined",
+        "upsertedId": "undefined",
+        "requestId": "string"
+      },
+      "sdkSurfaceOmittedDenial": true
+    },
+    {
+      "collection": "planner_fusion_preprod_receipts",
+      "action": "delete",
+      "denied": true,
+      "code": "DATABASE_PERMISSION_DENIED",
+      "diagnostic": "",
+      "resultShape": {
+        "deleted": "undefined",
+        "requestId": "string"
+      },
+      "sdkSurfaceOmittedDenial": true
+    },
+    {
+      "collection": "planner_fusion_preprod_activity",
+      "action": "read",
+      "denied": true,
+      "code": "DATABASE_PERMISSION_DENIED",
+      "diagnostic": "",
+      "resultShape": {
+        "requestId": "string",
+        "data": "object",
+        "response": "object",
+        "code": "string"
+      },
+      "sdkSurfaceOmittedDenial": false
+    },
+    {
+      "collection": "planner_fusion_preprod_activity",
+      "action": "list",
+      "denied": true,
+      "code": "DATABASE_PERMISSION_DENIED",
+      "diagnostic": "",
+      "resultShape": {
+        "requestId": "string",
+        "data": "object",
+        "response": "object",
+        "code": "string"
+      },
+      "sdkSurfaceOmittedDenial": false
+    },
+    {
+      "collection": "planner_fusion_preprod_activity",
+      "action": "create",
+      "denied": true,
+      "code": "DATABASE_PERMISSION_DENIED",
+      "diagnostic": "",
+      "resultShape": {
+        "updated": "undefined",
+        "upsertedId": "undefined",
+        "requestId": "string"
+      },
+      "sdkSurfaceOmittedDenial": true
+    },
+    {
+      "collection": "planner_fusion_preprod_activity",
+      "action": "update",
+      "denied": true,
+      "code": "DATABASE_PERMISSION_DENIED",
+      "diagnostic": "",
+      "resultShape": {
+        "updated": "undefined",
+        "upsertedId": "undefined",
+        "requestId": "string"
+      },
+      "sdkSurfaceOmittedDenial": true
+    },
+    {
+      "collection": "planner_fusion_preprod_activity",
+      "action": "delete",
+      "denied": true,
+      "code": "DATABASE_PERMISSION_DENIED",
+      "diagnostic": "",
+      "resultShape": {
+        "deleted": "undefined",
+        "requestId": "string"
+      },
+      "sdkSurfaceOmittedDenial": true
+    }
+  ],
+  "acl": [
+    {
+      "collection": "planner_fusion_preprod_access",
+      "aclTag": "ADMINONLY"
+    },
+    {
+      "collection": "planner_fusion_preprod_current",
+      "aclTag": "ADMINONLY"
+    },
+    {
+      "collection": "planner_fusion_preprod_receipts",
+      "aclTag": "ADMINONLY"
+    },
+    {
+      "collection": "planner_fusion_preprod_activity",
+      "aclTag": "ADMINONLY"
+    }
+  ],
+  "anonymousLogin": "PASS",
+  "attemptedDocumentId": "fusion-permission-probe-0734a5b4-d76b-4b81-bd4a-68c55e9ac318",
+  "status": "PASS"
+}

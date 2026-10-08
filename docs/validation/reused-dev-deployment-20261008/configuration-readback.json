@@ -1,0 +1,44 @@
+{
+  "status": "PASS",
+  "rows": [
+    {
+      "name": "planner-fusion-gateway",
+      "status": "Active",
+      "runtime": "Nodejs20.19",
+      "memory": 256,
+      "timeout": 20,
+      "handler": "index.main",
+      "configuration": {
+        "FUSION_ALLOW_REUSED_DEV": "true",
+        "FUSION_ENV_ID": "dev-d1gh3jw1gdf06af22",
+        "FUSION_REGION": "ap-shanghai",
+        "FUSION_COLLECTION_PREFIX": "planner_fusion_preprod",
+        "FUSION_CREATION_DAILY_LIMIT": "200",
+        "LOG_EVENT_CONTEXT": "false",
+        "LOG_HEADER_BODY": "false",
+        "LOG_CONTENT_ENABLED": "false"
+      },
+      "codeInfoKeys": []
+    },
+    {
+      "name": "planner-fusion-retention",
+      "status": "Active",
+      "runtime": "Nodejs20.19",
+      "memory": 256,
+      "timeout": 20,
+      "handler": "index.main",
+      "configuration": {
+        "FUSION_ALLOW_REUSED_DEV": "true",
+        "FUSION_ENV_ID": "dev-d1gh3jw1gdf06af22",
+        "FUSION_REGION": "ap-shanghai",
+        "FUSION_COLLECTION_PREFIX": "planner_fusion_preprod",
+        "FUSION_CREATION_DAILY_LIMIT": "200",
+        "LOG_EVENT_CONTEXT": "false",
+        "LOG_HEADER_BODY": "false",
+        "LOG_CONTENT_ENABLED": "false"
+      },
+      "codeInfoKeys": []
+    }
+  ],
+  "collectionsClientDenied": true
+}
