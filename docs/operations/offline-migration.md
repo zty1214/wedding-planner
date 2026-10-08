@@ -43,3 +43,7 @@ node --experimental-strip-types scripts/migration/batch-cli.mjs --input /CONTROL
 ```
 
 来源读取适配器与加密落盘CLI已实现，见[备份说明](offline-backup.md)。真实来源导出、受控备份落盘、云端限额及事务验证、权限拒绝、用户布局/住宿确认、预发网址与试用者、正式停写/切换与灾难恢复策略仍为待办。每日业务快照和图片上传继续延期。
+
+## 缺失Planner云端配置的显式试迁补充
+
+仅在来源project_config为空时，localConfig可显式提供sourceProjectId、原始rawJson的sourceHash及missingCloudConfig=guest-date-union。转换从个人stay_dates集合生成项目日期，仍验证非法日期、引用和全部领域约束；没有此决定仍阻止试迁。原始空配置、来源摘要和决定均保留，默认标题/空舞台与配置缺口记录，不称原浏览器配置已收集。对账独立重新推导日期及核验决定绑定。当前真实执行结果见[Supabase试迁](../validation/supabase-trial-migration-20261008/README.md)。

@@ -1,0 +1,210 @@
+{
+  "status": "PASS",
+  "scope": "isolated copies; source remains writable and unchanged",
+  "projects": [
+    {
+      "index": 0,
+      "counts": {
+        "guests": 134,
+        "tables": 12,
+        "rooms": 14,
+        "notes": 0
+      },
+      "sourceRecords": 160,
+      "sourceProjectHash": "83268a1b9ac0323d9a5567719103eaa4985f9389c76c9909b8a64ec306991083",
+      "sourceHash": "c9fb22d5e51b702d92589c4446c64ac27eca867541f1ef82d1852598eef91574",
+      "targetHash": "eb65bce4fcae363971fe1c86b9b99f363e2904472f8219e456b77e76244b6755",
+      "configuration": "EXPLICIT_MISSING_CONFIG_GUEST_DATE_UNION",
+      "actions": [
+        {
+          "action": "prepare",
+          "state": "prepared",
+          "completedUnits": 0,
+          "totalUnits": 1,
+          "reconciliationPassed": null
+        },
+        {
+          "action": "import",
+          "state": "importing",
+          "completedUnits": 1,
+          "totalUnits": 1,
+          "reconciliationPassed": null
+        },
+        {
+          "action": "verify",
+          "state": "verified",
+          "completedUnits": 1,
+          "totalUnits": 1,
+          "reconciliationPassed": true
+        },
+        {
+          "action": "publish",
+          "state": "published",
+          "completedUnits": 1,
+          "totalUnits": 1,
+          "reconciliationPassed": true
+        },
+        {
+          "action": "verify",
+          "state": "published",
+          "completedUnits": 1,
+          "totalUnits": 1,
+          "reconciliationPassed": true
+        }
+      ]
+    },
+    {
+      "index": 1,
+      "counts": {
+        "guests": 1,
+        "tables": 0,
+        "rooms": 0,
+        "notes": 0
+      },
+      "sourceRecords": 1,
+      "sourceProjectHash": "80b06cbb63967dff14f00421995781c550cac064a31dcd54dc1a3d4a8fb49248",
+      "sourceHash": "0a66cd84997ee1f552676535c40223cf034de18181699a1ab642a10d18a98833",
+      "targetHash": "e20b0921af80801ac2af68d5a0821d36db8d737fb9abe8fd017e4e2ff7a4cef7",
+      "configuration": "EXPLICIT_MISSING_CONFIG_GUEST_DATE_UNION",
+      "actions": [
+        {
+          "action": "prepare",
+          "state": "prepared",
+          "completedUnits": 0,
+          "totalUnits": 1,
+          "reconciliationPassed": null
+        },
+        {
+          "action": "import",
+          "state": "importing",
+          "completedUnits": 1,
+          "totalUnits": 1,
+          "reconciliationPassed": null
+        },
+        {
+          "action": "verify",
+          "state": "verified",
+          "completedUnits": 1,
+          "totalUnits": 1,
+          "reconciliationPassed": true
+        },
+        {
+          "action": "publish",
+          "state": "published",
+          "completedUnits": 1,
+          "totalUnits": 1,
+          "reconciliationPassed": true
+        },
+        {
+          "action": "verify",
+          "state": "published",
+          "completedUnits": 1,
+          "totalUnits": 1,
+          "reconciliationPassed": true
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "counts": {
+        "guests": 0,
+        "tables": 1,
+        "rooms": 0,
+        "notes": 0
+      },
+      "sourceRecords": 1,
+      "sourceProjectHash": "ac9badaa7f56543e56f5f8d038692fe2deadc7f92ac6800692075599ad041630",
+      "sourceHash": "2cd129b13d0bdc82e78ac96a9fb8d7ca920eabfbb6f4d0fe0c57cea4f585be61",
+      "targetHash": "95186c4516392881c7dc15a25e8d78fb6db4dc370612937e2f5a73a1e98b2bd7",
+      "configuration": "EXPLICIT_MISSING_CONFIG_GUEST_DATE_UNION",
+      "actions": [
+        {
+          "action": "prepare",
+          "state": "prepared",
+          "completedUnits": 0,
+          "totalUnits": 1,
+          "reconciliationPassed": null
+        },
+        {
+          "action": "import",
+          "state": "importing",
+          "completedUnits": 1,
+          "totalUnits": 1,
+          "reconciliationPassed": null
+        },
+        {
+          "action": "verify",
+          "state": "verified",
+          "completedUnits": 1,
+          "totalUnits": 1,
+          "reconciliationPassed": true
+        },
+        {
+          "action": "publish",
+          "state": "published",
+          "completedUnits": 1,
+          "totalUnits": 1,
+          "reconciliationPassed": true
+        },
+        {
+          "action": "verify",
+          "state": "published",
+          "completedUnits": 1,
+          "totalUnits": 1,
+          "reconciliationPassed": true
+        }
+      ]
+    },
+    {
+      "index": 3,
+      "counts": {
+        "guests": 0,
+        "tables": 2,
+        "rooms": 0,
+        "notes": 0
+      },
+      "sourceRecords": 2,
+      "sourceProjectHash": "966589df5cc26af450f60a222c6940971e2ecb4e7680a2d558fbeafee9b1be28",
+      "sourceHash": "17efa78ed32075b61d5f2c8f1094ec0a406379fc603e23d825463e62eace3f83",
+      "targetHash": "1a12d2a02c9d23f22836632293ea19fd66fcdfb629e538db5be0a51ee2da98a1",
+      "configuration": "EXPLICIT_MISSING_CONFIG_GUEST_DATE_UNION",
+      "actions": [
+        {
+          "action": "prepare",
+          "state": "prepared",
+          "completedUnits": 0,
+          "totalUnits": 1,
+          "reconciliationPassed": null
+        },
+        {
+          "action": "import",
+          "state": "importing",
+          "completedUnits": 1,
+          "totalUnits": 1,
+          "reconciliationPassed": null
+        },
+        {
+          "action": "verify",
+          "state": "verified",
+          "completedUnits": 1,
+          "totalUnits": 1,
+          "reconciliationPassed": true
+        },
+        {
+          "action": "publish",
+          "state": "published",
+          "completedUnits": 1,
+          "totalUnits": 1,
+          "reconciliationPassed": true
+        },
+        {
+          "action": "verify",
+          "state": "published",
+          "completedUnits": 1,
+          "totalUnits": 1,
+          "reconciliationPassed": true
+        }
+      ]
+    }
+  ]
+}

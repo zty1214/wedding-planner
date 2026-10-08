@@ -51,7 +51,11 @@ function finish(ctx) {
 }
 export function convertPlannerSource(rawJson, options) {
   const c = begin(rawJson, 'supabase-planner', options), { source, data } = c
-  const report = inventory(source, options.sourceProjectId)
+  const supplement = source.project_config.length === 0 && options.localConfig?.sourceProjectId === options.sourceProjectId
+    && options.localConfig?.sourceHash === hash(rawJson) && options.localConfig?.missingCloudConfig === 'guest-date-union'
+  const guestDates = [...new Set(source.guests.flatMap(g => Array.isArray(g.stay_dates) ? g.stay_dates : []))].sort()
+  const report = inventory(supplement ? { ...source, project_config: [{ project_id: options.sourceProjectId, stay_dates: guestDates }] } : source, options.sourceProjectId)
+  if (supplement) c.defaults.push({ entityType: 'project_config', fields: ['title', 'mainStagePos', 'stayDates'], reason: 'EXPLICIT_MISSING_CONFIG_GUEST_DATE_UNION' })
   for (const issue of report.issues) c.addIssue(issue.table, issue.index, issue.code)
   for (const type of TABLES) source[type].forEach((row, index) => c.register(type, type === 'project_config' ? row.project_id : row.id, index))
   if (source.project_config.length > 1) c.addIssue('project_config', null, 'MULTIPLE_SOURCE_CONFIGS')
@@ -61,7 +65,7 @@ export function convertPlannerSource(rawJson, options) {
   data.config.title = config?.title ?? data.config.title
   data.config.mainStagePos = config?.mainStagePos ?? null
   data.config.customGroups = [...new Set([...(config?.customGroups ?? []), ...source.guests.map(g => g.group_name).filter(g => typeof g === 'string' && g)])]
-  data.config.stayDates = [...new Set(source.project_config[0]?.stay_dates ?? [])].sort()
+  data.config.stayDates = supplement ? guestDates : [...new Set(source.project_config[0]?.stay_dates ?? [])].sort()
   if (config?.stayDates && JSON.stringify([...new Set(config.stayDates)].sort()) !== JSON.stringify(data.config.stayDates)) c.addIssue('project_config', null, 'LOCAL_CLOUD_DATE_DIFFERENCE')
   if (!config) c.defaults.push({ entityType: 'project_config', fields: ['title', 'mainStagePos'], reason: 'NO_RECONCILED_BROWSER_CONFIG' })
   for (const [index, row] of source.tables.entries()) {

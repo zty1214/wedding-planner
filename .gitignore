@@ -25,3 +25,10 @@ dist-ssr
 
 .vercel
 .env.deploy
+
+# 私有来源数据、迁移产物和访问材料（实际数据优先保存于Git外）
+.private-data/
+private-data/
+backups/
+*.json.enc
+*.backup.key

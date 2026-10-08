@@ -38,7 +38,10 @@ export function reconcileConversion(artifact, actual = artifact.candidate) {
   for (const [i, n] of actual.notes.entries()) { try { assertTextNote(n) } catch { add('TARGET_NOTE_INVALID', 'notes', i) } }
   if (artifact.issues.some(i => i.severity === 'blocking')) add('UNRESOLVED_SOURCE_ISSUES')
   const planner = artifact.sourceSystem === 'supabase-planner'
-  if (planner) for (const i of inventory(source, artifact.sourceProjectId).issues) add(i.code, i.table, i.index)
+  const supplemented = planner && source.project_config.length === 0 && config?.sourceProjectId === artifact.sourceProjectId
+    && config?.sourceHash === hash(raw) && config?.missingCloudConfig === 'guest-date-union'
+  const guestDates = planner ? dates(source.guests.flatMap(g => Array.isArray(g.stay_dates) ? g.stay_dates : [])) : []
+  if (planner) for (const i of inventory(supplemented ? { ...source, project_config: [{ project_id: artifact.sourceProjectId, stay_dates: guestDates }] } : source, artifact.sourceProjectId).issues) add(i.code, i.table, i.index)
   else if (source.version !== 1) add('UNSUPPORTED_SEATING_SCHEMA')
   const rows = planner ? Object.fromEntries(TABLES.map(t => [t, source[t]]))
     : { tables: Object.values(source.tables), guests: Object.values(source.guests), wedding: [source] }
@@ -91,7 +94,7 @@ export function reconcileConversion(artifact, actual = artifact.candidate) {
   let expectedConfig
   if (planner) {
     expectedConfig = { revision: 0, title: local?.title ?? '备婚助手', mainStagePos: local?.mainStagePos ?? null,
-      customGroups: [...new Set([...(local?.customGroups ?? []), ...source.guests.map(g => g.group_name).filter(g => typeof g === 'string' && g)])], stayDates: dates(source.project_config[0]?.stay_dates) }
+      customGroups: [...new Set([...(local?.customGroups ?? []), ...source.guests.map(g => g.group_name).filter(g => typeof g === 'string' && g)])], stayDates: supplemented ? guestDates : dates(source.project_config[0]?.stay_dates) }
     if (config && !local) add('LOCAL_CONFIG_PROJECT_MISMATCH')
     if (local?.stayDates && !isDeepStrictEqual(dates(local.stayDates), expectedConfig.stayDates)) add('LOCAL_CLOUD_DATE_DIFFERENCE')
   } else {

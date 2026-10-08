@@ -1,0 +1,31 @@
+{
+  "status": "PASS",
+  "results": [
+    {
+      "index": 0,
+      "bothLinksReadable": true,
+      "allFieldsReconciled": true
+    },
+    {
+      "index": 1,
+      "bothLinksReadable": true,
+      "allFieldsReconciled": true
+    },
+    {
+      "index": 2,
+      "bothLinksReadable": true,
+      "allFieldsReconciled": true
+    },
+    {
+      "index": 3,
+      "bothLinksReadable": true,
+      "allFieldsReconciled": true
+    }
+  ],
+  "mainProjectBrowser": {
+    "totalGuests": 134,
+    "refresh": true,
+    "supabaseRequests": 0
+  },
+  "scope": "read-only SDK and real browser; no screenshots of personal data"
+}

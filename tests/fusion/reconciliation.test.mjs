@@ -78,3 +78,22 @@ test('invalid date strings cannot leak personal data into reconciliation output'
   const report = reconcileConversion(a, actual)
   assert.equal(report.passed, false); assert.ok(!JSON.stringify(report).includes('PRIVATE_PERSON_PHONE_00123'))
 })
+
+test('missing cloud config requires explicit source-bound date-union decision and preserves guest dates', () => {
+  const old = fixture(), source = JSON.parse(old.provenance.rawJson)
+  source.project_config = []
+  const raw = JSON.stringify(source), options = { sourceProjectId: old.sourceProjectId, batchId: old.batchId }
+  assert.equal(convertPlannerSource(raw, options).summary.readyForTrial, false)
+  const localConfig = { sourceProjectId: old.sourceProjectId, sourceHash: sha(raw), missingCloudConfig: 'guest-date-union' }
+  const a = convertPlannerSource(raw, { ...options, localConfig })
+  assert.equal(a.summary.readyForTrial, true)
+  assert.equal(reconcileConversion(a).passed, true)
+  assert.deepEqual(a.candidate.data.config.stayDates, [...new Set(source.guests.flatMap(g => g.stay_dates))].sort())
+  assert.deepEqual(JSON.parse(a.provenance.rawJson).project_config, [])
+  assert.equal(convertPlannerSource(raw, { ...options, localConfig: { ...localConfig, sourceHash: 'wrong' } }).summary.readyForTrial, false)
+  const actual = structuredClone(a.candidate); actual.data.config.stayDates = []
+  assert.equal(reconcileConversion(a, actual).passed, false)
+  source.guests[0].stay_dates = ['invalid-date']
+  const invalid = JSON.stringify(source)
+  assert.equal(convertPlannerSource(invalid, { ...options, localConfig: { ...localConfig, sourceHash: sha(invalid) } }).summary.readyForTrial, false)
+})
