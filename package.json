@@ -16,7 +16,8 @@
     "test:scale": "node --experimental-strip-types scripts/fusion/validate-scale.ts",
     "build:fusion-check": "node scripts/fusion/validate-build.mjs",
     "test:e2e": "node scripts/fusion/main-flow-e2e-run.mjs",
-    "test:e2e:business": "node scripts/release/verify-business-frontend.mjs"
+    "test:e2e:business": "node scripts/release/verify-business-frontend.mjs",
+    "test:e2e:feedback": "node scripts/fusion/validate-feedback.mjs"
   },
   "dependencies": {
     "@cloudbase/js-sdk": "3.6.3",

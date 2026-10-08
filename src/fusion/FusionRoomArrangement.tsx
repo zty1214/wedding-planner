@@ -101,6 +101,8 @@ export default function FusionRoomArrangement({ room, guests, dates, suggestedDa
   const matches = guests.filter(g => `${g.name}\n${g.group}\n${g.phone ?? ''}`.toLowerCase().includes(needle))
   const visible = matches.filter(g => filter === 'all' || filter === 'confirmed' && g.attendance === 'confirmed' || filter === 'needed' && g.stayNeed === 'needed' || filter === 'unassigned' && !g.roomId)
   const frozen = !!active.current?.handoff
+  const displayedDates = [...new Set([...dates, ...form.dates])].sort()
+  const removedDates = form.dates.filter(date => !dates.includes(date))
   return <section className="space-y-3">
     <div className="flex items-center justify-between gap-2"><h2>安排到「{room.label}」</h2><button disabled={busy} onClick={() => void close()}>关闭</button></div>
     <p className="text-sm">共安排 {count} 人。选择此房间使用的晚次，同房宾客共用这一安排。</p>
@@ -112,8 +114,9 @@ export default function FusionRoomArrangement({ room, guests, dates, suggestedDa
     }}>按最新安排另存新草稿</button>}
     <fieldset disabled={!ready || busy || frozen || recovered} className="space-y-2">
       <legend>房间住宿晚次</legend>
-      <div className="flex flex-wrap gap-2">{dates.map(date => <label key={date}><input type="checkbox" checked={form.dates.includes(date)} onChange={() => change({ ...form, dates: form.dates.includes(date) ? form.dates.filter(d => d !== date) : [...form.dates, date].sort() })} /> {date}</label>)}</div>
+      <div className="flex flex-wrap gap-2">{displayedDates.map(date => <label key={date}><input type="checkbox" aria-label={date} checked={form.dates.includes(date)} onChange={() => change({ ...form, dates: form.dates.includes(date) ? form.dates.filter(d => d !== date) : [...form.dates, date].sort() })} /> {date}{!dates.includes(date) && <small>（已从项目日期移除）</small>}</label>)}</div>
       <div className="flex flex-wrap gap-2">{suggestedDate && <button onClick={() => change({ ...form, dates: [suggestedDate] })}>应用当前筛选晚次</button>}<button disabled={!dates.length} onClick={() => change({ ...form, dates: [...dates] })}>选择全部晚次</button><button onClick={() => change({ ...form, dates: [] })}>晚次待定</button></div>
+      {removedDates.length > 0 && <p>原选择包含已移除日期：{removedDates.join('、')}。原请求仍保留；重新编辑时请取消这些日期或选择现有日期。</p>}
       {!dates.length && <p>尚未设置项目日期，可先保留晚次待定；关闭后在住宿页添加日期。</p>}
       {!form.dates.length && <p>晚次待定，不计入酒店每晚用房数量。</p>}
       <input ref={search} type="search" aria-label="搜索住宿宾客" placeholder="搜索姓名 / 分组 / 电话" value={query} onChange={e => setQuery(e.target.value)} className="w-full" />

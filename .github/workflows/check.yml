@@ -26,6 +26,9 @@ jobs:
         env:
           MAIN_FLOW_ARTIFACT_DIR: ${{ runner.temp }}/main-flow-e2e-${{ github.run_id }}-${{ github.run_attempt }}
       - run: npm run test:e2e:business
+      - run: npm run test:e2e:feedback
+        env:
+          FEEDBACK_OUTPUT: ${{ runner.temp }}/feedback-e2e-${{ github.run_id }}-${{ github.run_attempt }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -33,4 +36,10 @@ jobs:
           path: |
             ${{ runner.temp }}/main-flow-e2e-${{ github.run_id }}-${{ github.run_attempt }}/main-flow-e2e-report.json
             ${{ runner.temp }}/main-flow-e2e-${{ github.run_id }}-${{ github.run_attempt }}/main-flow-e2e-*.png
+          if-no-files-found: ignore
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: feedback-e2e
+          path: ${{ runner.temp }}/feedback-e2e-${{ github.run_id }}-${{ github.run_attempt }}/*.json
           if-no-files-found: ignore

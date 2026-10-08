@@ -1,0 +1,24 @@
+{
+  "scope": "local fictitious acceptance; remote CI and real phone not verified",
+  "baseline": "8d4106880ddea0f5e488e99e2c4101cf186becb6",
+  "node": "v22.18.0",
+  "check": {
+    "command": "npm run check",
+    "exitCode": 0,
+    "passed": 258,
+    "failed": 0,
+    "logSha256": "e88b1f0a4d4a3a4b3f3ef1d5870c7e553fdb2f5522f6ed5cc81b49031e77dd24"
+  },
+  "feedbackSuite": {
+    "command": "npm run test:e2e:feedback",
+    "exitCode": 0,
+    "scenarios": 10
+  },
+  "sourceSha256": {
+    ".github/workflows/check.yml": "fa3c17659308098b0ad4636fbee6cd3dc7beb6c37b2259e29775694fd8cd8fa1",
+    "package.json": "db25d50b160252d4faebd2f1a96bba70653d8899f0be08223c148fb594e8ab59",
+    "scripts/fusion/validate-feedback.mjs": "2425046ad531322eff541b13c129a97be5e4ca4e2b5cb0b63a8a4274472ca9b4",
+    "scripts/fusion/validate-feedback-room-date-conflict.mjs": "8fe76c12ab099a64e50a0d8c05967205e712c4b3eb6a48921c9924f059f4af99",
+    "src/fusion/FusionRoomArrangement.tsx": "a791d4df174ae9777843e3c26d6a775a58dc85e864cf1f860c7623d14c3a6e66"
+  }
+}
