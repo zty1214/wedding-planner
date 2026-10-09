@@ -1,0 +1,70 @@
+{
+  "scope": "local fictitious memory projects only; no cloud or real phone acceptance",
+  "node": "v22.18.0",
+  "scenarios": [
+    {
+      "name": "accommodation",
+      "exitCode": 0
+    },
+    {
+      "name": "seating",
+      "exitCode": 0
+    },
+    {
+      "name": "drag-failure",
+      "exitCode": 0
+    },
+    {
+      "name": "history",
+      "exitCode": 0
+    },
+    {
+      "name": "editors",
+      "exitCode": 0
+    },
+    {
+      "name": "sharing",
+      "exitCode": 0
+    },
+    {
+      "name": "room-conflict",
+      "exitCode": 0
+    },
+    {
+      "name": "room-sort",
+      "exitCode": 0
+    },
+    {
+      "name": "room-recovery",
+      "exitCode": 0
+    },
+    {
+      "name": "room-date-conflict",
+      "exitCode": 0
+    },
+    {
+      "name": "room-permission",
+      "exitCode": 0
+    },
+    {
+      "name": "room-legacy",
+      "exitCode": 0
+    },
+    {
+      "name": "keyboard",
+      "exitCode": 0
+    },
+    {
+      "name": "export",
+      "exitCode": 0
+    },
+    {
+      "name": "release-entry",
+      "exitCode": 0
+    },
+    {
+      "name": "mobile-states",
+      "exitCode": 0
+    }
+  ]
+}

@@ -215,7 +215,7 @@ export default function AccommodationPage() {
           <div className="bg-white rounded-xl border border-gray-100 py-16 text-center">
             <BedDouble className="w-10 h-10 text-gray-200 mx-auto mb-3" />
             <p className="text-gray-400 text-sm">
-              {rooms.length === 0 ? '还没有房间，点击右上角「添加大床房 / 添加标间」开始安排住宿' : '当前筛选条件下没有房间'}
+              {rooms.length === 0 ? (fusion ? <><span className="md:hidden">还没有房间，点击「添加房间」开始安排住宿</span><span className="hidden md:inline">还没有房间，点击右上角「添加大床房 / 添加标间」开始安排住宿</span></> : '还没有房间，点击右上角「添加大床房 / 添加标间」开始安排住宿') : '当前筛选条件下没有房间'}
             </p>
           </div>
         ) : (

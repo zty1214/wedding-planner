@@ -1,0 +1,1701 @@
+{
+  "scope": "local fictitious project only; Chromium viewport and default-font stress, not real WeChat",
+  "results": [
+    {
+      "width": 360,
+      "rootSize": 16,
+      "page": "宾客名单",
+      "heading": {
+        "size": "18px",
+        "height": 25.1875,
+        "width": 254
+      },
+      "description": {
+        "size": "12px",
+        "height": 20.390625,
+        "width": 254
+      },
+      "add": {
+        "size": "13px",
+        "height": 44,
+        "width": 74
+      },
+      "lines": 1,
+      "overflow": false,
+      "buttons": [
+        {
+          "text": "添加宾客",
+          "font": "13px"
+        },
+        {
+          "text": "全部",
+          "font": "11px"
+        },
+        {
+          "text": "新郎亲属",
+          "font": "11px"
+        },
+        {
+          "text": "新娘亲属",
+          "font": "11px"
+        },
+        {
+          "text": "新郎同学",
+          "font": "11px"
+        },
+        {
+          "text": "新郎同事",
+          "font": "11px"
+        }
+      ],
+      "rootFont": "16px"
+    },
+    {
+      "width": 360,
+      "rootSize": 16,
+      "page": "住宿安排",
+      "heading": {
+        "size": "18px",
+        "height": 25.1875,
+        "width": 222
+      },
+      "description": null,
+      "add": null,
+      "lines": null,
+      "overflow": false,
+      "buttons": [
+        {
+          "text": "全部",
+          "font": "11px"
+        },
+        {
+          "text": "12.31",
+          "font": "11px"
+        },
+        {
+          "text": "",
+          "font": "13px"
+        },
+        {
+          "text": "1.1",
+          "font": "11px"
+        },
+        {
+          "text": "",
+          "font": "13px"
+        },
+        {
+          "text": "添加日期",
+          "font": "11px"
+        }
+      ],
+      "rootFont": "16px"
+    },
+    {
+      "width": 360,
+      "rootSize": 16,
+      "page": "备婚笔记",
+      "heading": {
+        "size": "18px",
+        "height": 25.1875,
+        "width": 336
+      },
+      "description": {
+        "size": "12px",
+        "height": 20.390625,
+        "width": 336
+      },
+      "add": null,
+      "lines": null,
+      "overflow": false,
+      "buttons": [
+        {
+          "text": "酒店",
+          "font": "13px"
+        },
+        {
+          "text": "婚庆",
+          "font": "13px"
+        },
+        {
+          "text": "试妆",
+          "font": "13px"
+        },
+        {
+          "text": "其他",
+          "font": "13px"
+        },
+        {
+          "text": "写笔记",
+          "font": "13px"
+        },
+        {
+          "text": "编辑",
+          "font": "13px"
+        }
+      ],
+      "rootFont": "16px"
+    },
+    {
+      "width": 360,
+      "rootSize": 16,
+      "page": "座位安排",
+      "heading": null,
+      "description": null,
+      "add": null,
+      "lines": null,
+      "overflow": false,
+      "buttons": [
+        {
+          "text": "添加桌子8人桌10人桌12人桌",
+          "font": "13px"
+        },
+        {
+          "text": "选桌安排 · 15桌亲友第1桌 · 10",
+          "font": "13px"
+        },
+        {
+          "text": "",
+          "font": "12px"
+        },
+        {
+          "text": "",
+          "font": "12px"
+        },
+        {
+          "text": "定位",
+          "font": "11px"
+        }
+      ],
+      "rootFont": "16px"
+    },
+    {
+      "width": 360,
+      "rootSize": 20,
+      "page": "宾客名单",
+      "heading": {
+        "size": "18px",
+        "height": 25.1875,
+        "width": 248
+      },
+      "description": {
+        "size": "12px",
+        "height": 20.390625,
+        "width": 248
+      },
+      "add": {
+        "size": "13px",
+        "height": 44,
+        "width": 74
+      },
+      "lines": 1,
+      "overflow": false,
+      "buttons": [
+        {
+          "text": "添加宾客",
+          "font": "13px"
+        },
+        {
+          "text": "全部",
+          "font": "11px"
+        },
+        {
+          "text": "新郎亲属",
+          "font": "11px"
+        },
+        {
+          "text": "新娘亲属",
+          "font": "11px"
+        },
+        {
+          "text": "新郎同学",
+          "font": "11px"
+        },
+        {
+          "text": "新郎同事",
+          "font": "11px"
+        }
+      ],
+      "rootFont": "20px"
+    },
+    {
+      "width": 360,
+      "rootSize": 20,
+      "page": "住宿安排",
+      "heading": {
+        "size": "18px",
+        "height": 25.1875,
+        "width": 216
+      },
+      "description": null,
+      "add": null,
+      "lines": null,
+      "overflow": false,
+      "buttons": [
+        {
+          "text": "全部",
+          "font": "11px"
+        },
+        {
+          "text": "12.31",
+          "font": "11px"
+        },
+        {
+          "text": "",
+          "font": "13px"
+        },
+        {
+          "text": "1.1",
+          "font": "11px"
+        },
+        {
+          "text": "",
+          "font": "13px"
+        },
+        {
+          "text": "添加日期",
+          "font": "11px"
+        }
+      ],
+      "rootFont": "20px"
+    },
+    {
+      "width": 360,
+      "rootSize": 20,
+      "page": "备婚笔记",
+      "heading": {
+        "size": "18px",
+        "height": 25.1875,
+        "width": 330
+      },
+      "description": {
+        "size": "12px",
+        "height": 20.390625,
+        "width": 330
+      },
+      "add": null,
+      "lines": null,
+      "overflow": false,
+      "buttons": [
+        {
+          "text": "酒店",
+          "font": "13px"
+        },
+        {
+          "text": "婚庆",
+          "font": "13px"
+        },
+        {
+          "text": "试妆",
+          "font": "13px"
+        },
+        {
+          "text": "其他",
+          "font": "13px"
+        },
+        {
+          "text": "写笔记",
+          "font": "13px"
+        },
+        {
+          "text": "编辑",
+          "font": "13px"
+        }
+      ],
+      "rootFont": "20px"
+    },
+    {
+      "width": 360,
+      "rootSize": 20,
+      "page": "座位安排",
+      "heading": null,
+      "description": null,
+      "add": null,
+      "lines": null,
+      "overflow": false,
+      "buttons": [
+        {
+          "text": "添加桌子8人桌10人桌12人桌",
+          "font": "13px"
+        },
+        {
+          "text": "选桌安排 · 15桌亲友第1桌 · 10",
+          "font": "13px"
+        },
+        {
+          "text": "",
+          "font": "12px"
+        },
+        {
+          "text": "",
+          "font": "12px"
+        },
+        {
+          "text": "定位",
+          "font": "11px"
+        }
+      ],
+      "rootFont": "20px"
+    },
+    {
+      "width": 390,
+      "rootSize": 16,
+      "page": "宾客名单",
+      "heading": {
+        "size": "18px",
+        "height": 25.1875,
+        "width": 284
+      },
+      "description": {
+        "size": "12px",
+        "height": 20.390625,
+        "width": 284
+      },
+      "add": {
+        "size": "13px",
+        "height": 44,
+        "width": 74
+      },
+      "lines": 1,
+      "overflow": false,
+      "buttons": [
+        {
+          "text": "添加宾客",
+          "font": "13px"
+        },
+        {
+          "text": "全部",
+          "font": "11px"
+        },
+        {
+          "text": "新郎亲属",
+          "font": "11px"
+        },
+        {
+          "text": "新娘亲属",
+          "font": "11px"
+        },
+        {
+          "text": "新郎同学",
+          "font": "11px"
+        },
+        {
+          "text": "新郎同事",
+          "font": "11px"
+        }
+      ],
+      "rootFont": "16px"
+    },
+    {
+      "width": 390,
+      "rootSize": 16,
+      "page": "住宿安排",
+      "heading": {
+        "size": "18px",
+        "height": 25.1875,
+        "width": 252
+      },
+      "description": null,
+      "add": null,
+      "lines": null,
+      "overflow": false,
+      "buttons": [
+        {
+          "text": "全部",
+          "font": "11px"
+        },
+        {
+          "text": "12.31",
+          "font": "11px"
+        },
+        {
+          "text": "",
+          "font": "13px"
+        },
+        {
+          "text": "1.1",
+          "font": "11px"
+        },
+        {
+          "text": "",
+          "font": "13px"
+        },
+        {
+          "text": "添加日期",
+          "font": "11px"
+        }
+      ],
+      "rootFont": "16px"
+    },
+    {
+      "width": 390,
+      "rootSize": 16,
+      "page": "备婚笔记",
+      "heading": {
+        "size": "18px",
+        "height": 25.1875,
+        "width": 366
+      },
+      "description": {
+        "size": "12px",
+        "height": 20.390625,
+        "width": 366
+      },
+      "add": null,
+      "lines": null,
+      "overflow": false,
+      "buttons": [
+        {
+          "text": "酒店",
+          "font": "13px"
+        },
+        {
+          "text": "婚庆",
+          "font": "13px"
+        },
+        {
+          "text": "试妆",
+          "font": "13px"
+        },
+        {
+          "text": "其他",
+          "font": "13px"
+        },
+        {
+          "text": "写笔记",
+          "font": "13px"
+        },
+        {
+          "text": "编辑",
+          "font": "13px"
+        }
+      ],
+      "rootFont": "16px"
+    },
+    {
+      "width": 390,
+      "rootSize": 16,
+      "page": "座位安排",
+      "heading": null,
+      "description": null,
+      "add": null,
+      "lines": null,
+      "overflow": false,
+      "buttons": [
+        {
+          "text": "添加桌子8人桌10人桌12人桌",
+          "font": "13px"
+        },
+        {
+          "text": "选桌安排 · 15桌亲友第1桌 · 10",
+          "font": "13px"
+        },
+        {
+          "text": "",
+          "font": "12px"
+        },
+        {
+          "text": "",
+          "font": "12px"
+        },
+        {
+          "text": "定位",
+          "font": "11px"
+        }
+      ],
+      "rootFont": "16px"
+    },
+    {
+      "width": 390,
+      "rootSize": 20,
+      "page": "宾客名单",
+      "heading": {
+        "size": "18px",
+        "height": 25.1875,
+        "width": 278
+      },
+      "description": {
+        "size": "12px",
+        "height": 20.390625,
+        "width": 278
+      },
+      "add": {
+        "size": "13px",
+        "height": 44,
+        "width": 74
+      },
+      "lines": 1,
+      "overflow": false,
+      "buttons": [
+        {
+          "text": "添加宾客",
+          "font": "13px"
+        },
+        {
+          "text": "全部",
+          "font": "11px"
+        },
+        {
+          "text": "新郎亲属",
+          "font": "11px"
+        },
+        {
+          "text": "新娘亲属",
+          "font": "11px"
+        },
+        {
+          "text": "新郎同学",
+          "font": "11px"
+        },
+        {
+          "text": "新郎同事",
+          "font": "11px"
+        }
+      ],
+      "rootFont": "20px"
+    },
+    {
+      "width": 390,
+      "rootSize": 20,
+      "page": "住宿安排",
+      "heading": {
+        "size": "18px",
+        "height": 25.1875,
+        "width": 246
+      },
+      "description": null,
+      "add": null,
+      "lines": null,
+      "overflow": false,
+      "buttons": [
+        {
+          "text": "全部",
+          "font": "11px"
+        },
+        {
+          "text": "12.31",
+          "font": "11px"
+        },
+        {
+          "text": "",
+          "font": "13px"
+        },
+        {
+          "text": "1.1",
+          "font": "11px"
+        },
+        {
+          "text": "",
+          "font": "13px"
+        },
+        {
+          "text": "添加日期",
+          "font": "11px"
+        }
+      ],
+      "rootFont": "20px"
+    },
+    {
+      "width": 390,
+      "rootSize": 20,
+      "page": "备婚笔记",
+      "heading": {
+        "size": "18px",
+        "height": 25.1875,
+        "width": 360
+      },
+      "description": {
+        "size": "12px",
+        "height": 20.390625,
+        "width": 360
+      },
+      "add": null,
+      "lines": null,
+      "overflow": false,
+      "buttons": [
+        {
+          "text": "酒店",
+          "font": "13px"
+        },
+        {
+          "text": "婚庆",
+          "font": "13px"
+        },
+        {
+          "text": "试妆",
+          "font": "13px"
+        },
+        {
+          "text": "其他",
+          "font": "13px"
+        },
+        {
+          "text": "写笔记",
+          "font": "13px"
+        },
+        {
+          "text": "编辑",
+          "font": "13px"
+        }
+      ],
+      "rootFont": "20px"
+    },
+    {
+      "width": 390,
+      "rootSize": 20,
+      "page": "座位安排",
+      "heading": null,
+      "description": null,
+      "add": null,
+      "lines": null,
+      "overflow": false,
+      "buttons": [
+        {
+          "text": "添加桌子8人桌10人桌12人桌",
+          "font": "13px"
+        },
+        {
+          "text": "选桌安排 · 15桌亲友第1桌 · 10",
+          "font": "13px"
+        },
+        {
+          "text": "",
+          "font": "12px"
+        },
+        {
+          "text": "",
+          "font": "12px"
+        },
+        {
+          "text": "定位",
+          "font": "11px"
+        }
+      ],
+      "rootFont": "20px"
+    },
+    {
+      "width": 430,
+      "rootSize": 16,
+      "page": "宾客名单",
+      "heading": {
+        "size": "18px",
+        "height": 25.1875,
+        "width": 324
+      },
+      "description": {
+        "size": "12px",
+        "height": 20.390625,
+        "width": 324
+      },
+      "add": {
+        "size": "13px",
+        "height": 44,
+        "width": 74
+      },
+      "lines": 1,
+      "overflow": false,
+      "buttons": [
+        {
+          "text": "添加宾客",
+          "font": "13px"
+        },
+        {
+          "text": "全部",
+          "font": "11px"
+        },
+        {
+          "text": "新郎亲属",
+          "font": "11px"
+        },
+        {
+          "text": "新娘亲属",
+          "font": "11px"
+        },
+        {
+          "text": "新郎同学",
+          "font": "11px"
+        },
+        {
+          "text": "新郎同事",
+          "font": "11px"
+        }
+      ],
+      "rootFont": "16px"
+    },
+    {
+      "width": 430,
+      "rootSize": 16,
+      "page": "住宿安排",
+      "heading": {
+        "size": "18px",
+        "height": 25.1875,
+        "width": 292
+      },
+      "description": null,
+      "add": null,
+      "lines": null,
+      "overflow": false,
+      "buttons": [
+        {
+          "text": "全部",
+          "font": "11px"
+        },
+        {
+          "text": "12.31",
+          "font": "11px"
+        },
+        {
+          "text": "",
+          "font": "13px"
+        },
+        {
+          "text": "1.1",
+          "font": "11px"
+        },
+        {
+          "text": "",
+          "font": "13px"
+        },
+        {
+          "text": "添加日期",
+          "font": "11px"
+        }
+      ],
+      "rootFont": "16px"
+    },
+    {
+      "width": 430,
+      "rootSize": 16,
+      "page": "备婚笔记",
+      "heading": {
+        "size": "18px",
+        "height": 25.1875,
+        "width": 406
+      },
+      "description": {
+        "size": "12px",
+        "height": 20.390625,
+        "width": 406
+      },
+      "add": null,
+      "lines": null,
+      "overflow": false,
+      "buttons": [
+        {
+          "text": "酒店",
+          "font": "13px"
+        },
+        {
+          "text": "婚庆",
+          "font": "13px"
+        },
+        {
+          "text": "试妆",
+          "font": "13px"
+        },
+        {
+          "text": "其他",
+          "font": "13px"
+        },
+        {
+          "text": "写笔记",
+          "font": "13px"
+        },
+        {
+          "text": "编辑",
+          "font": "13px"
+        }
+      ],
+      "rootFont": "16px"
+    },
+    {
+      "width": 430,
+      "rootSize": 16,
+      "page": "座位安排",
+      "heading": null,
+      "description": null,
+      "add": null,
+      "lines": null,
+      "overflow": false,
+      "buttons": [
+        {
+          "text": "添加桌子8人桌10人桌12人桌",
+          "font": "13px"
+        },
+        {
+          "text": "选桌安排 · 15桌亲友第1桌 · 10",
+          "font": "13px"
+        },
+        {
+          "text": "",
+          "font": "12px"
+        },
+        {
+          "text": "",
+          "font": "12px"
+        },
+        {
+          "text": "定位",
+          "font": "11px"
+        }
+      ],
+      "rootFont": "16px"
+    },
+    {
+      "width": 430,
+      "rootSize": 20,
+      "page": "宾客名单",
+      "heading": {
+        "size": "18px",
+        "height": 25.1875,
+        "width": 318
+      },
+      "description": {
+        "size": "12px",
+        "height": 20.390625,
+        "width": 318
+      },
+      "add": {
+        "size": "13px",
+        "height": 44,
+        "width": 74
+      },
+      "lines": 1,
+      "overflow": false,
+      "buttons": [
+        {
+          "text": "添加宾客",
+          "font": "13px"
+        },
+        {
+          "text": "全部",
+          "font": "11px"
+        },
+        {
+          "text": "新郎亲属",
+          "font": "11px"
+        },
+        {
+          "text": "新娘亲属",
+          "font": "11px"
+        },
+        {
+          "text": "新郎同学",
+          "font": "11px"
+        },
+        {
+          "text": "新郎同事",
+          "font": "11px"
+        }
+      ],
+      "rootFont": "20px"
+    },
+    {
+      "width": 430,
+      "rootSize": 20,
+      "page": "住宿安排",
+      "heading": {
+        "size": "18px",
+        "height": 25.1875,
+        "width": 286
+      },
+      "description": null,
+      "add": null,
+      "lines": null,
+      "overflow": false,
+      "buttons": [
+        {
+          "text": "全部",
+          "font": "11px"
+        },
+        {
+          "text": "12.31",
+          "font": "11px"
+        },
+        {
+          "text": "",
+          "font": "13px"
+        },
+        {
+          "text": "1.1",
+          "font": "11px"
+        },
+        {
+          "text": "",
+          "font": "13px"
+        },
+        {
+          "text": "添加日期",
+          "font": "11px"
+        }
+      ],
+      "rootFont": "20px"
+    },
+    {
+      "width": 430,
+      "rootSize": 20,
+      "page": "备婚笔记",
+      "heading": {
+        "size": "18px",
+        "height": 25.1875,
+        "width": 400
+      },
+      "description": {
+        "size": "12px",
+        "height": 20.390625,
+        "width": 400
+      },
+      "add": null,
+      "lines": null,
+      "overflow": false,
+      "buttons": [
+        {
+          "text": "酒店",
+          "font": "13px"
+        },
+        {
+          "text": "婚庆",
+          "font": "13px"
+        },
+        {
+          "text": "试妆",
+          "font": "13px"
+        },
+        {
+          "text": "其他",
+          "font": "13px"
+        },
+        {
+          "text": "写笔记",
+          "font": "13px"
+        },
+        {
+          "text": "编辑",
+          "font": "13px"
+        }
+      ],
+      "rootFont": "20px"
+    },
+    {
+      "width": 430,
+      "rootSize": 20,
+      "page": "座位安排",
+      "heading": null,
+      "description": null,
+      "add": null,
+      "lines": null,
+      "overflow": false,
+      "buttons": [
+        {
+          "text": "添加桌子8人桌10人桌12人桌",
+          "font": "13px"
+        },
+        {
+          "text": "选桌安排 · 15桌亲友第1桌 · 10",
+          "font": "13px"
+        },
+        {
+          "text": "",
+          "font": "12px"
+        },
+        {
+          "text": "",
+          "font": "12px"
+        },
+        {
+          "text": "定位",
+          "font": "11px"
+        }
+      ],
+      "rootFont": "20px"
+    },
+    {
+      "width": 768,
+      "rootSize": 16,
+      "page": "宾客名单",
+      "heading": {
+        "size": "24px",
+        "height": 33.59375,
+        "width": 234
+      },
+      "description": {
+        "size": "13px",
+        "height": 22.09375,
+        "width": 234
+      },
+      "add": {
+        "size": "16px",
+        "height": 0,
+        "width": 0
+      },
+      "lines": null,
+      "overflow": false,
+      "buttons": [
+        {
+          "text": "导出名单",
+          "font": "14px"
+        },
+        {
+          "text": "添加",
+          "font": "16px"
+        },
+        {
+          "text": "添加自定义类别",
+          "font": "16px"
+        },
+        {
+          "text": "保留草稿，填写另一位",
+          "font": "16px"
+        },
+        {
+          "text": "全部",
+          "font": "12px"
+        },
+        {
+          "text": "新郎亲属",
+          "font": "12px"
+        }
+      ],
+      "rootFont": "16px"
+    },
+    {
+      "width": 768,
+      "rootSize": 16,
+      "page": "住宿安排",
+      "heading": {
+        "size": "24px",
+        "height": 33.59375,
+        "width": 378
+      },
+      "description": null,
+      "add": null,
+      "lines": null,
+      "overflow": false,
+      "buttons": [
+        {
+          "text": "添加大床房",
+          "font": "14px"
+        },
+        {
+          "text": "添加标间",
+          "font": "14px"
+        },
+        {
+          "text": "导出住宿表",
+          "font": "14px"
+        },
+        {
+          "text": "全部",
+          "font": "12px"
+        },
+        {
+          "text": "12.31",
+          "font": "12px"
+        },
+        {
+          "text": "",
+          "font": "16px"
+        }
+      ],
+      "rootFont": "16px"
+    },
+    {
+      "width": 768,
+      "rootSize": 16,
+      "page": "备婚笔记",
+      "heading": {
+        "size": "24px",
+        "height": 33.59375,
+        "width": 532
+      },
+      "description": {
+        "size": "13px",
+        "height": 22.09375,
+        "width": 532
+      },
+      "add": null,
+      "lines": null,
+      "overflow": false,
+      "buttons": [
+        {
+          "text": "酒店",
+          "font": "14px"
+        },
+        {
+          "text": "婚庆",
+          "font": "14px"
+        },
+        {
+          "text": "试妆",
+          "font": "14px"
+        },
+        {
+          "text": "其他",
+          "font": "14px"
+        },
+        {
+          "text": "写笔记",
+          "font": "14px"
+        },
+        {
+          "text": "编辑",
+          "font": "14px"
+        }
+      ],
+      "rootFont": "16px"
+    },
+    {
+      "width": 768,
+      "rootSize": 16,
+      "page": "座位安排",
+      "heading": null,
+      "description": null,
+      "add": null,
+      "lines": null,
+      "overflow": false,
+      "buttons": [
+        {
+          "text": "8人8人桌点击添加到画布",
+          "font": "16px"
+        },
+        {
+          "text": "10人10人桌点击添加到画布",
+          "font": "16px"
+        },
+        {
+          "text": "12人12人桌点击添加到画布",
+          "font": "16px"
+        },
+        {
+          "text": "导出 PNG",
+          "font": "14px"
+        },
+        {
+          "text": "",
+          "font": "16px"
+        },
+        {
+          "text": "",
+          "font": "16px"
+        }
+      ],
+      "rootFont": "16px"
+    },
+    {
+      "width": 768,
+      "rootSize": 20,
+      "page": "宾客名单",
+      "heading": {
+        "size": "24px",
+        "height": 33.59375,
+        "width": 234
+      },
+      "description": {
+        "size": "13px",
+        "height": 22.09375,
+        "width": 234
+      },
+      "add": {
+        "size": "20px",
+        "height": 0,
+        "width": 0
+      },
+      "lines": null,
+      "overflow": false,
+      "buttons": [
+        {
+          "text": "导出名单",
+          "font": "17.5px"
+        },
+        {
+          "text": "添加",
+          "font": "20px"
+        },
+        {
+          "text": "添加自定义类别",
+          "font": "20px"
+        },
+        {
+          "text": "保留草稿，填写另一位",
+          "font": "20px"
+        },
+        {
+          "text": "全部",
+          "font": "15px"
+        },
+        {
+          "text": "新郎亲属",
+          "font": "15px"
+        }
+      ],
+      "rootFont": "20px"
+    },
+    {
+      "width": 768,
+      "rootSize": 20,
+      "page": "住宿安排",
+      "heading": {
+        "size": "24px",
+        "height": 33.59375,
+        "width": 472.5
+      },
+      "description": null,
+      "add": null,
+      "lines": null,
+      "overflow": false,
+      "buttons": [
+        {
+          "text": "添加大床房",
+          "font": "17.5px"
+        },
+        {
+          "text": "添加标间",
+          "font": "17.5px"
+        },
+        {
+          "text": "导出住宿表",
+          "font": "17.5px"
+        },
+        {
+          "text": "全部",
+          "font": "15px"
+        },
+        {
+          "text": "12.31",
+          "font": "15px"
+        },
+        {
+          "text": "",
+          "font": "20px"
+        }
+      ],
+      "rootFont": "20px"
+    },
+    {
+      "width": 768,
+      "rootSize": 20,
+      "page": "备婚笔记",
+      "heading": {
+        "size": "24px",
+        "height": 33.59375,
+        "width": 520
+      },
+      "description": {
+        "size": "13px",
+        "height": 22.09375,
+        "width": 520
+      },
+      "add": null,
+      "lines": null,
+      "overflow": false,
+      "buttons": [
+        {
+          "text": "酒店",
+          "font": "17.5px"
+        },
+        {
+          "text": "婚庆",
+          "font": "17.5px"
+        },
+        {
+          "text": "试妆",
+          "font": "17.5px"
+        },
+        {
+          "text": "其他",
+          "font": "17.5px"
+        },
+        {
+          "text": "写笔记",
+          "font": "17.5px"
+        },
+        {
+          "text": "编辑",
+          "font": "17.5px"
+        }
+      ],
+      "rootFont": "20px"
+    },
+    {
+      "width": 768,
+      "rootSize": 20,
+      "page": "座位安排",
+      "heading": null,
+      "description": null,
+      "add": null,
+      "lines": null,
+      "overflow": false,
+      "buttons": [
+        {
+          "text": "8人8人桌点击添加到画布",
+          "font": "20px"
+        },
+        {
+          "text": "10人10人桌点击添加到画布",
+          "font": "20px"
+        },
+        {
+          "text": "12人12人桌点击添加到画布",
+          "font": "20px"
+        },
+        {
+          "text": "导出 PNG",
+          "font": "17.5px"
+        },
+        {
+          "text": "",
+          "font": "20px"
+        },
+        {
+          "text": "",
+          "font": "20px"
+        }
+      ],
+      "rootFont": "20px"
+    },
+    {
+      "width": 1280,
+      "rootSize": 16,
+      "page": "宾客名单",
+      "heading": {
+        "size": "24px",
+        "height": 33.59375,
+        "width": 234
+      },
+      "description": {
+        "size": "13px",
+        "height": 22.09375,
+        "width": 234
+      },
+      "add": {
+        "size": "16px",
+        "height": 0,
+        "width": 0
+      },
+      "lines": null,
+      "overflow": false,
+      "buttons": [
+        {
+          "text": "导出名单",
+          "font": "14px"
+        },
+        {
+          "text": "添加",
+          "font": "16px"
+        },
+        {
+          "text": "添加自定义类别",
+          "font": "16px"
+        },
+        {
+          "text": "保留草稿，填写另一位",
+          "font": "16px"
+        },
+        {
+          "text": "全部",
+          "font": "12px"
+        },
+        {
+          "text": "新郎亲属",
+          "font": "12px"
+        }
+      ],
+      "rootFont": "16px"
+    },
+    {
+      "width": 1280,
+      "rootSize": 16,
+      "page": "住宿安排",
+      "heading": {
+        "size": "24px",
+        "height": 33.59375,
+        "width": 378
+      },
+      "description": null,
+      "add": null,
+      "lines": null,
+      "overflow": false,
+      "buttons": [
+        {
+          "text": "添加大床房",
+          "font": "14px"
+        },
+        {
+          "text": "添加标间",
+          "font": "14px"
+        },
+        {
+          "text": "导出住宿表",
+          "font": "14px"
+        },
+        {
+          "text": "全部",
+          "font": "12px"
+        },
+        {
+          "text": "12.31",
+          "font": "12px"
+        },
+        {
+          "text": "",
+          "font": "16px"
+        }
+      ],
+      "rootFont": "16px"
+    },
+    {
+      "width": 1280,
+      "rootSize": 16,
+      "page": "备婚笔记",
+      "heading": {
+        "size": "24px",
+        "height": 33.59375,
+        "width": 720
+      },
+      "description": {
+        "size": "13px",
+        "height": 22.09375,
+        "width": 720
+      },
+      "add": null,
+      "lines": null,
+      "overflow": false,
+      "buttons": [
+        {
+          "text": "酒店",
+          "font": "14px"
+        },
+        {
+          "text": "婚庆",
+          "font": "14px"
+        },
+        {
+          "text": "试妆",
+          "font": "14px"
+        },
+        {
+          "text": "其他",
+          "font": "14px"
+        },
+        {
+          "text": "写笔记",
+          "font": "14px"
+        },
+        {
+          "text": "编辑",
+          "font": "14px"
+        }
+      ],
+      "rootFont": "16px"
+    },
+    {
+      "width": 1280,
+      "rootSize": 16,
+      "page": "座位安排",
+      "heading": null,
+      "description": null,
+      "add": null,
+      "lines": null,
+      "overflow": false,
+      "buttons": [
+        {
+          "text": "8人8人桌点击添加到画布",
+          "font": "16px"
+        },
+        {
+          "text": "10人10人桌点击添加到画布",
+          "font": "16px"
+        },
+        {
+          "text": "12人12人桌点击添加到画布",
+          "font": "16px"
+        },
+        {
+          "text": "导出 PNG",
+          "font": "14px"
+        },
+        {
+          "text": "",
+          "font": "16px"
+        },
+        {
+          "text": "",
+          "font": "16px"
+        }
+      ],
+      "rootFont": "16px"
+    },
+    {
+      "width": 1280,
+      "rootSize": 20,
+      "page": "宾客名单",
+      "heading": {
+        "size": "24px",
+        "height": 33.59375,
+        "width": 234
+      },
+      "description": {
+        "size": "13px",
+        "height": 22.09375,
+        "width": 234
+      },
+      "add": {
+        "size": "20px",
+        "height": 0,
+        "width": 0
+      },
+      "lines": null,
+      "overflow": false,
+      "buttons": [
+        {
+          "text": "导出名单",
+          "font": "17.5px"
+        },
+        {
+          "text": "添加",
+          "font": "20px"
+        },
+        {
+          "text": "添加自定义类别",
+          "font": "20px"
+        },
+        {
+          "text": "保留草稿，填写另一位",
+          "font": "20px"
+        },
+        {
+          "text": "全部",
+          "font": "15px"
+        },
+        {
+          "text": "新郎亲属",
+          "font": "15px"
+        }
+      ],
+      "rootFont": "20px"
+    },
+    {
+      "width": 1280,
+      "rootSize": 20,
+      "page": "住宿安排",
+      "heading": {
+        "size": "24px",
+        "height": 33.59375,
+        "width": 472.5
+      },
+      "description": null,
+      "add": null,
+      "lines": null,
+      "overflow": false,
+      "buttons": [
+        {
+          "text": "添加大床房",
+          "font": "17.5px"
+        },
+        {
+          "text": "添加标间",
+          "font": "17.5px"
+        },
+        {
+          "text": "导出住宿表",
+          "font": "17.5px"
+        },
+        {
+          "text": "全部",
+          "font": "15px"
+        },
+        {
+          "text": "12.31",
+          "font": "15px"
+        },
+        {
+          "text": "",
+          "font": "20px"
+        }
+      ],
+      "rootFont": "20px"
+    },
+    {
+      "width": 1280,
+      "rootSize": 20,
+      "page": "备婚笔记",
+      "heading": {
+        "size": "24px",
+        "height": 33.59375,
+        "width": 900
+      },
+      "description": {
+        "size": "13px",
+        "height": 22.09375,
+        "width": 900
+      },
+      "add": null,
+      "lines": null,
+      "overflow": false,
+      "buttons": [
+        {
+          "text": "酒店",
+          "font": "17.5px"
+        },
+        {
+          "text": "婚庆",
+          "font": "17.5px"
+        },
+        {
+          "text": "试妆",
+          "font": "17.5px"
+        },
+        {
+          "text": "其他",
+          "font": "17.5px"
+        },
+        {
+          "text": "写笔记",
+          "font": "17.5px"
+        },
+        {
+          "text": "编辑",
+          "font": "17.5px"
+        }
+      ],
+      "rootFont": "20px"
+    },
+    {
+      "width": 1280,
+      "rootSize": 20,
+      "page": "座位安排",
+      "heading": null,
+      "description": null,
+      "add": null,
+      "lines": null,
+      "overflow": false,
+      "buttons": [
+        {
+          "text": "8人8人桌点击添加到画布",
+          "font": "20px"
+        },
+        {
+          "text": "10人10人桌点击添加到画布",
+          "font": "20px"
+        },
+        {
+          "text": "12人12人桌点击添加到画布",
+          "font": "20px"
+        },
+        {
+          "text": "导出 PNG",
+          "font": "17.5px"
+        },
+        {
+          "text": "",
+          "font": "20px"
+        },
+        {
+          "text": "",
+          "font": "20px"
+        }
+      ],
+      "rootFont": "20px"
+    }
+  ]
+}

@@ -66,3 +66,25 @@
 @media(max-width:767px){.planner-dialog label:has(input[type=checkbox]){min-height:44px;display:flex;align-items:center;gap:6px}.planner-dialog input[type=checkbox]{flex-shrink:0}}
 
 @media(max-width:767px){.planner-recovery-notice{order:3}}
+
+/* 页面内容与紧凑导航使用同一手机字号层级，避免默认 rem 字号挤压操作入口。 */
+@media(max-width:767px){
+  .planner-page,.planner-dialog{font-size:14px}
+  .planner-page h1,.planner-page h2{font-size:18px;line-height:1.4}
+  .planner-page .text-sm,.planner-dialog .text-sm{font-size:13px;line-height:1.5}
+  .planner-page .text-xs,.planner-dialog .text-xs{font-size:11px;line-height:1.5}
+  .planner-page button,.planner-dialog button{font-size:13px;line-height:1.4}
+  .planner-page input:not([type=checkbox]):not([type=radio]),.planner-page select,.planner-page textarea{font-size:16px}
+  .planner-guests-heading{align-items:flex-start}
+  .planner-guests-heading>div:first-child{flex:1;min-width:0}
+  .planner-guests-heading [data-guest-form-switch]{flex-shrink:0;white-space:nowrap;padding:6px 10px}
+  .planner-notes>div:nth-child(2){gap:4px}
+  .planner-notes>div:nth-child(2)>button{padding:6px 10px;white-space:nowrap}
+  .planner-room-sort{flex-wrap:wrap;gap:4px 8px}
+  .planner-room-sort label{flex-shrink:0;white-space:nowrap}
+  .planner-room-sort select{flex-shrink:0}
+  .planner-room-sort>span{flex-basis:100%;font-size:11px}
+  .planner-zoom{font-size:12px}
+  .planner-zoom button,.planner-zoom span{font-size:12px;white-space:nowrap}
+  .planner-zoom svg{width:16px;height:16px;flex-shrink:0}
+}

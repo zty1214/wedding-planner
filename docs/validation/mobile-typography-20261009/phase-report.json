@@ -1,0 +1,322 @@
+{
+  "scope": "local fictitious projects; not real WeChat acceptance",
+  "baseline": "80830ee3b89954c036fb048ee5d3226092742b10",
+  "node": "v22.18.0",
+  "beforeGuestButton": [
+    {
+      "width": 360,
+      "rootSize": 16,
+      "page": "宾客名单",
+      "heading": {
+        "size": "20px",
+        "height": 28,
+        "width": 216
+      },
+      "description": {
+        "size": "12px",
+        "height": 20.390625,
+        "width": 216
+      },
+      "add": {
+        "size": "16px",
+        "height": 44,
+        "width": 90
+      },
+      "lines": 1,
+      "overflow": false,
+      "buttons": [
+        {
+          "text": "添加宾客",
+          "font": "16px"
+        },
+        {
+          "text": "全部",
+          "font": "12px"
+        },
+        {
+          "text": "新郎亲属",
+          "font": "12px"
+        },
+        {
+          "text": "新娘亲属",
+          "font": "12px"
+        },
+        {
+          "text": "新郎同学",
+          "font": "12px"
+        },
+        {
+          "text": "新郎同事",
+          "font": "12px"
+        }
+      ],
+      "rootFont": "16px"
+    },
+    {
+      "width": 360,
+      "rootSize": 20,
+      "page": "宾客名单",
+      "heading": {
+        "size": "20px",
+        "height": 28,
+        "width": 211.625
+      },
+      "description": {
+        "size": "12px",
+        "height": 40.78125,
+        "width": 211.625
+      },
+      "add": {
+        "size": "20px",
+        "height": 66,
+        "width": 110.375
+      },
+      "lines": 2,
+      "overflow": false,
+      "buttons": [
+        {
+          "text": "添加宾客",
+          "font": "20px"
+        },
+        {
+          "text": "全部",
+          "font": "15px"
+        },
+        {
+          "text": "新郎亲属",
+          "font": "15px"
+        },
+        {
+          "text": "新娘亲属",
+          "font": "15px"
+        },
+        {
+          "text": "新郎同学",
+          "font": "15px"
+        },
+        {
+          "text": "新郎同事",
+          "font": "15px"
+        }
+      ],
+      "rootFont": "20px"
+    },
+    {
+      "width": 390,
+      "rootSize": 16,
+      "page": "宾客名单",
+      "heading": {
+        "size": "20px",
+        "height": 28,
+        "width": 216
+      },
+      "description": {
+        "size": "12px",
+        "height": 20.390625,
+        "width": 216
+      },
+      "add": {
+        "size": "16px",
+        "height": 44,
+        "width": 90
+      },
+      "lines": 1,
+      "overflow": false,
+      "buttons": [
+        {
+          "text": "添加宾客",
+          "font": "16px"
+        },
+        {
+          "text": "全部",
+          "font": "12px"
+        },
+        {
+          "text": "新郎亲属",
+          "font": "12px"
+        },
+        {
+          "text": "新娘亲属",
+          "font": "12px"
+        },
+        {
+          "text": "新郎同学",
+          "font": "12px"
+        },
+        {
+          "text": "新郎同事",
+          "font": "12px"
+        }
+      ],
+      "rootFont": "16px"
+    },
+    {
+      "width": 390,
+      "rootSize": 20,
+      "page": "宾客名单",
+      "heading": {
+        "size": "20px",
+        "height": 28,
+        "width": 216
+      },
+      "description": {
+        "size": "12px",
+        "height": 20.390625,
+        "width": 216
+      },
+      "add": {
+        "size": "20px",
+        "height": 44,
+        "width": 112
+      },
+      "lines": 1,
+      "overflow": false,
+      "buttons": [
+        {
+          "text": "添加宾客",
+          "font": "20px"
+        },
+        {
+          "text": "全部",
+          "font": "15px"
+        },
+        {
+          "text": "新郎亲属",
+          "font": "15px"
+        },
+        {
+          "text": "新娘亲属",
+          "font": "15px"
+        },
+        {
+          "text": "新郎同学",
+          "font": "15px"
+        },
+        {
+          "text": "新郎同事",
+          "font": "15px"
+        }
+      ],
+      "rootFont": "20px"
+    },
+    {
+      "width": 430,
+      "rootSize": 16,
+      "page": "宾客名单",
+      "heading": {
+        "size": "20px",
+        "height": 28,
+        "width": 216
+      },
+      "description": {
+        "size": "12px",
+        "height": 20.390625,
+        "width": 216
+      },
+      "add": {
+        "size": "16px",
+        "height": 44,
+        "width": 90
+      },
+      "lines": 1,
+      "overflow": false,
+      "buttons": [
+        {
+          "text": "添加宾客",
+          "font": "16px"
+        },
+        {
+          "text": "全部",
+          "font": "12px"
+        },
+        {
+          "text": "新郎亲属",
+          "font": "12px"
+        },
+        {
+          "text": "新娘亲属",
+          "font": "12px"
+        },
+        {
+          "text": "新郎同学",
+          "font": "12px"
+        },
+        {
+          "text": "新郎同事",
+          "font": "12px"
+        }
+      ],
+      "rootFont": "16px"
+    },
+    {
+      "width": 430,
+      "rootSize": 20,
+      "page": "宾客名单",
+      "heading": {
+        "size": "20px",
+        "height": 28,
+        "width": 216
+      },
+      "description": {
+        "size": "12px",
+        "height": 20.390625,
+        "width": 216
+      },
+      "add": {
+        "size": "20px",
+        "height": 44,
+        "width": 112
+      },
+      "lines": 1,
+      "overflow": false,
+      "buttons": [
+        {
+          "text": "添加宾客",
+          "font": "20px"
+        },
+        {
+          "text": "全部",
+          "font": "15px"
+        },
+        {
+          "text": "新郎亲属",
+          "font": "15px"
+        },
+        {
+          "text": "新娘亲属",
+          "font": "15px"
+        },
+        {
+          "text": "新郎同学",
+          "font": "15px"
+        },
+        {
+          "text": "新郎同事",
+          "font": "15px"
+        }
+      ],
+      "rootFont": "20px"
+    }
+  ],
+  "desktopGeometryAndFontsUnchanged": true,
+  "mobileNoGuestButtonWrap": true,
+  "noPageOverflow": true,
+  "check": {
+    "exitCode": 0,
+    "tests": 260,
+    "passed": 260
+  },
+  "feedbackSuite": {
+    "exitCode": 0,
+    "scenarios": 16
+  },
+  "hashes": {
+    "src/fusion/fusion-theme.css": "f820b4d72c6b796ce138b97a544373ea628e50b90702cd51eef2fc3b3344c4d1",
+    "src/pages/AccommodationPage.tsx": "f0308518dd36f2c030386fafb6c848195bf68c491e0e77a86f021e66f8dc4031",
+    "scripts/fusion/validate-feedback-mobile-typography.mjs": "6245d7750ea19cab2370b568eb9fd259bf627a5d02f7b984cd83027750712476"
+  },
+  "limitations": [
+    "Root font 20px is a layout stress test, not proof of the actual WeChat font-scaling configuration.",
+    "User must recheck the deployed page on actual phone."
+  ]
+}
