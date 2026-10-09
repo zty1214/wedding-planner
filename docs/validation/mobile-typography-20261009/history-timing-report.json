@@ -1,0 +1,16 @@
+{
+  "scope": "local fictitious projects; history guard browser timing validation",
+  "cpuThrottle": 6,
+  "historyStressExitCode": 0,
+  "feedbackSuiteExitCode": 0,
+  "scenarios": 16,
+  "scriptSha256": "69c7a516180cc8bb4ac9ce804f6c9484d89bb7574794d1e4cdcac68fd8dd4813",
+  "firstCiFailure": {
+    "runId": 37898959547,
+    "scenario": "history",
+    "expected": "虚构未落盘笔记正文",
+    "actual": "",
+    "line": 28
+  },
+  "finding": "Notes ready effect focuses title after enabling inputs; wait for ready status and focus before filling body. CPU stress also exposed 250ms history-state race; wait for guard dialog before measuring. CI focus ordering was not traced, so not claimed proven."
+}

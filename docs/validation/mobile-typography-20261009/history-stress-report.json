@@ -1,0 +1,12 @@
+{
+  "scope": "local fictitious 150-guest/30-room memory project only",
+  "history": {
+    "stayedOnForm": true,
+    "inputRetained": true,
+    "savedInputCanLeave": true,
+    "explicitLeave": true,
+    "noteInputRetained": true,
+    "fieldInputRetainedAndSavedCanLeave": true,
+    "roomSelectionRetainedAndRetryCanLeave": true
+  }
+}
