@@ -1,0 +1,51 @@
+{
+  "status": "PASS",
+  "scope": "actual HTTP public file bytes; frontend only release",
+  "frontendCommit": "626b891ed7dfaa91bc53e7ba90865adffcfa672f",
+  "gatewayCommit": "97d99fdf01f39876c431338e9deec76ec288ab32",
+  "gatewayBundleSha256": "628d7cc08c09838dbaa3eb1dcfa25afc8128d97c05e0299930ace86b3369f0d4",
+  "files": [
+    {
+      "path": "_redirects",
+      "status": 200,
+      "sha256": "6036983e5fc00f0169c9e939b1816ed771eee00e27f2fcc517b819041460b9ef",
+      "match": true
+    },
+    {
+      "path": "assets/index-CveNsre2.css",
+      "status": 200,
+      "sha256": "3fbdc6dec085f87ecf0ae7e14582c99107cc566e4ed3557cf3d3ef666594f962",
+      "match": true
+    },
+    {
+      "path": "assets/index-DbuVJnV-.js",
+      "status": 200,
+      "sha256": "409fb84ba892816ec1957cb9a0094c11923ccedc35247407176c64532dc741a7",
+      "match": true
+    },
+    {
+      "path": "favicon.svg",
+      "status": 200,
+      "sha256": "61bc9a161de58248288e6905425d7180f0624c2865007b97d763fdac12043a66",
+      "match": true
+    },
+    {
+      "path": "icons.svg",
+      "status": 200,
+      "sha256": "b45fa506195cfcdef406ba9f0c77b36ddc1a7c224040926ec70abc2fdea7b93a",
+      "match": true
+    },
+    {
+      "path": "index.html",
+      "status": 200,
+      "sha256": "d5fad8bca391b4e91033ec507a93931ad70f57c01a82476dab7c36a6272dcb5f",
+      "match": true
+    },
+    {
+      "path": "build-info.json",
+      "status": 200,
+      "sha256": "1d47ceab793324379ff8ad7fb9047c3b204fdb220c9d6b6325aa7e3fa03a81a8",
+      "match": true
+    }
+  ]
+}

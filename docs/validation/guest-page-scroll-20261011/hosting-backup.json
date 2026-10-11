@@ -1,0 +1,34 @@
+{
+  "scope": "public hosting artifacts only; database and gateway unchanged",
+  "previousCommit": "97d99fdf01f39876c431338e9deec76ec288ab32",
+  "files": [
+    {
+      "path": "_redirects",
+      "sha256": "6036983e5fc00f0169c9e939b1816ed771eee00e27f2fcc517b819041460b9ef"
+    },
+    {
+      "path": "assets/index-B6ZOwWQg.js",
+      "sha256": "74ef7b43839cee0573f53250b413886847267d9e3058d604719ab8b3099c0515"
+    },
+    {
+      "path": "assets/index-CveNsre2.css",
+      "sha256": "3fbdc6dec085f87ecf0ae7e14582c99107cc566e4ed3557cf3d3ef666594f962"
+    },
+    {
+      "path": "favicon.svg",
+      "sha256": "61bc9a161de58248288e6905425d7180f0624c2865007b97d763fdac12043a66"
+    },
+    {
+      "path": "icons.svg",
+      "sha256": "b45fa506195cfcdef406ba9f0c77b36ddc1a7c224040926ec70abc2fdea7b93a"
+    },
+    {
+      "path": "index.html",
+      "sha256": "119d5dec203a92fa825e9ee83af61de127cd8390a6881d7db314a52a77a3a446"
+    },
+    {
+      "path": "build-info.json",
+      "sha256": "e34c1b21e14e9624f5bf0b8faecc25d59ecb6a99c990e69a142d87d75bd15cb9"
+    }
+  ]
+}

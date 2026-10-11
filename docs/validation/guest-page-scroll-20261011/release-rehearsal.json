@@ -1,0 +1,60 @@
+{
+  "scope": "local fictitious gateway; deployed acceptance entry rehearsal only",
+  "status": "PASS",
+  "checks": [
+    {
+      "name": "root-fusion-project-entry",
+      "status": "PASS"
+    },
+    {
+      "name": "real-gateway-project-creation",
+      "status": "PASS"
+    },
+    {
+      "name": "guest-leading-zero-and-refresh-deep-link",
+      "status": "PASS"
+    },
+    {
+      "name": "deployed-guest-page-scrolls-from-heading-without-tiny-list",
+      "status": "PASS"
+    },
+    {
+      "name": "same-room-staggered-guest-dates-save-and-reload",
+      "status": "PASS"
+    },
+    {
+      "name": "visible-bottom-note-persists-and-redundant-action-removed",
+      "status": "PASS"
+    },
+    {
+      "name": "night-filter-shows-only-that-guests-one-room-one-person",
+      "status": "PASS"
+    },
+    {
+      "name": "seating-and-stay-real-pages",
+      "status": "PASS"
+    },
+    {
+      "name": "notes-published-and-refresh",
+      "status": "PASS"
+    },
+    {
+      "name": "confirmed-room-export-download-matches-nightly-statistics",
+      "status": "PASS"
+    },
+    {
+      "name": "independent-mobile-context-reads-cloud-data",
+      "status": "PASS"
+    }
+  ],
+  "supabaseRequests": 0,
+  "guestScroll": {
+    "width": 1470,
+    "height": 600,
+    "pageClientHeight": 519,
+    "pageScrollTop": 294,
+    "listClientHeight": 310,
+    "listScrollHeight": 310,
+    "overflow": false
+  }
+}

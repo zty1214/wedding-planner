@@ -1,5 +1,5 @@
 {
-  "status": "LOCAL_VERIFIED_REMOTE_CI_AND_HOSTING_PENDING",
+  "status": "DEPLOYED_AND_CLOUD_VERIFIED",
   "baseline": "99451ea02da015181396130c61642c5dcb220a62",
   "scope": "Fusion guest page scroll ownership only; original legacy layout, desktop fonts and sizes preserved",
   "cause": "Desktop outer flex column allocated only remaining height to nested overflow list; heading/form/filter cannot scroll away",
@@ -18,5 +18,12 @@
   "gatewayChange": false,
   "realDataWrites": false,
   "phone": "390px Chromium viewport only; not new real phone validation",
-  "initialAttempts": "First harness run preceded fixture startup and failed connection; first post-edit first viewport still measured old flex layout during development reload, subsequent fresh run of all four sizes passed without source changes."
+  "initialAttempts": "First harness run preceded fixture startup and failed connection; first post-edit first viewport still measured old flex layout during development reload, subsequent fresh run of all four sizes passed without source changes.",
+  "frontendCommit": "626b891ed7dfaa91bc53e7ba90865adffcfa672f",
+  "gatewayCommit": "97d99fdf01f39876c431338e9deec76ec288ab32",
+  "remoteCI": "remote-ci.json",
+  "hosting": "hosting-readback.json",
+  "cloudBrowser": "cloud-browser-report.json",
+  "cloudChecks": 11,
+  "hostingBackup": "hosting-backup.json"
 }

@@ -4,7 +4,7 @@
 
 ## CloudBase 融合实施
 
-当前可用入口：[CloudBase 备婚助手](https://dev-d1gh3jw1gdf06af22-1456231968.tcloudbaseapp.com/)。前端及业务网关`97d99fd`已部署，宾客、排座、逐人住宿晚次、文本笔记、协作链接、导出、本机草稿、历史与回收站均已接入真实云端。10月11日最新住宿反馈已修复：备注移到房卡底部、删除冗余调整入口、同房宾客分别点选日期、新房自动打开简洁选人/日期弹窗。按晚筛选、人数/用房及导出一致，云端独立虚构项目10项验收通过。[完整发布证据](docs/validation/room-individual-nights-20261011/README.md)。本次新增界面的实际手机观感仍待使用者复测。
+当前可用入口：[CloudBase 备婚助手](https://dev-d1gh3jw1gdf06af22-1456231968.tcloudbaseapp.com/)。前端`626b891`、业务网关`97d99fd`已部署，宾客、排座、逐人住宿晚次、文本笔记、协作链接、导出、本机草稿、历史与回收站均已接入真实云端。10月11日最新住宿反馈已修复：备注移到房卡底部、删除冗余调整入口、同房宾客分别点选日期、新房自动打开简洁选人/日期弹窗。按晚筛选、人数/用房及导出一致，云端独立虚构项目10项验收通过。[完整发布证据](docs/validation/room-individual-nights-20261011/README.md)。桌面名单“小区域滚动”也已修复：标题、统计、表单及筛选随整页滚动，名单不再被压在底部；[滚动修复证据](docs/validation/guest-page-scroll-20261011/README.md)。本次新增界面的实际手机观感仍待使用者复测。
 
 旧 Supabase 的四个项目已迁为独立 CloudBase 项目；2026-10-11只读复核未发现旧源新增或修改。CloudBase 上的后续编辑应保留，不重新导入旧副本覆盖。项目链接包含访问权限，使用页面“复制协作链接”分享给家人；管理链接私下保管，不能写入Git。
 
@@ -35,7 +35,7 @@ node scripts/fusion/inventory.mjs /private/tmp/private-bundle.json <project-id> 
 
 ## 检查与受控发布
 
-`.github/workflows/check.yml` 对 PR、main 和 feat/codex 分支运行完整检查、主流程、业务构建隔离及16项反馈浏览器回归，不部署网站。使用Node22.18+；线上源码对应的[CI #38126915986](https://github.com/zty1214/wedding-planner/actions/runs/38126915986)已通过。
+`.github/workflows/check.yml` 对 PR、main 和 feat/codex 分支运行完整检查、主流程、业务构建隔离及16项反馈浏览器回归，不部署网站。使用Node22.18+；线上源码对应的[CI #38152589780](https://github.com/zty1214/wedding-planner/actions/runs/38152589780)已通过。
 
 CloudBase是本轮交付入口，按 [操作手册](docs/operations/cloudbase-runbook.md) 与 [发布收尾执行单](docs/operations/2026-10-11-release-closeout.md)发布。生产产物使用 `scripts/release/build-business-frontend.mjs` 显式Fusion-only构建，不加载旧Supabase配置。当前main/feat推送只触发检查；GitHub Pages工作流仍是手动入口，保留过渡期双配置要求，不用于本轮正式入口，也不在收尾中触发。
 
