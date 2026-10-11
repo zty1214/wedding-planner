@@ -69,3 +69,13 @@ test('new group and version names survive reopen and retain config and notes bin
     assert.equal((await vault.list('a')).length, 2)
   } finally { vault.close() }
 })
+
+test('new selected-guest drafts opt in without rewriting legacy room-wide draft intent', () => {
+  const value = { guestIds: ['g'], dates: ['2027-01-01'], expectedRevisions: { 'room:r': 1, 'guest:g': 0, config: 0 } }
+  const old = { ...draft('roomArrangement'), value: JSON.stringify(value) }
+  assert.equal(fieldDraftCommand(old, snapshot()).type, 'room.arrange')
+  const current = { ...old, value: JSON.stringify({ ...value, assignmentMode: 'selectedGuests' }) }
+  assert.equal(fieldDraftCommand(current, snapshot()).type, 'room.assignGuests')
+  assert.deepEqual(fieldDraftCommand(current, snapshot()).payload, fieldDraftCommand(old, snapshot()).payload)
+  assert.throws(() => fieldDraftCommand({ ...old, value: JSON.stringify({ ...value, assignmentMode: 'unknown' }) }, snapshot()), /INVALID_INPUT/)
+})

@@ -115,3 +115,14 @@
   .planner-room-arrangement-date-actions button{min-height:44px}
   .planner-room-dates button{min-width:44px}
 }
+
+.planner-room-notes textarea{display:block;width:100%;min-height:72px;border:1px solid #d7cbd0;border-radius:8px;background:#fffafc;resize:vertical;font-weight:400}
+.planner-room-notes textarea::placeholder{color:#9b8d93}
+.planner-room-arrangement-guests label{position:relative;padding:12px 2px;gap:10px}
+.planner-room-guest-action{flex-shrink:0;border:1px solid #edcad4;border-radius:8px;padding:7px 10px;color:#a44861;font-size:13px;white-space:nowrap}
+.planner-room-guest-row:has(input:checked) .planner-room-guest-action{background:#f8edf0}
+.planner-room-guest-row:focus-within{outline:2px solid #a44861;outline-offset:-2px;border-radius:8px}
+@media(max-width:767px){.planner-room-guest-action{font-size:12px;padding:7px 8px}.planner-room-arrangement-guests label{min-height:52px}.planner-room-notes textarea{font-size:16px}}
+
+.planner-room-arrangement-search input{width:100%;border:1px solid #d7cbd0;border-radius:10px;outline-offset:-2px;padding:10px 12px}
+.planner-room-arrangement-search input:focus-visible{outline:2px solid #a44861;outline-offset:-2px}

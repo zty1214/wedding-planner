@@ -31,7 +31,7 @@ export interface WeddingState {
   swapGuestSeats?: (firstId: string, secondId: string) => void
   assignGuestToRoom: (guestId: string, roomId: string | null) => void | Promise<boolean>
   setGuestStayNeed?: (id: string, value: 'pending' | 'needed' | 'not_needed') => void
-  setGuestStayDates: (guestId: string, dates: string[]) => void
+  setGuestStayDates: (guestId: string, dates: string[]) => SaveResult
   addCustomGroup: (group: string) => SaveResult
 
   // Table actions

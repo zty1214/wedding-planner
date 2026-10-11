@@ -22,7 +22,7 @@ export function buildRoomWorkbook(rooms: Room[], guests: Guest[], stayDates: str
   })
 
   const occupantsOn = (roomId: string, date: string) =>
-    guests.filter((g) => g.roomId === roomId && (rooms.find(r => r.id === roomId)?.stayDates ?? g.stayDates ?? []).includes(date))
+    guests.filter((g) => g.roomId === roomId && (g.stayDates ?? []).includes(date))
 
   // ---------- Sheet1 住宿明细（日期矩阵） ----------
   const detailHeader = ['房间号', '房型', ...dates.map(dateLabel), '备注']
@@ -57,7 +57,7 @@ export function buildRoomWorkbook(rooms: Room[], guests: Guest[], stayDates: str
   XLSX.utils.book_append_sheet(wb, wsSum, '每晚用房')
   const pending = guests.filter(g => {
     const room = rooms.find(r => r.id === g.roomId)
-    return room ? (room.stayDates ?? g.stayDates).length === 0 : g.stayNeed === 'needed'
+    return room ? g.stayDates.length === 0 : g.stayNeed === 'needed'
   }).map(g => ({ 姓名: g.name, 房间号: rooms.find(r => r.id === g.roomId)?.label ?? '',
     待确认事项: g.roomId ? '已分房·晚次待定' : '需要住宿·未分房' }))
   if (includePending && pending.length) {

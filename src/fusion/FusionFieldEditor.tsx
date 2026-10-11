@@ -111,7 +111,7 @@ export default function FusionFieldEditor({ kind, entityId, label, value, disabl
   }
   return <div ref={root} className="min-w-0 space-y-1">
     <div className="flex flex-wrap gap-1">
-      <input maxLength={kind === 'version' ? 100 : undefined} aria-label={label} disabled={!ready || busy || disabled || !!active.current?.handoff} value={text ?? value} onChange={e => persist(e.target.value)} className="border-b w-36 max-w-full font-semibold text-sm" />
+      {kind === 'roomNotes' ? <textarea rows={2} aria-label={label} placeholder="填写房间备注，如位置偏好…" disabled={!ready || busy || disabled || !!active.current?.handoff} value={text ?? value} onChange={e => persist(e.target.value)} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" /> : <input maxLength={kind === 'version' ? 100 : undefined} aria-label={label} disabled={!ready || busy || disabled || !!active.current?.handoff} value={text ?? value} onChange={e => persist(e.target.value)} className="border-b w-36 max-w-full font-semibold text-sm" />}
       {text !== null && <button disabled={busy || disabled || (!text.trim() && kind !== 'roomNotes')} onClick={() => void submit()} className="border rounded px-2 text-sm">{active.current?.handoff ? '核对原提交' : submitLabel ?? `保存${label}`}</button>}
       {text !== null && <button disabled={busy || disabled} onClick={() => void recover().catch(() => setMessage('草稿保留，请重试。'))} className="text-xs underline">保留草稿，回到当前值</button>}
       {dirty.current && <button disabled={busy || disabled} onClick={() => persist(text ?? value)} className="text-sm underline">重试本机保存</button>}

@@ -68,9 +68,10 @@ export function fieldDraftCommand(draft: FieldDraft, snapshot: import('./reposit
   const current = fieldTarget(snapshot, draft.kind, draft.entityId)
   if (current.revision !== draft.entityRevision) throw Error('CONFLICT')
   if (draft.kind === 'roomArrangement') {
-    const value = JSON.parse(draft.value) as { guestIds: string[]; dates: string[]; expectedRevisions: Record<string, number> }
+    const value = JSON.parse(draft.value) as { guestIds: string[]; dates: string[]; assignmentMode?: string; expectedRevisions: Record<string, number> }
     if (!Array.isArray(value.guestIds) || !Array.isArray(value.dates) || !value.expectedRevisions || value.expectedRevisions[`room:${draft.entityId}`] !== draft.entityRevision) throw Error('INVALID_INPUT')
-    return { type: 'room.arrange', payload: { id: draft.entityId, guestIds: value.guestIds, dates: value.dates }, expectedRevisions: value.expectedRevisions, dataEpoch: draft.dataEpoch }
+    if (value.assignmentMode !== undefined && value.assignmentMode !== 'selectedGuests') throw Error('INVALID_INPUT')
+    return { type: value.assignmentMode === 'selectedGuests' ? 'room.assignGuests' : 'room.arrange', payload: { id: draft.entityId, guestIds: value.guestIds, dates: value.dates }, expectedRevisions: value.expectedRevisions, dataEpoch: draft.dataEpoch }
   }
   if (draft.kind === 'group') return { type: 'group.add', payload: { group: draft.value.trim() }, expectedRevisions: { config: draft.entityRevision }, dataEpoch: draft.dataEpoch }
   if (draft.kind === 'version') {

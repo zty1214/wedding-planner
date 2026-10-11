@@ -30,7 +30,7 @@ export interface Room {
   id: string
   type: RoomType
   label: string // 项目内唯一房间号
-  stayDates?: string[] // Fusion统一房间晚次；旧入口保留个人日期
+  stayDates?: string[] // 兼容旧统一晚次数据；当前页面从宾客个人晚次派生房间汇总
   notes?: string
 }
 

@@ -174,7 +174,7 @@ try {
     async function arrange(names, dates) {
       await button('添加标间').click()
       const dialog = page.getByRole('dialog', { name: '房间住宿安排' })
-      await dialog.getByText('选人及房间晚次后，一次确认保存。', { exact: true }).waitFor()
+      await dialog.getByText('选择宾客和住宿时间。', { exact: true }).waitFor()
       for (const name of names) await dialog.locator('label').filter({ hasText: name }).getByRole('checkbox').check()
       for (const date of dates) await dialog.getByRole('checkbox', { name: date, exact: true }).check()
       await dialog.getByRole('button', { name: '确认整批安排', exact: true }).click()
@@ -185,11 +185,11 @@ try {
     await arrange(['虚构乙'], ['2027-01-01'])
     await verifyNights(page, false)
     const split = await serverRead(page, collaborationLink)
-    assert.deepEqual(split.data.rooms.map(room => [room.label, room.stayDates]), [['标间1', ['2026-12-31']], ['标间2', ['2027-01-01']]])
+    assert.deepEqual(split.data.rooms.map(room => [room.label, split.data.guests.find(g => g.roomId === room.id).stayDates]), [['标间1', ['2026-12-31']], ['标间2', ['2027-01-01']]])
     await arrange(['虚构甲', '虚构乙'], ['2026-12-31', '2027-01-01'])
     await verifyNights()
     const shared = await serverRead(page, collaborationLink), room = shared.data.rooms.find(room => room.label === '标间3')
-    assert.deepEqual(room.stayDates, ['2026-12-31', '2027-01-01'])
+    assert.ok(shared.data.guests.every(g => JSON.stringify(g.stayDates) === JSON.stringify(['2026-12-31', '2027-01-01'])))
     assert.ok(shared.data.guests.every(guest => guest.roomId === room.id && guest.attendance === 'pending'))
     report.roomNights = { independentRoomsByNight: true, sharedRoomCountsOnceEachNight: true, emptyPreviousRoomsExcluded: true, attendancePreserved: true }
     await screenshot('stay')
@@ -202,6 +202,7 @@ try {
     await page.getByLabel('笔记正文').fill('仅本机虚构自动回归')
     stage = 'notes/publish'
     await button('发布').click()
+    await page.getByRole('region', { name: '笔记草稿编辑器' }).waitFor({ state: 'hidden' })
     await page.getByText('仅本机虚构自动回归', { exact: true }).waitFor()
     await wait(async () => (await serverRead(page, collaborationLink)).notes.some(note => note.title === '跨年安排' && note.content === '仅本机虚构自动回归'))
     await wait(async () => (await queueSummary()).length === 0)

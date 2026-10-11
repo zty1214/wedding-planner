@@ -1,6 +1,6 @@
 import FusionDialog from '../fusion/FusionDialog'
 import FusionRoomArrangement from '../fusion/FusionRoomArrangement'
-import FusionRoomDates from '../fusion/FusionRoomDates'
+import FusionGuestDates from '../fusion/FusionGuestDates'
 import FusionFieldEditor from '../fusion/FusionFieldEditor'
 import { RepositoryContext } from '../fusion/RepositoryContext'
 import { ExportContext } from '../fusion/ExportContext'
@@ -60,10 +60,10 @@ export default function AccommodationPage() {
   const occupantsOf = (room: Room): Guest[] => {
     const all = guests.filter((g) => g.roomId === room.id)
     if (dateFilter === ALL) return all
-    return fusion ? (room.stayDates?.includes(dateFilter) ? all : []) : all.filter((g) => (g.stayDates || []).includes(dateFilter))
+    return all.filter((g) => (g.stayDates || []).includes(dateFilter))
   }
 
-  const visibleRooms = rooms.filter((r) => (typeFilter === ALL || r.type === typeFilter) && (!fusion || dateFilter === ALL || (r.stayDates?.includes(dateFilter) && guests.some(g => g.roomId === r.id))))
+  const visibleRooms = rooms.filter((r) => (typeFilter === ALL || r.type === typeFilter) && (!fusion || dateFilter === ALL || guests.some(g => g.roomId === r.id && g.stayDates.includes(dateFilter))))
   if (fusion && roomSort !== 'original') visibleRooms.sort((a, b) => {
     const type = roomSort === 'type' ? (a.type === '大床房' ? 0 : 1) - (b.type === '大床房' ? 0 : 1) : 0
     return type || a.label.localeCompare(b.label, 'zh-CN', { numeric: true })
@@ -104,7 +104,7 @@ export default function AccommodationPage() {
         <div className="planner-stay-heading flex items-center justify-between mb-4 flex-wrap gap-3">
           <div>
             <h2 className="text-lg font-semibold text-gray-800">住宿安排</h2>
-            <p className="text-sm text-gray-400 mt-0.5">{fusion ? '根据宾客安排房间，统一选择房间晚次，按晚汇总酒店用房。' : '为宾客安排房间，按个人住宿晚次统计用房；请先在名单中确认住宿需求'}</p>
+            <p className="text-sm text-gray-400 mt-0.5">{fusion ? '根据宾客安排房间，分别选择住宿时间，按晚汇总酒店用房。' : '为宾客安排房间，按个人住宿晚次统计用房；请先在名单中确认住宿需求'}</p>
           </div>
           <div className="planner-stay-actions flex flex-wrap items-center gap-2">
             {fusion && <select aria-label="添加房间" disabled={creatingRoom} value="" onChange={e => { if (e.target.value) void createRoom(e.target.value as Room['type']) }} className="md:hidden">
@@ -226,7 +226,7 @@ export default function AccommodationPage() {
               const capacity = ROOM_CAPACITY[room.type]
               const occupancy = roomOccupancy(room, guests, stayDates)
               const overNights = occupancy.over.filter(n => dateFilter === ALL || n.date === dateFilter)
-              const over = fusion ? occupancy.assigned.length > capacity : overNights.length > 0
+              const over = overNights.length > 0
               const emptyThisNight = dateFilter !== ALL && occupants.length === 0
               return (
                 <div key={room.id} className={`bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col transition-opacity ${emptyThisNight ? 'opacity-60' : ''}`}>
@@ -267,7 +267,6 @@ export default function AccommodationPage() {
 
                   <div className="p-4 flex-1 flex flex-col">
 
-                  {fusion && <div className="mb-3 space-y-2"><FusionFieldEditor kind="roomNotes" entityId={room.id} label="房间备注" value={room.notes ?? ''} /><FusionRoomDates room={room} dates={stayDates} /><button className="text-sm underline" onClick={() => setPickerRoomId(room.id)}>调整宾客和房间晚次</button></div>}
                   {/* 入住人 */}
                   <div className="flex-1">
                     {occupants.length === 0 ? (
@@ -288,7 +287,8 @@ export default function AccommodationPage() {
                                 <X className="w-3.5 h-3.5" />
                               </button>
                             </div>
-                            {/* 旧入口个人日期；Fusion统一房间晚次 */}
+                            {/* 每位宾客独立选择晚次 */}
+                            {fusion && <div className="mt-1.5"><FusionGuestDates guest={g} dates={stayDates} /></div>}
                             {!fusion && <div className="flex items-center gap-1 mt-1.5 flex-wrap">
                               {stayDates.length === 0 ? (
                                 <span className="text-[11px] text-gray-300">先在上方「＋添加日期」，再点选住哪几晚</span>
@@ -320,8 +320,8 @@ export default function AccommodationPage() {
                   {/* 容量 + 添加 */}
                   <div className="flex flex-wrap items-center justify-between gap-2 mt-3 pt-3 border-t border-gray-50">
                     <span className={`text-xs ${over ? 'text-red-400' : 'text-gray-400'}`}>
-                      {fusion ? `建议 ${capacity} 人 · 房内安排 ${occupancy.assigned.length} 人` : `每晚建议 ${capacity} 人 · ${dateFilter === ALL ? `共安排 ${occupants.length} 人，单晚最多 ${occupancy.peak} 人` : `当晚 ${occupants.length} 人`}`}
-                      {over && (fusion ? '（超过建议容量）' : `（超员：${overNights.map(n => `${formatNight(n.date)} ${n.people}人`).join('、')}）`)}
+                      {`每晚建议 ${capacity} 人 · ${dateFilter === ALL ? `共安排 ${occupants.length} 人，单晚最多 ${occupancy.peak} 人` : `当晚 ${occupants.length} 人`}`}
+                      {over && `（超员：${overNights.map(n => `${formatNight(n.date)} ${n.people}人`).join('、')}）`}
                       {occupancy.undated.length > 0 && `；${occupancy.undated.length} 人晚次待定，尚未计入每晚人数`}
                     </span>
                     <button
@@ -331,6 +331,7 @@ export default function AccommodationPage() {
                       <UserPlus className="w-3.5 h-3.5" /> 添加宾客
                     </button>
                   </div>
+                  {fusion && <div className="planner-room-notes mt-3 pt-3 border-t border-gray-100"><p className="text-xs text-gray-500 mb-1.5">房间备注</p><FusionFieldEditor kind="roomNotes" entityId={room.id} label="房间备注" value={room.notes ?? ''} /></div>}
                   </div>
                 </div>
               )
@@ -348,7 +349,7 @@ export default function AccommodationPage() {
           onClose={() => setPickerRoomId(null)}
         />
       )}
-      {fusion && pickerRoomId && rooms.find(room => room.id === pickerRoomId) && <FusionDialog label="房间住宿安排" onClose={() => document.querySelector<HTMLButtonElement>('dialog[open] button')?.click()}><FusionRoomArrangement key={pickerRoomId} room={rooms.find(room => room.id === pickerRoomId)!} guests={guests} dates={stayDates} suggestedDate={dateFilter === ALL ? undefined : dateFilter} onClose={() => { setPickerRoomId(null); setRoomMessage('安排请求已保存在本机或选择已保留；同步结果请查看顶部。当前筛选未显示的房间可在全部日期查看。') }} /></FusionDialog>}
+      {fusion && pickerRoomId && rooms.find(room => room.id === pickerRoomId) && <FusionDialog label="房间住宿安排" onClose={() => document.querySelector<HTMLButtonElement>('dialog[open] button')?.click()}><FusionRoomArrangement key={pickerRoomId} room={rooms.find(room => room.id === pickerRoomId)!} guests={guests} dates={stayDates} onClose={() => { setPickerRoomId(null); setRoomMessage('安排请求已保存在本机或选择已保留；同步结果请查看顶部。当前筛选未显示的房间可在全部日期查看。') }} /></FusionDialog>}
     </div>
   )
 }

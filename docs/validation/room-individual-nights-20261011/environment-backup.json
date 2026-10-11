@@ -1,0 +1,29 @@
+{
+  "mode": "read-only-environment-backup",
+  "status": "verified",
+  "sourceHash": "674265f59ea387f5931cfb95861a90531fa38b9217a5e5a146521540e74588dc",
+  "consistency": "preliminary",
+  "counts": {
+    "planner_fusion_preprod_access": 19,
+    "planner_fusion_preprod_activity": 13,
+    "planner_fusion_preprod_current": 67,
+    "planner_fusion_preprod_receipts": 121,
+    "planner_fusion_probe_access": 62,
+    "planner_fusion_probe_activity": 41,
+    "planner_fusion_probe_current": 313,
+    "planner_fusion_probe_history": 154,
+    "planner_fusion_probe_receipts": 1038,
+    "weddings": 1,
+    "cloudbase_storage_objects": 4
+  },
+  "encryptedFileSha256": "6092f11a44c0be143a925211172c335e3ab590813a4683799d331a5a2c9bb810",
+  "twoPassContentMatch": true,
+  "storageBytes": 2718,
+  "functionConfigurations": 4,
+  "exclusions": [
+    "function-code-packages",
+    "static-website-files",
+    "authentication-users",
+    "database-index-definitions"
+  ]
+}

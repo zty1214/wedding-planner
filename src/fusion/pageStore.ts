@@ -64,8 +64,7 @@ export function createPageStore(projectId: string, repo: ReturnType<typeof proje
       })
     },
     arrangeRoom: (roomId, guestIds, dates) => {
-      const affected = [...new Set([...Object.values(current().guests).filter(g => g.roomId === roomId).map(g => g.id), ...guestIds])]
-      return send('room.arrange', { id: roomId, guestIds, dates }, [`room:${roomId}`, 'config', ...affected.map(id => `guest:${id}`)])
+      return send('room.assignGuests', { id: roomId, guestIds, dates }, [`room:${roomId}`, 'config', ...guestIds.map(id => `guest:${id}`)])
     },
     updateRoom: (id, patch) => send('room.update', { id, patch: JSON.parse(JSON.stringify(patch)) }, [`room:${id}`]),
     removeRoom: id => send('room.deleteWithAssignments', { id }, [`room:${id}`, ...Object.values(current().guests).filter(g => g.roomId === id).map(g => `guest:${g.id}`)]),
@@ -88,9 +87,8 @@ export function createPageStore(projectId: string, repo: ReturnType<typeof proje
       return
     }
     const c = snapshot.data, normalizedRooms = roomViews(c)
-    const nights = new Map(normalizedRooms.map(room => [room.id, room.stayDates]))
     store.setState({ projectTitle: c.config.title, mainStagePos: c.config.mainStagePos, customGroups: c.config.customGroups, stayDates: c.config.stayDates,
-      guests: c.guestOrder.map(id => { const g = c.guests[id]; return { ...g, stayDates: g.roomId ? nights.get(g.roomId) ?? [] : [], status: g.attendance === 'confirmed' ? 'confirmed' : g.tableId ? 'assigned' : 'unassigned' } }),
+      guests: c.guestOrder.map(id => { const g = c.guests[id]; return { ...g, stayDates: g.roomId ? g.stayDates : [], status: g.attendance === 'confirmed' ? 'confirmed' : g.tableId ? 'assigned' : 'unassigned' } }),
       notes: (snapshot.notes ?? []).map(note => ({ ...note, images: [] })),
       tables: c.tableOrder.map(id => c.tables[id]), rooms: normalizedRooms })
   }

@@ -1,0 +1,54 @@
+{
+  "scope": "local fictitious 150-guest/30-room memory project only",
+  "results": {
+    "createAssign": {
+      "autoDialog": true,
+      "previouslyHiddenGuestFound": true,
+      "roomAndGuestReadback": true,
+      "selectedGuestDates": true
+    },
+    "dateFilter": {
+      "assignedNightVisible": true,
+      "otherNightHidden": true
+    },
+    "sort": {
+      "naturalNumberOrder": true,
+      "originalOrder": true,
+      "rememberedAfterReload": true
+    },
+    "notes": {
+      "editable": true,
+      "persistedAfterReload": true
+    },
+    "cardDates": {
+      "directToggle": true,
+      "individualGuestDates": true,
+      "otherBrowserReadback": true,
+      "refreshRetained": true
+    },
+    "sameRoomDifferentNights": {
+      "existingGuestPreservedWhenAdding": true,
+      "dateFiltersShowOnlyThatNightsGuests": true,
+      "editingSecondDoesNotChangeFirst": true,
+      "notesBelowGuestList": true,
+      "redundantActionRemoved": true
+    },
+    "mobile": {
+      "firstRoomTop": 590.859375,
+      "visualHeight": 844,
+      "overflow": false
+    },
+    "cancel": {
+      "emptyRoomRetained": true,
+      "noGuestOrDateAssigned": true
+    },
+    "offline": {
+      "autoDialogAfterLocalCreation": true,
+      "localArrangementVisible": true,
+      "remoteUnchangedWhileOffline": true,
+      "oneRoomAfterDoubleConfirm": true,
+      "selectedGuestDatesAfterResume": true,
+      "attendancePreserved": true
+    }
+  }
+}

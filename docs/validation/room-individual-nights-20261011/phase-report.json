@@ -1,0 +1,29 @@
+{
+  "date": "2026-10-11",
+  "baseline": "cba0a589f0e419a594dd68f8b62c21fe0b9ab63d",
+  "scope": "Per-guest lodging dates, simple picker and visible bottom room notes; existing real projects and legacy site unchanged",
+  "status": "LOCAL_VERIFIED_REMOTE_CI_AND_RELEASE_PENDING",
+  "checks": {
+    "completeCheck": {
+      "passed": 264,
+      "failed": 0
+    },
+    "mainFlow": "PASS",
+    "businessBuildIsolation": "PASS",
+    "feedbackSuite": {
+      "passed": 16,
+      "failed": 0
+    },
+    "visual": "390px and 1280px geometry and screenshots reviewed; not real phone acceptance"
+  },
+  "compatibility": "Existing guest dates are authoritative without migration; old room-wide metadata retained; old frozen room.arrange command and form semantics preserved; new drafts use room.assignGuests",
+  "firstAttempts": {
+    "domainTest": "New command unsupported before implementation; regression now passes",
+    "exportAndScale": "Old uniform-night expectations corrected to actual individual fixture dates; final counts and date matrix pass",
+    "mainFlow": "Published note and editor simultaneously visible in failure screenshot; test now waits editor handoff hidden before text lookup; product note source unchanged",
+    "accommodation": "Expanded staggered guest case reused the offline fixture guest; moved offline case to another fictitious guest; final suite passes"
+  },
+  "backup": "environment-backup.json",
+  "legacySite": "UNCHANGED",
+  "realPhoneAcceptance": "PENDING"
+}

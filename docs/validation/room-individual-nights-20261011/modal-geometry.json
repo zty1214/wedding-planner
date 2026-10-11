@@ -1,0 +1,38 @@
+{
+  "scope": "local fictitious project only",
+  "status": "PASS",
+  "rows": [
+    {
+      "width": 390,
+      "dialog": {
+        "x": 17,
+        "y": 125,
+        "width": 356,
+        "height": 650
+      },
+      "confirm": {
+        "x": 34,
+        "y": 714,
+        "width": 322,
+        "height": 44
+      },
+      "overflow": false
+    },
+    {
+      "width": 1280,
+      "dialog": {
+        "x": 320,
+        "y": 106.796875,
+        "width": 640,
+        "height": 686.390625
+      },
+      "confirm": {
+        "x": 345,
+        "y": 726.1875,
+        "width": 590,
+        "height": 42
+      },
+      "overflow": false
+    }
+  ]
+}

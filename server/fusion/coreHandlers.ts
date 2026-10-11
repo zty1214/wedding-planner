@@ -233,6 +233,21 @@ export function coreHandlers(): Map<string, Handler> {
       touch(g, () => { g.roomId = key; g.stayNeed = 'needed'; g.stayDates = [...selected] })
     }
   })
+  // New picker assigns only explicitly selected guests. Existing occupants retain their nights.
+  add('room.assignGuests', (c, p, cmd) => {
+    fields(p, ['id', 'guestIds', 'dates'])
+    const key = id(p.id), room = entity(c.rooms, key), selected = dates(p.dates)
+    expected(cmd, `room:${key}`, room.revision); expected(cmd, 'config', c.config.revision)
+    if (selected.some(date => !c.config.stayDates.includes(date)) || !Array.isArray(p.guestIds)) invalid()
+    const ids = (p.guestIds as unknown[]).map(id)
+    if (!ids.length || new Set(ids).size !== ids.length) invalid()
+    if (canonicalJson(Object.keys(cmd.expectedRevisions).filter(ref => ref.startsWith('guest:')).sort())
+      !== canonicalJson(ids.map(guestId => `guest:${guestId}`).sort())) throw new CommandError('CONFLICT')
+    for (const guestId of ids) expected(cmd, `guest:${guestId}`, entity(c.guests, guestId).revision)
+    for (const guestId of ids) touch(c.guests[guestId], () => {
+      c.guests[guestId].roomId = key; c.guests[guestId].stayNeed = 'needed'; c.guests[guestId].stayDates = [...selected]
+    })
+  })
   add('guest.setStayNeed', (c, p, cmd) => {
     fields(p, ['id', 'stayNeed']); const g = guest(c, p, cmd)
     if (!['pending', 'needed', 'not_needed'].includes(String(p.stayNeed))) invalid()
@@ -253,7 +268,6 @@ export function coreHandlers(): Map<string, Handler> {
   })
   add('guest.setStayDates', (c, p, cmd) => {
     fields(p, ['id', 'dates']); const g = guest(c, p, cmd), selected = dates(p.dates)
-    if (g.roomId && c.rooms[g.roomId].stayDates !== undefined) invalid() // Updated rooms use room.arrange atomically.
     expected(cmd, 'config', c.config.revision)
     if ((!g.roomId && selected.length) || selected.some(d => !c.config.stayDates.includes(d))) invalid()
     touch(g, () => { g.stayDates = selected })

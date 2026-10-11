@@ -21,8 +21,8 @@ try {
  await dialog.getByRole('checkbox',{name:'2026-12-31',exact:true}).check();await dialog.getByRole('button',{name:'确认整批安排',exact:true}).click()
  await dialog.waitFor({state:'hidden'});await page.getByText('已同步到云端',{exact:true}).waitFor()
  const state=await read(),core=state.current?.data??state.data??state
- const newRoom=Object.values(core.rooms).find(r=>r.label==='大床房1');assert.ok(newRoom);assert.equal(core.guests.g60.roomId,newRoom.id);assert.deepEqual(newRoom.stayDates,['2026-12-31'])
- report.results.createAssign={autoDialog:true,previouslyHiddenGuestFound:true,roomAndGuestReadback:true,unifiedDates:true}
+ const newRoom=Object.values(core.rooms).find(r=>r.label==='大床房1');assert.ok(newRoom);assert.equal(core.guests.g60.roomId,newRoom.id);assert.deepEqual(core.guests.g60.stayDates,['2026-12-31'])
+ report.results.createAssign={autoDialog:true,previouslyHiddenGuestFound:true,roomAndGuestReadback:true,selectedGuestDates:true}
  await page.getByRole('button',{name:'12.31',exact:true}).click()
  assert.ok(await page.getByLabel('房号',{exact:true}).count()>0)
  await page.getByRole('button',{name:'1.1',exact:true}).click()
@@ -36,35 +36,46 @@ try {
  await page.reload();await page.getByText('已同步到云端',{exact:true}).waitFor();assert.equal(await page.getByLabel('房间备注',{exact:true}).last().inputValue(),'虚构备注：靠电梯')
  assert.equal(await page.getByLabel('房间排序',{exact:true}).inputValue(),'original');report.results.sort={naturalNumberOrder:true,originalOrder:true,rememberedAfterReload:true}
  report.results.notes={editable:true,persistedAfterReload:true};assert.equal(report.error,undefined)
- // Date buttons on the room card save the same room-wide arrangement atomically.
+ // Each guest date button saves only that guest, including another browser and refresh.
  const card=roomInput.locator('xpath=ancestor::div[contains(@class,"rounded-2xl")][1]')
- await card.getByRole('button',{name:'大床房1住宿2027-01-01',exact:true}).click()
+ await card.getByRole('button',{name:'虚构长姓名欧阳司徒一家亲友代表61住宿2027-01-01',exact:true}).click()
  await page.locator('.planner-sync[data-state="synced"]').waitFor()
  const edited=await read(),editedCore=edited.current?.data??edited.data??edited
- assert.deepEqual(editedCore.rooms[newRoom.id].stayDates,['2026-12-31','2027-01-01'])
  assert.deepEqual(editedCore.guests.g60.stayDates,['2026-12-31','2027-01-01'])
  const other=await browser.newPage({viewport:{width:1280,height:900}})
  await other.goto(url.href);await other.getByText('已同步到云端',{exact:true}).waitFor();await other.getByRole('link',{name:'住宿安排',exact:true}).click()
- assert.equal(await other.getByRole('button',{name:'大床房1住宿2027-01-01',exact:true}).getAttribute('aria-pressed'),'true')
+ assert.equal(await other.getByRole('button',{name:'虚构长姓名欧阳司徒一家亲友代表61住宿2027-01-01',exact:true}).getAttribute('aria-pressed'),'true')
  await other.close()
- await card.getByRole('button',{name:'大床房1住宿2026-12-31',exact:true}).click();await page.locator('.planner-sync[data-state="synced"]').waitFor()
+ await card.getByRole('button',{name:'虚构长姓名欧阳司徒一家亲友代表61住宿2026-12-31',exact:true}).click();await page.locator('.planner-sync[data-state="synced"]').waitFor()
  const changed=await read(),changedCore=changed.current?.data??changed.data??changed
- assert.deepEqual(changedCore.rooms[newRoom.id].stayDates,['2027-01-01']);assert.deepEqual(changedCore.guests.g60.stayDates,['2027-01-01'])
+ assert.deepEqual(changedCore.guests.g60.stayDates,['2027-01-01'])
  await page.reload();await page.getByText('已同步到云端',{exact:true}).waitFor()
- assert.equal(await page.getByRole('button',{name:'大床房1住宿2026-12-31',exact:true}).getAttribute('aria-pressed'),'false')
- report.results.cardDates={directToggle:true,roomAndGuestDatesAtomic:true,otherBrowserReadback:true,refreshRetained:true}
+ assert.equal(await page.getByRole('button',{name:'虚构长姓名欧阳司徒一家亲友代表61住宿2026-12-31',exact:true}).getAttribute('aria-pressed'),'false')
+ report.results.cardDates={directToggle:true,individualGuestDates:true,otherBrowserReadback:true,refreshRetained:true}
 
- report.results.mobile=await page.getByLabel('房号',{exact:true}).first().evaluate(e=>({firstRoomTop:e.getBoundingClientRect().top,visualHeight:visualViewport.height,overflow:document.documentElement.scrollWidth>innerWidth}));assert.ok(report.results.mobile.firstRoomTop<report.results.mobile.visualHeight);assert.equal(report.results.mobile.overflow,false)
+ // Add a second occupant on another night without changing the first one.
+ assert.equal(await card.getByRole('button',{name:'调整宾客和房间晚次',exact:true}).count(),0)
+ const notesBox=await card.getByLabel('房间备注',{exact:true}).boundingBox(),peopleBox=await card.locator('ul').boundingBox();assert.ok(notesBox.y>peopleBox.y+peopleBox.height)
+ await card.getByRole('button',{name:'添加宾客',exact:true}).click();await dialog.waitFor();await search.fill('虚构宾客62');await dialog.locator('label').filter({hasText:'虚构宾客62'}).getByRole('checkbox').check();await dialog.getByRole('checkbox',{name:'2026-12-31',exact:true}).check();await dialog.getByRole('button',{name:'确认整批安排',exact:true}).click();await dialog.waitFor({state:'hidden'});await page.locator('.planner-sync[data-state="synced"]').waitFor()
+ const staggered=await read(),staggeredCore=staggered.current?.data??staggered.data??staggered
+ assert.deepEqual(staggeredCore.guests.g60.stayDates,['2027-01-01']);assert.deepEqual(staggeredCore.guests.g61.stayDates,['2026-12-31']);assert.equal(staggeredCore.guests.g61.roomId,newRoom.id)
+ await page.getByRole('button',{name:'12.31',exact:true}).click();assert.equal(await card.getByText('虚构宾客62',{exact:true}).count(),1);assert.equal(await card.getByText('虚构长姓名欧阳司徒一家亲友代表61',{exact:true}).count(),0)
+ await page.getByRole('button',{name:'1.1',exact:true}).click();assert.equal(await card.getByText('虚构宾客62',{exact:true}).count(),0);assert.equal(await card.getByText('虚构长姓名欧阳司徒一家亲友代表61',{exact:true}).count(),1)
+ await page.getByRole('button',{name:'全部',exact:true}).first().click();await card.getByRole('button',{name:'虚构宾客62住宿2027-01-01',exact:true}).click();await page.locator('.planner-sync[data-state="synced"]').waitFor();const independent=await read(),independentCore=independent.current?.data??independent.data??independent;assert.deepEqual(independentCore.guests.g60.stayDates,['2027-01-01']);assert.deepEqual(independentCore.guests.g61.stayDates,['2026-12-31','2027-01-01'])
+ report.results.sameRoomDifferentNights={existingGuestPreservedWhenAdding:true,dateFiltersShowOnlyThatNightsGuests:true,editingSecondDoesNotChangeFirst:true,notesBelowGuestList:true,redundantActionRemoved:true}
+
+ await page.locator('.planner-stay').evaluate(el=>{el.scrollTop=0})
+ report.results.mobile=await page.getByLabel('房号',{exact:true}).first().evaluate(e=>({firstRoomTop:e.getBoundingClientRect().top,visualHeight:visualViewport.height,overflow:document.documentElement.scrollWidth>innerWidth}));assert.ok(report.results.mobile.firstRoomTop>=0&&report.results.mobile.firstRoomTop<report.results.mobile.visualHeight);assert.equal(report.results.mobile.overflow,false)
  // An empty canceled room is retained, without assigning anyone or silently choosing dates.
  await page.getByRole('combobox',{name:'添加房间',exact:true}).selectOption('标间');await dialog.waitFor();await dialog.getByRole('button',{name:'关闭',exact:true}).click();await dialog.waitFor({state:'hidden'});await page.locator('.planner-sync[data-state="synced"]').waitFor()
  const canceledState=await read(),canceledCore=canceledState.current?.data??canceledState.data??canceledState,canceled=Object.values(canceledCore.rooms).find(r=>r.label==='标间31');assert.ok(canceled);assert.equal(canceled.stayDates,undefined);assert.equal(Object.values(canceledCore.guests).some(g=>g.roomId===canceled.id),false);report.results.cancel={emptyRoomRetained:true,noGuestOrDateAssigned:true}
  // Network loss must still permit durable creation and one atomic arrangement.
  await page.context().setOffline(true);await page.getByRole('combobox',{name:'添加房间',exact:true}).selectOption('大床房');await dialog.waitFor();await page.locator('.planner-sync[data-state="unknown"]').waitFor()
- await search.fill('虚构宾客62');await dialog.locator('label').filter({hasText:'虚构宾客62'}).getByRole('checkbox').check();await dialog.getByRole('checkbox',{name:'2027-01-01',exact:true}).check();await dialog.getByText('选择已保存在本机，尚未提交。',{exact:true}).waitFor()
+ await search.fill('虚构宾客63');await dialog.locator('label').filter({hasText:'虚构宾客63'}).getByRole('checkbox').check();await dialog.getByRole('checkbox',{name:'2027-01-01',exact:true}).check();await dialog.getByText('选择已保存在本机，尚未提交。',{exact:true}).waitFor()
  await dialog.getByRole('button',{name:'确认整批安排',exact:true}).evaluate(button=>{button.click();button.click()});await dialog.waitFor({state:'hidden'});assert.equal(await page.getByLabel('房号',{exact:true}).evaluateAll(es=>es.filter(e=>e.value==='大床房2').length),1)
- const offlineState=await read(),offlineCore=offlineState.current?.data??offlineState.data??offlineState;assert.equal(Object.values(offlineCore.rooms).some(r=>r.label==='大床房2'),false);assert.equal(offlineCore.guests.g61.roomId,null)
+ const offlineState=await read(),offlineCore=offlineState.current?.data??offlineState.data??offlineState;assert.equal(Object.values(offlineCore.rooms).some(r=>r.label==='大床房2'),false);assert.equal(offlineCore.guests.g62.roomId,null)
  await page.context().setOffline(false);await page.evaluate(()=>document.querySelector('.planner-header-status button')?.click());await page.locator('.planner-sync[data-state="synced"]').waitFor()
- const resumedState=await read(),resumedCore=resumedState.current?.data??resumedState.data??resumedState,resumed=Object.values(resumedCore.rooms).filter(r=>r.label==='大床房2');assert.equal(resumed.length,1);assert.deepEqual(resumed[0].stayDates,['2027-01-01']);assert.equal(resumedCore.guests.g61.roomId,resumed[0].id);assert.equal(resumedCore.guests.g61.attendance,offlineCore.guests.g61.attendance);report.results.offline={autoDialogAfterLocalCreation:true,localArrangementVisible:true,remoteUnchangedWhileOffline:true,oneRoomAfterDoubleConfirm:true,unifiedDatesAfterResume:true,attendancePreserved:true}
+ const resumedState=await read(),resumedCore=resumedState.current?.data??resumedState.data??resumedState,resumed=Object.values(resumedCore.rooms).filter(r=>r.label==='大床房2');assert.equal(resumed.length,1);assert.deepEqual(resumedCore.guests.g62.stayDates,['2027-01-01']);assert.equal(resumedCore.guests.g62.roomId,resumed[0].id);assert.equal(resumedCore.guests.g62.attendance,offlineCore.guests.g62.attendance);report.results.offline={autoDialogAfterLocalCreation:true,localArrangementVisible:true,remoteUnchangedWhileOffline:true,oneRoomAfterDoubleConfirm:true,selectedGuestDatesAfterResume:true,attendancePreserved:true}
  assert.equal(report.error,undefined)
  const output=process.env.FEEDBACK_OUTPUT ?? '/private/tmp/planner-feedback-results';await mkdir(output,{recursive:true});await writeFile(join(output,'planner-iteration-browser-report.json'),JSON.stringify(report,null,2));console.log(JSON.stringify(report))
 } catch(e){console.error(e.stack);process.exitCode=1} finally {await browser?.close();fixture.kill('SIGTERM')}
