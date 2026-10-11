@@ -1,0 +1,43 @@
+{
+  "status": "PASS",
+  "scope": "offline build and read-only predeployment backup",
+  "commit": "97d99fdf01f39876c431338e9deec76ec288ab32",
+  "frontendPublicConfigUnchanged": true,
+  "previousFrontendCommit": "afa0baf0c4479f1fe82ec179b7f1dea1d3ba5ea0",
+  "previousGatewayCommit": "ab95ed38f3c50016c84cf940d4579053fa403685",
+  "previousGatewayBundleSha256": "f4080bc4d651ce22d09037396ffffbc61ae049d30854cddc58147a81fe77d489",
+  "gatewayBundleSha256": "628d7cc08c09838dbaa3eb1dcfa25afc8128d97c05e0299930ace86b3369f0d4",
+  "hostingBackupFiles": [
+    {
+      "path": "_redirects",
+      "sha256": "6036983e5fc00f0169c9e939b1816ed771eee00e27f2fcc517b819041460b9ef"
+    },
+    {
+      "path": "assets/index-BkfW68KO.css",
+      "sha256": "6e6245dbd680bc899c665274a532294d331483101cb9212de94e1fa8cae035e8"
+    },
+    {
+      "path": "assets/index-BOttktcd.js",
+      "sha256": "c28ef13ccc70d61fd93e0c3263e2fdeef468aea421377867065530f9252c0dc2"
+    },
+    {
+      "path": "favicon.svg",
+      "sha256": "61bc9a161de58248288e6905425d7180f0624c2865007b97d763fdac12043a66"
+    },
+    {
+      "path": "icons.svg",
+      "sha256": "b45fa506195cfcdef406ba9f0c77b36ddc1a7c224040926ec70abc2fdea7b93a"
+    },
+    {
+      "path": "index.html",
+      "sha256": "e1370cab60cb0a479e6bef2a490ea20437747973eccdc2ec4115d4d7e5e6b965"
+    },
+    {
+      "path": "build-info.json",
+      "sha256": "77c8c40431843569668f2c26957fd91c0f64d68b90eb2f11d1ca67e1da765d35"
+    }
+  ],
+  "configPreserved": true,
+  "dependencyBundled": true,
+  "retentionUnchanged": true
+}

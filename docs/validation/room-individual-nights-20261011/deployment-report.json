@@ -1,0 +1,26 @@
+{
+  "status": "PASS",
+  "frontendCommit": "97d99fdf01f39876c431338e9deec76ec288ab32",
+  "gatewayCommit": "97d99fdf01f39876c431338e9deec76ec288ab32",
+  "scope": "Existing authorized CloudBase environment frontend and gateway only; no real project edits, schema change, retention redeploy or legacy-site operation",
+  "hosting": {
+    "files": 7,
+    "safe": true,
+    "verify": true,
+    "prune": false,
+    "actualHttpHashes": "hosting-readback.json"
+  },
+  "gateway": {
+    "activeCode": "gateway-readback.json",
+    "dependencyMode": "SDK bundled; installDependency=false",
+    "configurationPreserved": true
+  },
+  "backup": {
+    "environment": "environment-backup.json",
+    "hostingAndGatewayCode": "package-report.json",
+    "privateRoot": "/Users/baojie/.local/share/wedding-planner-backups/2026-10-11-guest-nights/"
+  },
+  "firstCloudAttempt": "cloud-browser-first-attempt.json",
+  "finalCloudAttempt": "cloud-browser-report.json",
+  "realPhoneAcceptance": "PENDING"
+}

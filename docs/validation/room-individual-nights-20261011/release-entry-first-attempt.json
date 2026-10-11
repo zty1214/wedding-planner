@@ -1,0 +1,26 @@
+{
+  "scope": "local fictitious gateway; deployed acceptance entry rehearsal only",
+  "status": "FAIL",
+  "checks": [
+    {
+      "name": "root-fusion-project-entry",
+      "status": "PASS"
+    },
+    {
+      "name": "real-gateway-project-creation",
+      "status": "PASS"
+    },
+    {
+      "name": "guest-leading-zero-and-refresh-deep-link",
+      "status": "PASS"
+    }
+  ],
+  "supabaseRequests": 0,
+  "error": "TimeoutError: locator.check: Timeout 30000ms exceeded.",
+  "failedStage": "seating-and-stay-real-pages",
+  "visibleHeadings": [
+    "住宿安排",
+    "添加到「标间1」"
+  ],
+  "visibleAlerts": []
+}

@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "scope": "deployed gateway code and configuration readback",
+  "commit": "97d99fdf01f39876c431338e9deec76ec288ab32",
+  "bundleSha256": "628d7cc08c09838dbaa3eb1dcfa25afc8128d97c05e0299930ace86b3369f0d4",
+  "statusReadback": "Active",
+  "runtime": "Nodejs20.19",
+  "memoryMb": 256,
+  "timeoutSeconds": 20,
+  "handler": "index.main",
+  "environmentVariablesPreserved": true,
+  "retentionUnchanged": true
+}

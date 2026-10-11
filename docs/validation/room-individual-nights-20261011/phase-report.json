@@ -2,7 +2,7 @@
   "date": "2026-10-11",
   "baseline": "cba0a589f0e419a594dd68f8b62c21fe0b9ab63d",
   "scope": "Per-guest lodging dates, simple picker and visible bottom room notes; existing real projects and legacy site unchanged",
-  "status": "LOCAL_VERIFIED_REMOTE_CI_AND_RELEASE_PENDING",
+  "status": "DEPLOYED_AND_LIMITED_CLOUD_VERIFIED",
   "checks": {
     "completeCheck": {
       "passed": 264,
@@ -21,9 +21,19 @@
     "domainTest": "New command unsupported before implementation; regression now passes",
     "exportAndScale": "Old uniform-night expectations corrected to actual individual fixture dates; final counts and date matrix pass",
     "mainFlow": "Published note and editor simultaneously visible in failure screenshot; test now waits editor handoff hidden before text lookup; product note source unchanged",
-    "accommodation": "Expanded staggered guest case reused the offline fixture guest; moved offline case to another fictitious guest; final suite passes"
+    "accommodation": "Expanded staggered guest case reused the offline fixture guest; moved offline case to another fictitious guest; final suite passes",
+    "cloudBrowser": "Initial date-click assertion read immediately after click; waiting for expected pressed state and button save completion passed. No product source changed for retry; original failure retained.",
+    "releaseEntry": "Local rehearsal initially scoped has-text locator inside the outer dialog; corrected to a relative row locator before cloud run."
   },
   "backup": "environment-backup.json",
   "legacySite": "UNCHANGED",
-  "realPhoneAcceptance": "PENDING"
+  "realPhoneAcceptance": "PENDING",
+  "runtimeCommit": "97d99fdf01f39876c431338e9deec76ec288ab32",
+  "gatewayBundleSha256": "628d7cc08c09838dbaa3eb1dcfa25afc8128d97c05e0299930ace86b3369f0d4",
+  "remoteCI": "remote-ci.json",
+  "hostingReadback": "hosting-readback.json",
+  "gatewayReadback": "gateway-readback.json",
+  "cloudBrowser": "cloud-browser-report.json",
+  "cloudChecks": 10,
+  "existingRealProjectWrites": false
 }
