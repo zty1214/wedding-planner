@@ -1,0 +1,22 @@
+{
+  "status": "LOCAL_VERIFIED_REMOTE_CI_AND_HOSTING_PENDING",
+  "baseline": "99451ea02da015181396130c61642c5dcb220a62",
+  "scope": "Fusion guest page scroll ownership only; original legacy layout, desktop fonts and sizes preserved",
+  "cause": "Desktop outer flex column allocated only remaining height to nested overflow list; heading/form/filter cannot scroll away",
+  "evidence": {
+    "1470x743BeforeListHeight": 191,
+    "beforeWheelOnHeadingScrollTop": 0,
+    "afterWheelOnHeadingScrollTop": 550,
+    "checks": 264,
+    "feedbackScenarios": 16,
+    "enhancedEditorsViewportChecks": 5
+  },
+  "sourceChanges": [
+    "src/pages/GuestsPage.tsx",
+    "scripts/fusion/validate-feedback-editors.mjs"
+  ],
+  "gatewayChange": false,
+  "realDataWrites": false,
+  "phone": "390px Chromium viewport only; not new real phone validation",
+  "initialAttempts": "First harness run preceded fixture startup and failed connection; first post-edit first viewport still measured old flex layout during development reload, subsequent fresh run of all four sizes passed without source changes."
+}

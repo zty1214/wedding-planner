@@ -1,0 +1,25 @@
+{
+  "scope": "local fictitious 150 guest project; desktop guest page scroll only",
+  "results": [
+    {
+      "viewport": {
+        "width": 1470,
+        "height": 743
+      },
+      "outer": {
+        "clientHeight": 662,
+        "scrollHeight": 662,
+        "scrollTop": 0,
+        "display": "flex"
+      },
+      "list": {
+        "height": 191,
+        "scrollHeight": 328,
+        "overflowY": "auto",
+        "top": 527.875
+      },
+      "outerScrollAfterWheelOnHeading": 0,
+      "headingMoved": 0
+    }
+  ]
+}

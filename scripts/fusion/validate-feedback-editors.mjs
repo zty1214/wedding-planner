@@ -24,6 +24,18 @@ try {
  await mobile.getByTitle('编辑',{exact:true}).last().click();const guestEdit=mobile.getByRole('dialog',{name:'编辑宾客',exact:true});await guestEdit.waitFor();await mobile.waitForFunction(()=>document.activeElement?.getAttribute('aria-label')==='宾客姓名');await guestEdit.getByRole('button',{name:'保留草稿并关闭编辑',exact:true}).click();await mobile.waitForFunction(()=>document.activeElement?.getAttribute('title')==='编辑');report.editing.mobileBottomGuestModalAndReturn=true
  await mobile.getByRole('link',{name:'备婚笔记',exact:true}).click();await mobile.getByRole('button',{name:'备忘',exact:true}).click();await mobile.getByText('虚构编辑笔记25',{exact:true}).waitFor();report.editing.extraNoteCategoryVisible=true
  await mobile.getByRole('button',{name:'酒店',exact:true}).click();await mobile.getByRole('button',{name:'编辑',exact:true}).last().click();const noteDialog=mobile.getByRole('dialog',{name:'编辑笔记',exact:true});await noteDialog.waitFor();await mobile.waitForFunction(()=>document.activeElement?.getAttribute('aria-label')==='笔记标题');await noteDialog.getByRole('button',{name:'关闭并保留草稿',exact:true}).click();await noteDialog.waitFor({state:'hidden'});await mobile.waitForFunction(()=>document.activeElement?.textContent==='编辑');report.editing.mobileBottomNoteModalAndReturn=true
+ // Desktop regression: scrolling over the heading must move the whole guest page,
+ // so a tall form/filter area cannot trap the list in a tiny nested scroller.
+ report.guestScroll=[]
+ for(const [width,height] of [[1470,743],[1280,720],[1280,900],[768,720],[390,844]]){
+ const page=await browser.newPage({viewport:{width,height}});await page.goto(url.href);await page.getByText('已同步到云端',{exact:true}).waitFor();await page.getByRole('link',{name:'宾客名单',exact:true}).click()
+ const heading=page.getByRole('heading',{name:'宾客名单',exact:true}),box=await heading.boundingBox();await page.mouse.move(box.x+20,box.y+10);await page.mouse.wheel(0,550)
+ await page.waitForFunction(()=>document.querySelector('.planner-guests').scrollTop>100)
+ const measured=await page.locator('.planner-guests').evaluate(el=>{const list=[...el.children].find(e=>e.classList.contains('space-y-2'));return {clientHeight:el.clientHeight,scrollHeight:el.scrollHeight,scrollTop:el.scrollTop,listClientHeight:list.clientHeight,listScrollHeight:list.scrollHeight,overflow:document.documentElement.scrollWidth>innerWidth}})
+ report.guestScroll.push({width,height,...measured})
+ if(measured.listClientHeight<measured.listScrollHeight||measured.overflow)throw Error('GUEST_LIST_NESTED_SCROLL_OR_OVERFLOW')
+ await page.close()
+ }
  assert.equal(report.error,undefined)
  const output=process.env.FEEDBACK_OUTPUT ?? '/private/tmp/planner-feedback-results';await mkdir(output,{recursive:true});await writeFile(join(output,'editor-report.json'),JSON.stringify(report,null,2));console.log(JSON.stringify(report))
 } catch(e){console.error(e.stack);process.exitCode=1} finally {await browser?.close();fixture.kill('SIGTERM')}

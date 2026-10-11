@@ -1,0 +1,63 @@
+{
+  "scope": "local fictitious 150-guest/30-room memory project only",
+  "editing": {
+    "desktopBottomGuestFocused": true,
+    "desktopReturnToRecord": true,
+    "mobileNewGuestModal": true,
+    "mobileBottomGuestModalAndReturn": true,
+    "extraNoteCategoryVisible": true,
+    "mobileBottomNoteModalAndReturn": true
+  },
+  "guestScroll": [
+    {
+      "width": 1470,
+      "height": 743,
+      "clientHeight": 662,
+      "scrollHeight": 25663,
+      "scrollTop": 550,
+      "listClientHeight": 25192,
+      "listScrollHeight": 25192,
+      "overflow": false
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "clientHeight": 639,
+      "scrollHeight": 25663,
+      "scrollTop": 550,
+      "listClientHeight": 25192,
+      "listScrollHeight": 25192,
+      "overflow": false
+    },
+    {
+      "width": 1280,
+      "height": 900,
+      "clientHeight": 819,
+      "scrollHeight": 25663,
+      "scrollTop": 550,
+      "listClientHeight": 25192,
+      "listScrollHeight": 25192,
+      "overflow": false
+    },
+    {
+      "width": 768,
+      "height": 720,
+      "clientHeight": 647,
+      "scrollHeight": 25878,
+      "scrollTop": 550,
+      "listClientHeight": 25304,
+      "listScrollHeight": 25304,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "clientHeight": 747,
+      "scrollHeight": 35693,
+      "scrollTop": 550,
+      "listClientHeight": 35334,
+      "listScrollHeight": 35334,
+      "overflow": false
+    }
+  ]
+}

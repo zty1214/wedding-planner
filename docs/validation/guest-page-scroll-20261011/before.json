@@ -1,0 +1,85 @@
+{
+  "scope": "local fictitious 150 guest project; desktop guest page scroll only",
+  "results": [
+    {
+      "viewport": {
+        "width": 1470,
+        "height": 743
+      },
+      "outer": {
+        "clientHeight": 662,
+        "scrollHeight": 662,
+        "scrollTop": 0,
+        "display": "flex"
+      },
+      "list": {
+        "height": 191,
+        "scrollHeight": 25192,
+        "overflowY": "auto",
+        "top": 527.875
+      },
+      "outerScrollAfterWheelOnHeading": 0,
+      "headingMoved": 0
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "outer": {
+        "clientHeight": 639,
+        "scrollHeight": 639,
+        "scrollTop": 0,
+        "display": "flex"
+      },
+      "list": {
+        "height": 168,
+        "scrollHeight": 25192,
+        "overflowY": "auto",
+        "top": 527.875
+      },
+      "outerScrollAfterWheelOnHeading": 0,
+      "headingMoved": 0
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "outer": {
+        "clientHeight": 819,
+        "scrollHeight": 819,
+        "scrollTop": 0,
+        "display": "flex"
+      },
+      "list": {
+        "height": 348,
+        "scrollHeight": 25192,
+        "overflowY": "auto",
+        "top": 527.875
+      },
+      "outerScrollAfterWheelOnHeading": 0,
+      "headingMoved": 0
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "outer": {
+        "clientHeight": 747,
+        "scrollHeight": 35693,
+        "scrollTop": 0,
+        "display": "block"
+      },
+      "list": {
+        "height": 35334,
+        "scrollHeight": 35334,
+        "overflowY": "auto",
+        "top": 444.734375
+      },
+      "outerScrollAfterWheelOnHeading": 550,
+      "headingMoved": 550
+    }
+  ]
+}

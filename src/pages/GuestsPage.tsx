@@ -78,7 +78,7 @@ export default function GuestsPage() {
   const filterGroups = ['全部', ...allGroups]
 
   return (
-    <div className={`${fusion ? 'planner-page planner-guests ' : ''}h-full min-w-0 [overflow-wrap:anywhere] overflow-y-auto sm:flex sm:flex-col p-3 sm:p-6 max-w-4xl mx-auto`}>
+    <div className={`${fusion ? 'planner-page planner-guests' : 'sm:flex sm:flex-col'} h-full min-w-0 [overflow-wrap:anywhere] overflow-y-auto p-3 sm:p-6 max-w-4xl mx-auto`}>
       {/* Header with export */}
       <div className="planner-guests-heading flex items-center justify-between mb-4">
         <div><h2 className="text-base font-semibold text-gray-800">宾客名单</h2>{fusion && <p className="planner-description">记录每一位重要的人，确认出席与安排。</p>}</div>
@@ -230,7 +230,7 @@ export default function GuestsPage() {
       </div>
 
       {/* Guest list */}
-      <div className="flex-1 overflow-y-auto space-y-2">
+      <div className={fusion ? 'space-y-2' : 'flex-1 overflow-y-auto space-y-2'}>
         {filtered.length === 0 && (
           <div className="text-center text-gray-400 py-12">
             {guests.length === 0 ? '还没有添加宾客，从上方开始添加吧' : '没有匹配的宾客'}
