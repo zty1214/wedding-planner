@@ -88,3 +88,30 @@
   .planner-zoom button,.planner-zoom span{font-size:12px;white-space:nowrap}
   .planner-zoom svg{width:16px;height:16px;flex-shrink:0}
 }
+
+/* 房间弹窗仅保留日期、搜索与选人主线，错误与草稿恢复仍就地显示。 */
+.planner-dialog:has(.planner-room-arrangement){width:min(640px,calc(100vw - 32px))}
+.planner-dialog>.planner-room-arrangement{display:flex;flex-direction:column;gap:12px;max-height:calc(100dvh - 48px)}
+.planner-room-arrangement-heading{padding-bottom:10px;border-bottom:1px solid #e8e1e4;flex-shrink:0}
+.planner-room-arrangement-form{display:flex;flex-direction:column;gap:10px;min-height:120px;overflow:auto;border:0;background:#fff}
+.planner-room-arrangement-form legend{margin-bottom:8px}
+.planner-room-arrangement-dates label{display:flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid #e8e1e4;border-radius:8px;cursor:pointer;font-size:13px}
+.planner-room-arrangement-dates label[data-selected=true]{background:#f8edf0;border-color:#a44861;color:#87384f}
+.planner-room-arrangement-dates small{font-size:11px;color:#746870}
+.planner-room-arrangement-date-actions button{font-size:12px;min-height:32px;padding:4px 8px}
+.planner-room-arrangement-search{display:flex;gap:8px;flex-shrink:0;padding:2px}
+.planner-room-arrangement-search input{min-width:0;flex:1}.planner-room-arrangement-search select{width:140px;flex-shrink:0;font-size:13px}
+.planner-room-arrangement-guests{min-height:100px;max-height:36dvh;overflow-y:auto}
+.planner-room-arrangement-guests label{cursor:pointer;font-size:14px;min-height:48px;border-color:#e8e1e4}
+.planner-room-arrangement-guests small{font-size:12px}
+.planner-dialog .planner-room-arrangement-confirm{background:#a44861;color:#fff;border-color:#a44861;flex-shrink:0}
+.planner-room-dates button{min-width:40px}
+@media(max-width:767px){
+  .planner-dialog:has(.planner-room-arrangement){width:calc(100vw - 20px)}
+  .planner-dialog>.planner-room-arrangement{gap:8px;max-height:calc(100dvh - 20px)}
+  .planner-room-arrangement-heading h2{font-size:16px}
+  .planner-room-arrangement-search{flex-wrap:wrap}.planner-room-arrangement-search input{flex-basis:100%}
+  .planner-room-arrangement-search select{width:100%;font-size:16px}
+  .planner-room-arrangement-date-actions button{min-height:44px}
+  .planner-room-dates button{min-width:44px}
+}

@@ -1,5 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import { nextRoomLabel } from '../../src/fusion/roomLabel.ts'
 import { emptyCore } from '../../src/fusion/core.ts'
 import { coreHandlers } from '../../server/fusion/coreHandlers.ts'
 import type { Core } from '../../src/fusion/core.ts'
@@ -82,4 +83,15 @@ test('room-authoritative counts and export preserve different room numbers by ni
   const pendingGuests = Object.values(pending.guests).map(g => ({ ...g, status: 'unassigned' as const }))
   const result = buildRoomWorkbook(roomViews(pending), pendingGuests, [], true)
   assert.equal(XLSX.utils.sheet_to_json(result.Sheets['待确认住宿']).length, 1)
+})
+
+test('room creation continues each type independently and never renumbers existing labels', () => {
+  const rooms = Array.from({ length: 5 }, (_, index) => ({ label: `标间${index + 1}`, type: '标间' as const }))
+  assert.equal(nextRoomLabel(rooms, '标间'), '标间6')
+  assert.equal(nextRoomLabel(rooms, '大床房'), '大床房1')
+  assert.equal(nextRoomLabel([{ label: '标间1', type: '标间' }, { label: '标间10', type: '标间' }], '标间'), '标间11')
+  assert.equal(nextRoomLabel([{ label: '标间 06', type: '标间' }], '标间'), '标间7')
+  assert.equal(nextRoomLabel([{ label: '父母房', type: '标间' }, { label: '02', type: '标间' }], '标间'), '标间3')
+  assert.equal(nextRoomLabel([{ label: '标间1', type: '大床房' }], '标间'), '标间2')
+  assert.deepEqual(rooms.map(room => room.label), ['标间1', '标间2', '标间3', '标间4', '标间5'])
 })

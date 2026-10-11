@@ -1,0 +1,28 @@
+[
+  {
+    "width": 390,
+    "geometry": {
+      "left": 17,
+      "right": 373,
+      "bottom": 810.40625,
+      "height": 776.828125,
+      "viewportWidth": 390,
+      "viewportHeight": 844,
+      "confirmBottom": 768.90625,
+      "bodyOverflow": false
+    }
+  },
+  {
+    "width": 1280,
+    "geometry": {
+      "left": 320,
+      "right": 960,
+      "bottom": 842.578125,
+      "height": 785.171875,
+      "viewportWidth": 1280,
+      "viewportHeight": 900,
+      "confirmBottom": 785.1875,
+      "bodyOverflow": false
+    }
+  }
+]

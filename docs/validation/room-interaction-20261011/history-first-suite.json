@@ -1,0 +1,22 @@
+{
+  "scope": "local fictitious memory projects only; no cloud or real phone acceptance",
+  "node": "v25.8.1",
+  "scenarios": [
+    {
+      "name": "accommodation",
+      "exitCode": 0
+    },
+    {
+      "name": "seating",
+      "exitCode": 0
+    },
+    {
+      "name": "drag-failure",
+      "exitCode": 0
+    },
+    {
+      "name": "history",
+      "exitCode": 1
+    }
+  ]
+}

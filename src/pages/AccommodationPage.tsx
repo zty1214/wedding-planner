@@ -1,5 +1,6 @@
 import FusionDialog from '../fusion/FusionDialog'
 import FusionRoomArrangement from '../fusion/FusionRoomArrangement'
+import FusionRoomDates from '../fusion/FusionRoomDates'
 import FusionFieldEditor from '../fusion/FusionFieldEditor'
 import { RepositoryContext } from '../fusion/RepositoryContext'
 import { ExportContext } from '../fusion/ExportContext'
@@ -266,7 +267,7 @@ export default function AccommodationPage() {
 
                   <div className="p-4 flex-1 flex flex-col">
 
-                  {fusion && <div className="mb-3 space-y-2"><FusionFieldEditor kind="roomNotes" entityId={room.id} label="房间备注" value={room.notes ?? ''} /><p className="text-sm">房间晚次：{room.stayDates?.length ? room.stayDates.join('、') : '待定'}</p><button className="text-sm underline" onClick={() => setPickerRoomId(room.id)}>调整宾客和房间晚次</button></div>}
+                  {fusion && <div className="mb-3 space-y-2"><FusionFieldEditor kind="roomNotes" entityId={room.id} label="房间备注" value={room.notes ?? ''} /><FusionRoomDates room={room} dates={stayDates} /><button className="text-sm underline" onClick={() => setPickerRoomId(room.id)}>调整宾客和房间晚次</button></div>}
                   {/* 入住人 */}
                   <div className="flex-1">
                     {occupants.length === 0 ? (
@@ -339,7 +340,7 @@ export default function AccommodationPage() {
       </div>
 
       {/* 宾客选择弹窗 */}
-      {pickerRoomId && rooms.some(r => r.id === pickerRoomId) && (
+      {!fusion && pickerRoomId && rooms.some(r => r.id === pickerRoomId) && (
         <GuestPicker
           targetRoom={rooms.find((r) => r.id === pickerRoomId)!}
           guests={guests}

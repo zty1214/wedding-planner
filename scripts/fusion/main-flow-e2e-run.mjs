@@ -86,7 +86,7 @@ async function night(year, month, day) {
   await heading.locator('../..').getByRole('button', { name: String(day), exact: true }).click()
 }
 async function verifyNights(target = page, shared = true) {
-  for (const [label, room] of [['12.31', shared ? '03' : '01'], ['1.1', shared ? '03' : '02']]) {
+  for (const [label, room] of [['12.31', shared ? '标间3' : '标间1'], ['1.1', shared ? '标间3' : '标间2']]) {
     await target.getByRole('button', { name: label, exact: true }).click()
     await wait(async () => (await target.getByText('当晚安排人数', { exact: true }).locator('..').innerText()).split('\n')[0] === (shared ? '2' : '1'))
     assert.equal((await target.getByText('当晚房间数', { exact: true }).locator('..').innerText()).split('\n')[0], '1')
@@ -185,10 +185,10 @@ try {
     await arrange(['虚构乙'], ['2027-01-01'])
     await verifyNights(page, false)
     const split = await serverRead(page, collaborationLink)
-    assert.deepEqual(split.data.rooms.map(room => [room.label, room.stayDates]), [['01', ['2026-12-31']], ['02', ['2027-01-01']]])
+    assert.deepEqual(split.data.rooms.map(room => [room.label, room.stayDates]), [['标间1', ['2026-12-31']], ['标间2', ['2027-01-01']]])
     await arrange(['虚构甲', '虚构乙'], ['2026-12-31', '2027-01-01'])
     await verifyNights()
-    const shared = await serverRead(page, collaborationLink), room = shared.data.rooms.find(room => room.label === '03')
+    const shared = await serverRead(page, collaborationLink), room = shared.data.rooms.find(room => room.label === '标间3')
     assert.deepEqual(room.stayDates, ['2026-12-31', '2027-01-01'])
     assert.ok(shared.data.guests.every(guest => guest.roomId === room.id && guest.attendance === 'pending'))
     report.roomNights = { independentRoomsByNight: true, sharedRoomCountsOnceEachNight: true, emptyPreviousRoomsExcluded: true, attendancePreserved: true }
@@ -215,7 +215,7 @@ try {
     await page.getByText('00123456789', { exact: true }).waitFor()
     await navigate('住宿安排')
     await verifyNights()
-    assert.deepEqual(await page.getByLabel('房号', { exact: true }).evaluateAll(inputs => inputs.map(input => input.value)), ['01', '02', '03'])
+    assert.deepEqual(await page.getByLabel('房号', { exact: true }).evaluateAll(inputs => inputs.map(input => input.value)), ['标间1', '标间2', '标间3'])
     await navigate('座位安排')
     await page.getByTitle('定位所有桌子', { exact: true }).click()
     await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))))

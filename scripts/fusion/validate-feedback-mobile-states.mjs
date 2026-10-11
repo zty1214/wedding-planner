@@ -28,7 +28,7 @@ try {
  await dialog.getByRole('button',{name:'确认整批安排',exact:true}).click();await dialog.getByText('整批安排尚未确认，原选择和原请求仍保留。请先处理顶部提示与本机命令草稿，再核对或重新编辑。',{exact:true}).waitFor()
  await page.locator('.planner-sync[data-state="conflict"]').waitFor();await measure('conflict');await dialog.getByRole('button',{name:'关闭',exact:true}).click();await measure('conflict-panel-closed');await page.screenshot({path:join(process.env.FEEDBACK_OUTPUT ?? '/private/tmp/planner-feedback-results','mobile-conflict.png'),fullPage:false});
  const after=await read(),actual=after.current?.data??after.data??after
- const room=Object.values(actual.rooms).find(room=>room.label==='01');assert.equal(actual.guests.g60.roomId,null);assert.equal(room.stayDates,undefined);assert.equal(actual.guests.g60.roomId,null)
+ const room=Object.values(actual.rooms).find(room=>room.label==='大床房1');assert.equal(actual.guests.g60.roomId,null);assert.equal(room.stayDates,undefined);assert.equal(actual.guests.g60.roomId,null)
  const drafts=await page.evaluate(async projectId=>{const {openFieldDraftVault}=await import('/src/fusion/fieldDrafts.ts');const vault=await openFieldDraftVault();try{return (await vault.list(projectId)).filter(d=>d.kind==='roomArrangement').map(d=>({frozen:!!d.handoff,value:JSON.parse(d.value)}))}finally{vault.close()}},projectId)
  assert.equal(drafts.length,1);assert.equal(drafts[0].frozen,true);assert.deepEqual(drafts[0].value.guestIds,['g60']);assert.deepEqual(drafts[0].value.dates,['2026-12-31']);report.results={...report.results,concurrentChangeRejectsWholeBatch:true,privateFrozenDraftRetained:true,conflictDialogCanCloseToReachRecoveryActions:true}
  assert.equal(report.error,undefined)

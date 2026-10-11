@@ -1,4 +1,5 @@
 import { roomViews } from './roomNights.ts'
+import { nextRoomLabel } from './roomLabel.ts'
 import { createStore } from 'zustand/vanilla'
 import type { WeddingState } from '../types/weddingState.ts'
 import type { projectRepository } from './repository.ts'
@@ -57,11 +58,9 @@ export function createPageStore(projectId: string, repo: ReturnType<typeof proje
     updateTable: (id, patch) => send('table.update', { id, patch: JSON.parse(JSON.stringify(patch)) }, [`table:${id}`]),
     removeTable: id => send('table.deleteWithGuests', { id }, [`table:${id}`, ...Object.values(current().guests).filter(g => g.tableId === id).map(g => `guest:${g.id}`)]),
     addRoom: async type => {
-      const id = crypto.randomUUID(), used = new Set(Object.values(current().rooms).map(room => room.label.trim()))
-      let number = 1
-      while (used.has(String(number).padStart(2, '0'))) number++
+      const id = crypto.randomUUID(), label = nextRoomLabel(Object.values(current().rooms), type)
       return new Promise<string | null>(resolve => {
-        void send('room.add', { id, label: String(number).padStart(2, '0'), type }, [], () => resolve(id)).then(saved => { if (!saved) resolve(null) })
+        void send('room.add', { id, label, type }, [], () => resolve(id)).then(saved => { if (!saved) resolve(null) })
       })
     },
     arrangeRoom: (roomId, guestIds, dates) => {

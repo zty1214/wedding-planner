@@ -5,6 +5,7 @@ import { openFieldDraftVault, fieldDraftCommand } from './fieldDrafts'
 import type { FieldDraft, FieldDraftVault } from './fieldDrafts'
 import { handoffForm } from './formHandoff'
 import { ROOM_CAPACITY } from '../types'
+import { formatNight } from '../utils/date'
 import type { Guest, Room } from '../types'
 
 /** Room-level dates and selected occupants are one private form and one frozen command. */
@@ -103,32 +104,31 @@ export default function FusionRoomArrangement({ room, guests, dates, suggestedDa
   const frozen = !!active.current?.handoff
   const displayedDates = [...new Set([...dates, ...form.dates])].sort()
   const removedDates = form.dates.filter(date => !dates.includes(date))
-  return <section className="space-y-3">
-    <div className="flex items-center justify-between gap-2"><h2>安排到「{room.label}」</h2><button disabled={busy} onClick={() => void close()}>关闭</button></div>
-    <p className="text-sm">共安排 {count} 人。选择此房间使用的晚次，同房宾客共用这一安排。</p>
+  return <section className="planner-room-arrangement">
+    <div className="planner-room-arrangement-heading flex items-center justify-between gap-2"><div className="min-w-0"><h2>安排到「{room.label}」</h2><span className="text-xs text-gray-500">已选 {count} 人 · 建议 {ROOM_CAPACITY[room.type]} 人</span></div><button disabled={busy} onClick={() => void close()}>关闭</button></div>
     {recovered && !frozen && <button disabled={busy} onClick={() => {
       const snapshot = repo.getSnapshot().snapshot
       if (!snapshot) return
       initial.current = snapshot; active.current = null; setRecovered(false)
       setMessage('将按最新安排另存新草稿；原草稿仍保留，可在本机草稿中核对。')
     }}>按最新安排另存新草稿</button>}
-    <fieldset disabled={!ready || busy || frozen || recovered} className="space-y-2">
-      <legend>房间住宿晚次</legend>
-      <div className="flex flex-wrap gap-2">{displayedDates.map(date => <label key={date}><input type="checkbox" aria-label={date} checked={form.dates.includes(date)} onChange={() => change({ ...form, dates: form.dates.includes(date) ? form.dates.filter(d => d !== date) : [...form.dates, date].sort() })} /> {date}{!dates.includes(date) && <small>（已从项目日期移除）</small>}</label>)}</div>
-      <div className="flex flex-wrap gap-2">{suggestedDate && <button onClick={() => change({ ...form, dates: [suggestedDate] })}>应用当前筛选晚次</button>}<button disabled={!dates.length} onClick={() => change({ ...form, dates: [...dates] })}>选择全部晚次</button><button onClick={() => change({ ...form, dates: [] })}>晚次待定</button></div>
+    <fieldset disabled={!ready || busy || frozen || recovered} className="planner-room-arrangement-form">
+      <legend className="text-sm">住宿晚次（同房共用）</legend>
+      <div className="planner-room-arrangement-dates flex flex-wrap gap-2">{displayedDates.map(date => <label key={date} title={date} data-selected={form.dates.includes(date)}><input type="checkbox" aria-label={date} checked={form.dates.includes(date)} onChange={() => change({ ...form, dates: form.dates.includes(date) ? form.dates.filter(d => d !== date) : [...form.dates, date].sort() })} /> {formatNight(date)}<small>{date.slice(0, 4)}年</small>{!dates.includes(date) && <small>（已从项目日期移除）</small>}</label>)}</div>
+      <div className="planner-room-arrangement-date-actions flex flex-wrap gap-2">{suggestedDate && <button onClick={() => change({ ...form, dates: [suggestedDate] })}>应用当前筛选晚次</button>}<button disabled={!dates.length} onClick={() => change({ ...form, dates: [...dates] })}>选择全部晚次</button><button onClick={() => change({ ...form, dates: [] })}>晚次待定</button></div>
       {removedDates.length > 0 && <p>原选择包含已移除日期：{removedDates.join('、')}。原请求仍保留；重新编辑时请取消这些日期或选择现有日期。</p>}
       {!dates.length && <p>尚未设置项目日期，可先保留晚次待定；关闭后在住宿页添加日期。</p>}
-      {!form.dates.length && <p>晚次待定，不计入酒店每晚用房数量。</p>}
-      <input ref={search} type="search" aria-label="搜索住宿宾客" placeholder="搜索姓名 / 分组 / 电话" value={query} onChange={e => setQuery(e.target.value)} className="w-full" />
-      <select aria-label="住宿宾客筛选" value={filter} onChange={e => setFilter(e.target.value)}>{[['all', '全部'], ['confirmed', '已确认出席'], ['needed', '需要住宿'], ['unassigned', '未分房']].map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select>
-      <div className="max-h-64 overflow-auto">{visible.map(g => <label key={g.id} className="flex gap-2 items-center py-2 border-b"><input type="checkbox" checked={g.roomId === room.id || form.guestIds.includes(g.id)} disabled={g.roomId === room.id} onChange={() => change({ ...form, guestIds: form.guestIds.includes(g.id) ? form.guestIds.filter(id => id !== g.id) : [...form.guestIds, g.id] })} /><span>{g.name} · {g.group}<small className="block">{g.attendance === 'declined' ? '不出席，仍可安排住宿' : g.attendance === 'confirmed' ? '已确认出席' : '出席待确认'} · {g.stayNeed === 'needed' ? '需要住宿' : g.stayNeed === 'not_needed' ? '原不需要住宿' : '住宿待确认'} · {g.roomId === room.id ? '本房间已安排' : g.roomId ? '从其他房间移入，确认后更换原安排' : '未分房'}</small></span></label>)}</div>
+      {!form.dates.length && <p className="text-xs text-gray-500">晚次待定，暂不计入酒店用房。</p>}
+      <div className="planner-room-arrangement-search"><input ref={search} type="search" aria-label="搜索住宿宾客" placeholder="搜索姓名 / 分组 / 电话" value={query} onChange={e => setQuery(e.target.value)} className="w-full" />
+      <select aria-label="住宿宾客筛选" value={filter} onChange={e => setFilter(e.target.value)}>{[['all', '全部'], ['confirmed', '已确认出席'], ['needed', '需要住宿'], ['unassigned', '未分房']].map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></div>
+      <div className="planner-room-arrangement-guests">{visible.map(g => <label key={g.id} className="flex gap-2 items-center py-2 border-b"><input type="checkbox" checked={g.roomId === room.id || form.guestIds.includes(g.id)} disabled={g.roomId === room.id} onChange={() => change({ ...form, guestIds: form.guestIds.includes(g.id) ? form.guestIds.filter(id => id !== g.id) : [...form.guestIds, g.id] })} /><span className="min-w-0 flex-1"><span>{g.name}</span><small className="ml-2 text-gray-500">{g.group}</small>{g.attendance === 'confirmed' && <small className="ml-2 text-emerald-600 inline-block whitespace-nowrap">已确认</small>}{(g.roomId || g.attendance === 'declined' || g.stayNeed === 'not_needed') && <small className="block text-gray-500">{g.roomId === room.id ? '本房间已安排' : g.roomId ? '移入（将更换原房间）' : ''}{g.attendance === 'declined' ? ' · 不出席，仍可安排住宿' : g.stayNeed === 'not_needed' ? ' · 原不需要住宿' : ''}</small>}</span></label>)}</div>
       {!visible.length && <p>{matches.length ? '当前筛选无匹配，可切换到全部。' : '全名单没有匹配宾客。请核对搜索内容。'}</p>}
       {filter !== 'all' && <button onClick={() => setFilter('all')}>清除筛选</button>}
     </fieldset>
-    <p role="status">{message}</p>
+    <p role="status" className="text-xs text-gray-500">{message}</p>
     {dirty.current && <button disabled={busy} onClick={() => change(form)}>重试本机保存</button>}
     {saved.length > 0 && <details><summary>恢复房间安排草稿（{saved.length}）</summary>{saved.map(d => <button key={d.id} disabled={busy} onClick={() => void recover(d)}>{new Date(d.updatedAt).toLocaleString('zh-CN')}</button>)}</details>}
-    <button disabled={!ready || busy || (!count && !frozen)} onClick={() => void submit()}>{frozen ? '核对原提交' : '确认整批安排'}</button>
-    <p className="text-xs">关闭保留本机选择；已新建的空房可在“全部日期”查看。顶部状态区分本机保存与云端同步。</p>
+    <button className="planner-room-arrangement-confirm" disabled={!ready || busy || (!count && !frozen)} onClick={() => void submit()}>{frozen ? '核对原提交' : '确认整批安排'}</button>
+    <p className="text-xs">关闭保留选择和空房；保存后也可在房间卡片点选日期。</p>
   </section>
 }

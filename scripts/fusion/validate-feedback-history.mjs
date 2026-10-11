@@ -20,7 +20,7 @@ try {
  await page.getByText('本机保存失败，输入仍在此处；请复制留存，不要关闭或刷新。',{exact:true}).waitFor()
  await page.evaluate(()=>history.back());const guard=page.getByRole('dialog',{name:'未保存输入离开确认'});await guard.waitFor()
  report.history={stayedOnForm:new URL(page.url()).pathname.endsWith('/guests'),inputRetained:await input.count()>0 && await input.inputValue()==='虚构未落盘宾客'}
- await guard.getByRole('button',{name:'留在页面',exact:true}).click();assert.equal(await input.inputValue(),'虚构未落盘宾客')
+ await guard.getByRole('button',{name:'留在页面',exact:true}).click();await guard.waitFor({state:'hidden'});await input.focus();await page.waitForFunction(()=>document.activeElement?.getAttribute('aria-label')==='宾客姓名');assert.equal(await input.inputValue(),'虚构未落盘宾客')
  await page.evaluate(()=>window.__restorePut());await input.fill('虚构已落盘宾客');await page.getByText('宾客草稿已保存在本机，尚未添加到共享名单。',{exact:true}).waitFor();await page.evaluate(()=>history.back());await page.waitForURL('**/seating');report.history.savedInputCanLeave=true
  await page.getByRole('link',{name:'宾客名单',exact:true}).click();await input.waitFor();await page.evaluate(()=>{const put=IDBObjectStore.prototype.put;IDBObjectStore.prototype.put=function(...args){const request=put.apply(this,args);if(this.name==='drafts')this.transaction.abort();return request}});await input.fill('虚构明确放弃');await page.getByText('本机保存失败，输入仍在此处；请复制留存，不要关闭或刷新。',{exact:true}).waitFor();await page.evaluate(()=>history.back());await guard.waitFor();await guard.getByRole('button',{name:'放弃未保存输入并离开',exact:true}).click();await page.waitForURL('**/seating');report.history.explicitLeave=true
  // Notes and field editors register their own latest unpersisted input with the router guard.
