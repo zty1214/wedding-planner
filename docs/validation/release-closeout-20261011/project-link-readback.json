@@ -1,0 +1,23 @@
+{
+  "date": "2026-10-11",
+  "origin": "https://dev-d1gh3jw1gdf06af22-1456231968.tcloudbaseapp.com",
+  "containsCredentials": false,
+  "checks": [
+    {
+      "kind": "complete-collaboration-link",
+      "result": "PROJECT_OPENED",
+      "supabaseRequests": 0,
+      "credentialRemovedFromAddressBar": true,
+      "fullLinkUsed": true
+    },
+    {
+      "kind": "address-without-fragment",
+      "result": "MISSING_CREDENTIAL_OR_OPEN_FAILED",
+      "supabaseRequests": 0,
+      "credentialRemovedFromAddressBar": true,
+      "fullLinkUsed": false
+    }
+  ],
+  "completeLinkValid": true,
+  "bareAddressFails": true
+}
