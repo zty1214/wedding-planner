@@ -1,0 +1,219 @@
+{
+  "status": "PASS",
+  "date": "2026-10-11T04:56:33.222Z",
+  "scope": "read-only re-export of the four previously authorized source projects; no freeze, import or source write",
+  "results": [
+    {
+      "index": 0,
+      "status": "verified",
+      "sourceHash": "c9fb22d5e51b702d92589c4446c64ac27eca867541f1ef82d1852598eef91574",
+      "consistency": "preliminary",
+      "counts": {
+        "guests": 134,
+        "tables": 12,
+        "rooms": 14,
+        "notes": 0,
+        "project_config": 0
+      },
+      "encryptedFileSha256": "d76a1dd406f742f9c4328dcf65ce3ca1e4cc32a6993610c113ac59e3fded04a4",
+      "twoPassContentMatch": true,
+      "unchangedSinceTrial": true,
+      "tables": {
+        "guests": {
+          "before": 134,
+          "after": 134,
+          "added": 0,
+          "removed": 0,
+          "changed": 0
+        },
+        "tables": {
+          "before": 12,
+          "after": 12,
+          "added": 0,
+          "removed": 0,
+          "changed": 0
+        },
+        "rooms": {
+          "before": 14,
+          "after": 14,
+          "added": 0,
+          "removed": 0,
+          "changed": 0
+        },
+        "notes": {
+          "before": 0,
+          "after": 0,
+          "added": 0,
+          "removed": 0,
+          "changed": 0
+        },
+        "project_config": {
+          "before": 0,
+          "after": 0,
+          "added": 0,
+          "removed": 0,
+          "changed": 0
+        }
+      }
+    },
+    {
+      "index": 1,
+      "status": "verified",
+      "sourceHash": "0a66cd84997ee1f552676535c40223cf034de18181699a1ab642a10d18a98833",
+      "consistency": "preliminary",
+      "counts": {
+        "guests": 1,
+        "tables": 0,
+        "rooms": 0,
+        "notes": 0,
+        "project_config": 0
+      },
+      "encryptedFileSha256": "4417128afec20e99d53b34e55b5051f94cc6d198e2277b3913dc44f7899b16b9",
+      "twoPassContentMatch": true,
+      "unchangedSinceTrial": true,
+      "tables": {
+        "guests": {
+          "before": 1,
+          "after": 1,
+          "added": 0,
+          "removed": 0,
+          "changed": 0
+        },
+        "tables": {
+          "before": 0,
+          "after": 0,
+          "added": 0,
+          "removed": 0,
+          "changed": 0
+        },
+        "rooms": {
+          "before": 0,
+          "after": 0,
+          "added": 0,
+          "removed": 0,
+          "changed": 0
+        },
+        "notes": {
+          "before": 0,
+          "after": 0,
+          "added": 0,
+          "removed": 0,
+          "changed": 0
+        },
+        "project_config": {
+          "before": 0,
+          "after": 0,
+          "added": 0,
+          "removed": 0,
+          "changed": 0
+        }
+      }
+    },
+    {
+      "index": 2,
+      "status": "verified",
+      "sourceHash": "2cd129b13d0bdc82e78ac96a9fb8d7ca920eabfbb6f4d0fe0c57cea4f585be61",
+      "consistency": "preliminary",
+      "counts": {
+        "guests": 0,
+        "tables": 1,
+        "rooms": 0,
+        "notes": 0,
+        "project_config": 0
+      },
+      "encryptedFileSha256": "76e12a338f752c7bc6bfd9b1192acadab9c9e80a9b0b901369dc4343a067b876",
+      "twoPassContentMatch": true,
+      "unchangedSinceTrial": true,
+      "tables": {
+        "guests": {
+          "before": 0,
+          "after": 0,
+          "added": 0,
+          "removed": 0,
+          "changed": 0
+        },
+        "tables": {
+          "before": 1,
+          "after": 1,
+          "added": 0,
+          "removed": 0,
+          "changed": 0
+        },
+        "rooms": {
+          "before": 0,
+          "after": 0,
+          "added": 0,
+          "removed": 0,
+          "changed": 0
+        },
+        "notes": {
+          "before": 0,
+          "after": 0,
+          "added": 0,
+          "removed": 0,
+          "changed": 0
+        },
+        "project_config": {
+          "before": 0,
+          "after": 0,
+          "added": 0,
+          "removed": 0,
+          "changed": 0
+        }
+      }
+    },
+    {
+      "index": 3,
+      "status": "verified",
+      "sourceHash": "17efa78ed32075b61d5f2c8f1094ec0a406379fc603e23d825463e62eace3f83",
+      "consistency": "preliminary",
+      "counts": {
+        "guests": 0,
+        "tables": 2,
+        "rooms": 0,
+        "notes": 0,
+        "project_config": 0
+      },
+      "encryptedFileSha256": "a4c524a56d0deea857e4e49768a3981415ccffe002949030c6711f9b0e03b711",
+      "twoPassContentMatch": true,
+      "unchangedSinceTrial": true,
+      "tables": {
+        "guests": {
+          "before": 0,
+          "after": 0,
+          "added": 0,
+          "removed": 0,
+          "changed": 0
+        },
+        "tables": {
+          "before": 2,
+          "after": 2,
+          "added": 0,
+          "removed": 0,
+          "changed": 0
+        },
+        "rooms": {
+          "before": 0,
+          "after": 0,
+          "added": 0,
+          "removed": 0,
+          "changed": 0
+        },
+        "notes": {
+          "before": 0,
+          "after": 0,
+          "added": 0,
+          "removed": 0,
+          "changed": 0
+        },
+        "project_config": {
+          "before": 0,
+          "after": 0,
+          "added": 0,
+          "removed": 0,
+          "changed": 0
+        }
+      }
+    }
+  ]
+}

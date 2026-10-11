@@ -7,6 +7,8 @@
 
 ## 当前结论与执行入口
 
+2026-10-11收尾状态优先见 [发布收尾执行单](operations/2026-10-11-release-closeout.md)：线上前端9a6cdd0、网关ab95ed3；手机字体和布局反馈已验收。以下诊断与阶段文字保留各自发生时的证据范围，不再据早期“尚未部署”文字判断当前版本。
+
 **最新业务口径优先：住宿晚次以房间安排为单位统一设置，不追踪同房宾客内部哪晚实际入住。第九节“房间统一晚次”替代早期逐人晚次方案；保留的诊断表及历史复核描述的是当前代码，不是最终产品规则。**
 
 诊断时共15项（U1–U15），当时均未修复或部署；实施后的状态见第十节。手机反馈统一编号为U15，U5保留为纯图片笔记迁移问题。优先级表示处理顺序，不表示所有项目均是生产故障或都阻塞现有业务流程。
@@ -369,3 +371,18 @@ U15纳入下一轮P1，按统一任务表分布于阶段A/B/C；当前仍是建�
 [阶段证据](validation/mobile-typography-20261009/phase-report.json)与[四页40场景测量](validation/mobile-typography-20261009/browser-report.json)：360/390/430、768/1280宽度，默认根字号16/20两档；手机添加按钮不换行、无页面横溢出，桌面既有几何/字体测量相同。截图只用虚构数据留本机，未复制用户截图到Git。可复现：Node22执行`node scripts/fusion/validate-feedback-mobile-typography.mjs`，默认输出`/private/tmp/planner-feedback-results`，S03_PORT/FEEDBACK_OUTPUT可配置。完整检查260/260、既有16场景回归退出0；候选仍需提交/CI及静态网页更新后由用户复测，不据本地修复声称线上已更新或真机通过。
 
 917a306首次CI #37898959547完整检查/主流程/业务构建通过，反馈套件在历史保护场景失败（正文期望值非空、实际为空），未部署该次失败候选。[失败回读](validation/mobile-typography-20261009/remote-ci-first-attempt.json)保留。笔记初始化在ready后自动聚焦标题，而脚本仅等待正文节点出现就填写，存在焦点竞争；CI未捕获焦点事件，不能声称已证明其唯一根因。修订为等初始化状态与标题焦点，再填正文，增加填写后即时值断言，并保留后退确认后值断言。6倍CPU节流另复现固定250ms后取路由导致误判，修订为等保护弹窗可见后测量；[节流结果](validation/mobile-typography-20261009/history-stress-report.json)和[时序记录](validation/mobile-typography-20261009/history-timing-report.json)均保留。修订后完整16场景与CPU节流退出0；本批仅验收工具调整，手机业务源码保持917a306。
+
+当前发布状态（2026-10-09）：最终提交9a6cdd0的[CI #37902071459](https://github.com/zty1214/wedding-planner/actions/runs/37902071459)所有任务及附件通过，见[最终回读](validation/mobile-typography-20261009/remote-ci.json)。发布前备份原ab95ed3网页7个公开文件，静态更新保留safe/verify、未prune；[实际HTTP文件回读](validation/mobile-typography-20261009/hosting-readback.json)7项哈希一致。[真实网页7项](validation/mobile-typography-20261009/cloud-browser-report.json)全部通过，均使用新建虚构项目，Supabase请求0。前端现为9a6cdd0，网关保持ab95ed3及原bundle哈希，本次不改数据库/云函数/权限；[发布范围](validation/mobile-typography-20261009/deployment-report.json)。原网址可复测，手机微信请重新打开或刷新原项目；字体及按钮观感仍待用户确认，不能将桌面模拟关闭本轮真机门槛。部署后的证据/状态文档先保留工作区，与后续验收一起形成阶段提交，不为几份报告立即追加小提交。
+
+### 2026-10-11使用者复测确认
+
+用户针对上述手机字体、按钮换行和页面布局修复反馈“没问题”。据此将本次页面字号与布局观感问题记为使用者验收通过，U15中此次反馈范围关闭，保留已部署前端9a6cdd0的证据绑定。此结论来源于使用者确认，不另行推断设备型号、系统版本或执行步骤。
+
+该确认不扩大为iPhone Safari/Android等所有设备覆盖通过，也不替代分享、触摸排座、软键盘、侧滑、切后台及文件保存的逐项真机结果；这些未明确反馈的项目仍按原清单保留待验。此次仅更新验收记录，不改代码、不重复部署、不单独新增Git提交。
+
+
+### 2026-10-11发布收尾
+
+用户要求“收尾吧”，本阶段归档手机修复的最终CI、实际Hosting文件及云端网页报告，整理Git主分支集成、备份、切换与回退执行单。新读取四个已授权Supabase来源项目，两次完整分页内容一致，与10月8日原备份逐记录比较均无新增/删除/修改；已重新加密保存并从磁盘解密验证，不重导入、不覆盖CloudBase后续编辑。证据见[来源复核](validation/release-closeout-20261011/supabase-source-audit.json)。
+
+最新CloudBase环境独立备份首次尝试失败；在允许网络访问的执行模式下单独运行`tcb env list --region ap-shanghai`仍返回“No valid identity found”。已请求使用者本机`tcb login`，不把旧10月8日备份冒充本次最新备份。旧源停写与退役未执行；其门槛和具体状态见[收尾执行单](operations/2026-10-11-release-closeout.md)。

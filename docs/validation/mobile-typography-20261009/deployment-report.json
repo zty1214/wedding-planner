@@ -1,0 +1,21 @@
+{
+  "status": "PASS",
+  "frontendCommit": "9a6cdd0ff5abd03dfd5928792b6249bd1a853f02",
+  "gatewayCommit": "ab95ed38f3c50016c84cf940d4579053fa403685",
+  "staticOnly": true,
+  "safe": true,
+  "verify": true,
+  "prune": false,
+  "hostingExitCode": 0,
+  "sameCommitCi": "https://github.com/zty1214/wedding-planner/actions/runs/37902071459",
+  "httpFileHashesMatch": 7,
+  "cloudBrowserChecks": 7,
+  "databaseOrFunctionChanges": false,
+  "actualPhoneRecheck": "USER_ACCEPTED_TYPOGRAPHY_AND_LAYOUT_2026_10_11",
+  "userAcceptance": {
+    "date": "2026-10-11",
+    "feedback": "没问题",
+    "scope": "mobile typography, button wrapping and page layout feedback",
+    "otherPhysicalDeviceChecks": "not confirmed by this feedback"
+  }
+}

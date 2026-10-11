@@ -1,0 +1,18 @@
+{
+  "date": "2026-10-11",
+  "status": "IN_PROGRESS",
+  "frontendCommit": "9a6cdd0ff5abd03dfd5928792b6249bd1a853f02",
+  "gatewayCommit": "ab95ed38f3c50016c84cf940d4579053fa403685",
+  "sourceReimport": false,
+  "sourceProjectsUnchangedSinceMigration": 4,
+  "sourceBackup": "ENCRYPTED_DISK_REOPEN_VERIFIED",
+  "freshCloudbaseBackup": "BLOCKED_CLI_LOGIN_EXPIRED",
+  "cloudbaseBackupFailureCode": "CLOUDBASE_CLI_FAILED_CHECK_LOGIN_AND_NETWORK",
+  "cliNetworkEnabledReadback": "No valid identity found",
+  "oldSourceWriteFreeze": "NOT_EXECUTED",
+  "oldSourceRetirement": "NOT_EXECUTED",
+  "actualPhoneTypographyAcceptance": "USER_ACCEPTED_2026_10_11",
+  "gitIntegration": "PENDING",
+  "pagesDeploy": false,
+  "scope": "closeout records; no business code or database mutation"
+}

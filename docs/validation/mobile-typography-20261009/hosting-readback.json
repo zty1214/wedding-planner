@@ -1,0 +1,43 @@
+{
+  "status": "PASS",
+  "frontendCommit": "9a6cdd0ff5abd03dfd5928792b6249bd1a853f02",
+  "gatewayCommit": "ab95ed38f3c50016c84cf940d4579053fa403685",
+  "gatewayBundleSha256": "f4080bc4d651ce22d09037396ffffbc61ae049d30854cddc58147a81fe77d489",
+  "artifacts": [
+    {
+      "path": "_redirects",
+      "sha256": "6036983e5fc00f0169c9e939b1816ed771eee00e27f2fcc517b819041460b9ef",
+      "matches": true
+    },
+    {
+      "path": "assets/index-AM9F6zdf.css",
+      "sha256": "b581ae42634aeaf88af84d61a0b98d14eab3739b184e2c58e437bf695b413361",
+      "matches": true
+    },
+    {
+      "path": "assets/index-CRlc2xjR.js",
+      "sha256": "2574bc1ec53b65561557709bba59e0c7a94eba80487f3e7db121c84e53c40873",
+      "matches": true
+    },
+    {
+      "path": "build-info.json",
+      "sha256": "77ad4aea258b15e4db6e23aeebb4341b175011eef28b570cd0b691e84877aa5c",
+      "matches": true
+    },
+    {
+      "path": "favicon.svg",
+      "sha256": "61bc9a161de58248288e6905425d7180f0624c2865007b97d763fdac12043a66",
+      "matches": true
+    },
+    {
+      "path": "icons.svg",
+      "sha256": "b45fa506195cfcdef406ba9f0c77b36ddc1a7c224040926ec70abc2fdea7b93a",
+      "matches": true
+    },
+    {
+      "path": "index.html",
+      "sha256": "9fcab395e34f108550ef53bf5d6b1a16e10037b9ad9302e0d0a46c0aa0261816",
+      "matches": true
+    }
+  ]
+}

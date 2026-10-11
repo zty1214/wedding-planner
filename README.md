@@ -4,7 +4,11 @@
 
 ## CloudBase 融合实施
 
-按 [融合方案](docs/2026-10-02-planner-fusion-plan.md) 分阶段推进，当前进入 P1c：新 `/fusion` 支持创建独立项目，`/fusion/p/:projectId` 测试入口已接通宾客、排座、住宿及文本笔记四页；旧入口仍使用原数据路径。新内核尚未连接生产页面。回收与换座已通过隔离云函数验证，回收站入口已接入但完整页面验收待补；手动版本、整项目恢复、安全快照、自动日结和筹备日历已接入隔离验证；日历支持按日分类和版本筛选。本机命令草稿支持查看、导出和核对后整组放弃；未发布文本笔记支持自动本机保存与刷新恢复。到期清理已本地实现未部署；宾客、笔记、标题/桌名/房号草稿与确认缓存已持久化。完整冲突处理、真实环境故障与云端容量、手机及页面验收仍待完成，详见开发验证记录。
+当前可用入口：[CloudBase 备婚助手](https://dev-d1gh3jw1gdf06af22-1456231968.tcloudbaseapp.com/)。前端 `9a6cdd0`、业务网关 `ab95ed3` 已部署，宾客、排座、房间统一晚次、文本笔记、协作链接、导出、本机草稿、历史与回收站均已接入真实云端。手机号前导零、按晚用房统计及跨身份协作已有验收证据，手机字号与按钮布局已获使用者确认。
+
+旧 Supabase 的四个项目已迁为独立 CloudBase 项目；2026-10-11只读复核未发现旧源新增或修改。CloudBase 上的后续编辑应保留，不重新导入旧副本覆盖。项目链接包含访问权限，使用页面“复制协作链接”分享给家人；管理链接私下保管，不能写入Git。
+
+本轮发布收尾、备份位置、回退和未完成操作统一见 [2026-10-11发布收尾执行单](docs/operations/2026-10-11-release-closeout.md)。旧来源后端停写与退役尚未执行；最新CloudBase独立备份因CLI登录失效待补，不能将“已部署可用”写成“正式切换全部完成”。历史设计见 [融合方案](docs/2026-10-02-planner-fusion-plan.md)，已延期的每日产品快照与图片上传不列为本轮上线前置条件。
 
 - `npm ci`：按锁文件安装依赖。
 - `npm test`：运行当前 Node test 领域/Repository 回归。
@@ -31,8 +35,8 @@ node scripts/fusion/inventory.mjs /private/tmp/private-bundle.json <project-id> 
 
 ## 检查与受控发布
 
-`.github/workflows/check.yml` 对 PR、main 和 feat/codex 分支运行锁文件安装及 `npm run check`，不连接云环境或部署。工作流使用 Node 22；当前本地验证版本单独记在验证记录，不能等同于远端 CI 已通过。
+`.github/workflows/check.yml` 对 PR、main 和 feat/codex 分支运行完整检查、主流程、业务构建隔离及16项反馈浏览器回归，不部署网站。使用Node22.18+；线上源码对应的[CI #37902071459](https://github.com/zty1214/wedding-planner/actions/runs/37902071459)已通过。
 
-GitHub Pages 已在工作流文件中改为手动发布：选择 main，并填入已审核的完整提交 SHA，必须与本次执行的 SHA 完全一致。构建前要求仓库变量 `VITE_FUSION_ENV_ID`、`VITE_FUSION_FUNCTION`、`VITE_FUSION_PUBLISHABLE_KEY` 以及过渡期旧入口的 `VITE_SUPABASE_URL`、`VITE_SUPABASE_ANON_KEY` 全部存在；这里只允许前端可公开配置，禁止填写管理密钥。缺失配置停止，不回退其他环境。
+CloudBase是本轮交付入口，按 [操作手册](docs/operations/cloudbase-runbook.md) 与 [发布收尾执行单](docs/operations/2026-10-11-release-closeout.md)发布。生产产物使用 `scripts/release/build-business-frontend.mjs` 显式Fusion-only构建，不加载旧Supabase配置。当前main/feat推送只触发检查；GitHub Pages工作流仍是手动入口，保留过渡期双配置要求，不用于本轮正式入口，也不在收尾中触发。
 
-部署作业绑定 `github-pages` 环境；环境审批人和其他托管平台的自动发布仍须在实际平台核对，仓库修改不代表已配置远端保护。构建产物包含 `build-info.json`，记录提交、工作流运行、CloudBase 环境和函数名，不含访问密钥。正式发布仍需完成 [TODO](docs/planner-fusion-todos.md) 的 R01–R03，不能仅凭检查通过上线。
+部署后以 `build-info.json`、实际公开文件哈希及网关活跃包核对运行版本。纯验收文档提交无需重新部署运行代码；代码集成版本与实际运行版本分别记录。GitHub仅保留 `main` 与 `feat/planner-cloudbase-fusion` 两个远端分支。
