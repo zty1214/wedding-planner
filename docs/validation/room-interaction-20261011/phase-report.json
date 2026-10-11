@@ -1,8 +1,8 @@
 {
   "date": "2026-10-11",
-  "scope": "New Fusion frontend room interactions only; no cloud database, gateway, legacy site or existing room labels modified",
+  "scope": "New Fusion frontend room interactions; existing wedding data, gateway, schema and legacy site unchanged; deployed acceptance uses a separate fictitious project",
   "baseline": "aac20446224b5e42601570824fe173826bfab9f2",
-  "status": "LOCAL_VERIFIED_REMOTE_CI_AND_FRONTEND_RELEASE_PENDING",
+  "status": "RELEASED_CI_AND_CLOUD_BROWSER_VERIFIED",
   "checks": {
     "completeCheck": {
       "passed": 261,
@@ -25,6 +25,23 @@
     "rootCause": "NOT_PROVEN"
   },
   "firstMainFlowFailure": "Old numeric room-label expectations; aligned with new type-prefixed names; final main flow PASS",
-  "deployment": "NOT_EXECUTED_YET",
-  "legacySite": "UNCHANGED"
+  "deployment": {
+    "status": "PASS",
+    "filesVerified": 7,
+    "frontendOnly": true,
+    "receipt": "deployment-report.json",
+    "httpReadback": "hosting-readback.json",
+    "browserReceipt": "cloud-browser-report.json",
+    "browserChecks": 8
+  },
+  "legacySite": "UNCHANGED",
+  "frontendCommit": "afa0baf0c4479f1fe82ec179b7f1dea1d3ba5ea0",
+  "gatewayCommit": "ab95ed38f3c50016c84cf940d4579053fa403685",
+  "remoteCI": {
+    "runId": 38124588988,
+    "status": "completed",
+    "conclusion": "success",
+    "receipt": "remote-ci.json"
+  },
+  "remainingAcceptance": "Actual phone visual and interaction confirmation for this supplemental room UI; desktop narrow-screen evidence is not phone acceptance"
 }

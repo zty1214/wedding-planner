@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-11",
+  "frontendCommit": "afa0baf0c4479f1fe82ec179b7f1dea1d3ba5ea0",
+  "origin": "https://dev-d1gh3jw1gdf06af22-1456231968.tcloudbaseapp.com",
+  "status": "PASS",
+  "files": [
+    {
+      "path": "_redirects",
+      "matches": true,
+      "sha256": "6036983e5fc00f0169c9e939b1816ed771eee00e27f2fcc517b819041460b9ef"
+    },
+    {
+      "path": "assets/index-BOttktcd.js",
+      "matches": true,
+      "sha256": "c28ef13ccc70d61fd93e0c3263e2fdeef468aea421377867065530f9252c0dc2"
+    },
+    {
+      "path": "assets/index-BkfW68KO.css",
+      "matches": true,
+      "sha256": "6e6245dbd680bc899c665274a532294d331483101cb9212de94e1fa8cae035e8"
+    },
+    {
+      "path": "build-info.json",
+      "matches": true,
+      "sha256": "77c8c40431843569668f2c26957fd91c0f64d68b90eb2f11d1ca67e1da765d35"
+    },
+    {
+      "path": "favicon.svg",
+      "matches": true,
+      "sha256": "61bc9a161de58248288e6905425d7180f0624c2865007b97d763fdac12043a66"
+    },
+    {
+      "path": "icons.svg",
+      "matches": true,
+      "sha256": "b45fa506195cfcdef406ba9f0c77b36ddc1a7c224040926ec70abc2fdea7b93a"
+    },
+    {
+      "path": "index.html",
+      "matches": true,
+      "sha256": "e1370cab60cb0a479e6bef2a490ea20437747973eccdc2ec4115d4d7e5e6b965"
+    }
+  ]
+}
