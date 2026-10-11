@@ -1,0 +1,34 @@
+{
+  "mode": "read-only-environment-backup",
+  "status": "verified",
+  "sourceHash": "255946c90281b7f33f92ead814158f8136e368bd7b512d8f1441f72b2a935046",
+  "consistency": "preliminary",
+  "counts": {
+    "planner_fusion_preprod_access": 17,
+    "planner_fusion_preprod_activity": 11,
+    "planner_fusion_preprod_current": 58,
+    "planner_fusion_preprod_receipts": 91,
+    "planner_fusion_probe_access": 62,
+    "planner_fusion_probe_activity": 41,
+    "planner_fusion_probe_current": 313,
+    "planner_fusion_probe_history": 154,
+    "planner_fusion_probe_receipts": 1038,
+    "weddings": 1,
+    "cloudbase_storage_objects": 4
+  },
+  "encryptedFileSha256": "3b01178285f5faaa92df73ccbc69904803c0409c7e943c88746d72f7acfac1b0",
+  "twoPassContentMatch": true,
+  "storageBytes": 2718,
+  "functionConfigurations": 4,
+  "exclusions": [
+    "function-code-packages",
+    "static-website-files",
+    "authentication-users",
+    "database-index-definitions"
+  ],
+  "firstAttempt": {
+    "status": "FAILED",
+    "code": "CLOUDBASE_CLI_FAILED_CHECK_LOGIN_AND_NETWORK",
+    "resolvedBy": "user-confirmed tcb login"
+  }
+}

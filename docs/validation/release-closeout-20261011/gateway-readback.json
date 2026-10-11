@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "observedDate": "2026-10-11",
+  "function": "planner-fusion-gateway",
+  "codeSha256": "f4080bc4d651ce22d09037396ffffbc61ae049d30854cddc58147a81fe77d489",
+  "matchesVerifiedGateway": true,
+  "downloadedFrom": "active $LATEST",
+  "databaseOrFunctionChanges": false
+}

@@ -1,18 +1,22 @@
 {
   "date": "2026-10-11",
-  "status": "IN_PROGRESS",
+  "status": "ENGINEERING_CLOSEOUT_SOURCE_FREEZE_PENDING",
   "frontendCommit": "9a6cdd0ff5abd03dfd5928792b6249bd1a853f02",
   "gatewayCommit": "ab95ed38f3c50016c84cf940d4579053fa403685",
   "sourceReimport": false,
   "sourceProjectsUnchangedSinceMigration": 4,
   "sourceBackup": "ENCRYPTED_DISK_REOPEN_VERIFIED",
-  "freshCloudbaseBackup": "BLOCKED_CLI_LOGIN_EXPIRED",
-  "cloudbaseBackupFailureCode": "CLOUDBASE_CLI_FAILED_CHECK_LOGIN_AND_NETWORK",
-  "cliNetworkEnabledReadback": "No valid identity found",
-  "oldSourceWriteFreeze": "NOT_EXECUTED",
+  "freshCloudbaseBackup": "VERIFIED_ENCRYPTED_DISK_REOPEN_TWO_PASS_MATCH",
+  "oldSourceWriteFreeze": "PENDING_SUPABASE_ADMIN_LOGIN_AND_SCOPED_EXECUTION",
   "oldSourceRetirement": "NOT_EXECUTED",
   "actualPhoneTypographyAcceptance": "USER_ACCEPTED_2026_10_11",
-  "gitIntegration": "PENDING",
+  "gitIntegration": {
+    "integratedCommit": "f9f4db51cfc73f38100d18fddc53e7712ee1bb27",
+    "mainRun": "https://github.com/zty1214/wedding-planner/actions/runs/38113515371",
+    "mainCi": "success",
+    "featFirstRun": "failure in history test; preserved separately"
+  },
   "pagesDeploy": false,
-  "scope": "closeout records; no business code or database mutation"
+  "scope": "closeout records; no business code or database mutation",
+  "offlineRecovery": "FOUR_REAL_PROJECTS_ALL_JSON_FIELDS_IDENTICAL"
 }

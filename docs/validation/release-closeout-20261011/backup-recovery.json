@@ -1,0 +1,110 @@
+{
+  "status": "PASS",
+  "observedAt": "2026-10-11T05:07:27.468Z",
+  "mode": "ACTUAL_ENCRYPTED_BACKUP_OFFLINE_MEMORY_RESTORE",
+  "cloudRestoreExecuted": false,
+  "databaseWrites": false,
+  "consistency": "preliminary",
+  "twoPassContentMatch": true,
+  "projectRecoveryRepresentation": "JSON; Int32 wrappers in change metadata become equal-valued numbers; parent environment backup preserves canonical EJSON",
+  "environmentBackupSha256": "3b01178285f5faaa92df73ccbc69904803c0409c7e943c88746d72f7acfac1b0",
+  "environmentSourceHash": "255946c90281b7f33f92ead814158f8136e368bd7b512d8f1441f72b2a935046",
+  "environmentCollectionCounts": {
+    "planner_fusion_preprod_access": 17,
+    "planner_fusion_preprod_activity": 11,
+    "planner_fusion_preprod_current": 58,
+    "planner_fusion_preprod_receipts": 91,
+    "planner_fusion_probe_access": 62,
+    "planner_fusion_probe_activity": 41,
+    "planner_fusion_probe_current": 313,
+    "planner_fusion_probe_history": 154,
+    "planner_fusion_probe_receipts": 1038,
+    "weddings": 1,
+    "cloudbase_storage_objects": 4
+  },
+  "oldWeddingsUnchangedSincePreviousBackup": true,
+  "storageFiles": 4,
+  "functionConfigurations": 4,
+  "gateway": {
+    "status": "Active",
+    "runtime": "Nodejs20.19",
+    "dailyCreationLimit": 200,
+    "logSwitchesFalse": true,
+    "collectionPrefix": "planner_fusion_preprod"
+  },
+  "projects": [
+    {
+      "index": 0,
+      "status": "PASS",
+      "sourceHash": "ba6bc93f53b666e01a372c9df065f9c3f889302631a114a522017daad43681ae",
+      "counts": {
+        "access": 1,
+        "current": 7,
+        "receipts": 31,
+        "activity": 1
+      },
+      "guests": 134,
+      "tables": 11,
+      "rooms": 15,
+      "snapshotRevision": 31,
+      "allProjectJsonFieldsIdentical": true,
+      "repeatPublishVerified": true
+    },
+    {
+      "index": 1,
+      "status": "PASS",
+      "sourceHash": "263ab163df1a9257b61f32302f7ac70878b05c05cfb0b437166ef4977e6489a3",
+      "counts": {
+        "access": 1,
+        "current": 4,
+        "receipts": 0,
+        "activity": 0
+      },
+      "guests": 1,
+      "tables": 0,
+      "rooms": 0,
+      "snapshotRevision": 0,
+      "allProjectJsonFieldsIdentical": true,
+      "repeatPublishVerified": true
+    },
+    {
+      "index": 2,
+      "status": "PASS",
+      "sourceHash": "de732b3a9f831b6670cdd50a4fb41e76ccbde2eed5ab04f0b711f06a1573afc8",
+      "counts": {
+        "access": 1,
+        "current": 4,
+        "receipts": 0,
+        "activity": 0
+      },
+      "guests": 0,
+      "tables": 1,
+      "rooms": 0,
+      "snapshotRevision": 0,
+      "allProjectJsonFieldsIdentical": true,
+      "repeatPublishVerified": true
+    },
+    {
+      "index": 3,
+      "status": "PASS",
+      "sourceHash": "62db4763b4a401e666f760ffe073f92429dcd7cd91fa649d4906d2482c127fc2",
+      "counts": {
+        "access": 1,
+        "current": 4,
+        "receipts": 0,
+        "activity": 0
+      },
+      "guests": 0,
+      "tables": 2,
+      "rooms": 0,
+      "snapshotRevision": 0,
+      "allProjectJsonFieldsIdentical": true,
+      "repeatPublishVerified": true
+    }
+  ],
+  "limitations": [
+    "No source write freeze; two-pass matching is preliminary",
+    "Offline recovery does not validate a different cloud environment or recovery time",
+    "Authentication users, indexes, full hosting and function packages are outside environment backup scope"
+  ]
+}

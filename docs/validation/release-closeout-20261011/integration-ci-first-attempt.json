@@ -1,0 +1,18 @@
+[
+  {
+    "id": 38113515371,
+    "head_sha": "f9f4db51cfc73f38100d18fddc53e7712ee1bb27",
+    "head_branch": "main",
+    "status": "completed",
+    "conclusion": "success",
+    "html_url": "https://github.com/zty1214/wedding-planner/actions/runs/38113515371"
+  },
+  {
+    "id": 38113515325,
+    "head_sha": "f9f4db51cfc73f38100d18fddc53e7712ee1bb27",
+    "head_branch": "feat/planner-cloudbase-fusion",
+    "status": "completed",
+    "conclusion": "failure",
+    "html_url": "https://github.com/zty1214/wedding-planner/actions/runs/38113515325"
+  }
+]

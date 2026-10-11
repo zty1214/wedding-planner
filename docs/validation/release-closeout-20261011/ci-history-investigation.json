@@ -1,0 +1,15 @@
+{
+  "status": "CI_TIMEOUT_OBSERVED_LOCAL_NOT_REPRODUCED",
+  "baselineCommit": "f9f4db51cfc73f38100d18fddc53e7712ee1bb27",
+  "failedRun": 38113515325,
+  "successfulSameCommitMainRun": 38113515371,
+  "script": "scripts/fusion/validate-feedback-history.mjs",
+  "line": 24,
+  "failure": "Timeout 30000ms waiting for durable guest draft success message after restoring the fictitious IndexedDB write fault",
+  "baselineLocal": "PASS",
+  "cpu6AndHistoryForwardDelay250ms": "PASS first guest-back-and-retry path",
+  "cpu20InitialLoad": "Timed out before target path; not evidence for this failure",
+  "applicationChanges": false,
+  "rootCause": "NOT_PROVEN",
+  "next": "retain failure; verify final archive commit CI on both branches"
+}
