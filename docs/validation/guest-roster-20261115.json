@@ -1,0 +1,229 @@
+{
+  "status": "DEPLOYED_AND_VERIFIED",
+  "date": "2026-11-15",
+  "commit": "82986b07fc68d90fd672ff0d8921d14df66424a9",
+  "local": {
+    "completeCheckPassed": 266,
+    "feedbackScenariosPassed": 16,
+    "browserImport": {
+      "actualDownloadedWorkbookNoOpRoundTrip": true,
+      "previewDoesNotWrite": true,
+      "confirmationRequiredForRemoval": true,
+      "completeReplacementOnConfirm": true,
+      "seatAndStayPreserved": true,
+      "notesAndOtherEntitiesUnchanged": true,
+      "safetyVersionVisible": true
+    },
+    "viewportLayout": [
+      {
+        "width": 360,
+        "attendanceAndLodgingSameRow": true,
+        "noOverflow": true,
+        "importDialogFits": true
+      },
+      {
+        "width": 390,
+        "attendanceAndLodgingSameRow": true,
+        "noOverflow": true,
+        "importDialogFits": true
+      },
+      {
+        "width": 1280,
+        "attendanceAndLodgingSameRow": true,
+        "noOverflow": true,
+        "importDialogFits": true
+      }
+    ]
+  },
+  "remoteCI": {
+    "id": 43691865279,
+    "status": "completed",
+    "conclusion": "success",
+    "html_url": "https://github.com/zty1214/wedding-planner/actions/runs/43691865279"
+  },
+  "gateway": {
+    "status": "PASS",
+    "commit": "82986b07fc68d90fd672ff0d8921d14df66424a9",
+    "bundleSha256": "4bd8918f0b03fff4d6b8b5192604f32585219b840b19cecf32e178302e78a9da",
+    "configurationPreserved": true,
+    "runtime": "Nodejs20.19",
+    "handler": "index.main",
+    "memoryMb": 256,
+    "timeoutSeconds": 20
+  },
+  "hosting": {
+    "status": "PASS",
+    "frontendCommit": "82986b07fc68d90fd672ff0d8921d14df66424a9",
+    "gatewayCommit": "82986b07fc68d90fd672ff0d8921d14df66424a9",
+    "gatewayBundleSha256": "4bd8918f0b03fff4d6b8b5192604f32585219b840b19cecf32e178302e78a9da",
+    "files": [
+      {
+        "path": "_redirects",
+        "sha256": "6036983e5fc00f0169c9e939b1816ed771eee00e27f2fcc517b819041460b9ef",
+        "match": true
+      },
+      {
+        "path": "assets/index-BEg89J6o.js",
+        "sha256": "f41acf8bc44d6ad30d6743ac165be9ec7788221a63cbff6c4e6bf1f439ddcde0",
+        "match": true
+      },
+      {
+        "path": "assets/index-ZvchmdEs.css",
+        "sha256": "be0bf5e76dd6093176c8ea4868583ed1745c62f67e0ee3c54748ef9dcf34da83",
+        "match": true
+      },
+      {
+        "path": "favicon.svg",
+        "sha256": "61bc9a161de58248288e6905425d7180f0624c2865007b97d763fdac12043a66",
+        "match": true
+      },
+      {
+        "path": "icons.svg",
+        "sha256": "b45fa506195cfcdef406ba9f0c77b36ddc1a7c224040926ec70abc2fdea7b93a",
+        "match": true
+      },
+      {
+        "path": "index.html",
+        "sha256": "05b30f0ef165c3f07c211f8bb5159d42842930886cb4b4421e98ba2e5653c9c5",
+        "match": true
+      },
+      {
+        "path": "build-info.json",
+        "sha256": "4facdecdc6d722ba2c85185131e0f043430b33a131afa464e19101aefcb8380f",
+        "match": true
+      }
+    ]
+  },
+  "cloudBrowser": {
+    "scope": "deployed browser UI and real business gateway; fictitious new project only",
+    "status": "PASS",
+    "checks": [
+      {
+        "name": "root-fusion-project-entry",
+        "status": "PASS"
+      },
+      {
+        "name": "real-gateway-project-creation",
+        "status": "PASS"
+      },
+      {
+        "name": "guest-leading-zero-and-refresh-deep-link",
+        "status": "PASS"
+      },
+      {
+        "name": "same-room-staggered-guest-dates-save-and-reload",
+        "status": "PASS"
+      },
+      {
+        "name": "visible-bottom-note-persists-and-redundant-action-removed",
+        "status": "PASS"
+      },
+      {
+        "name": "night-filter-shows-only-that-guests-one-room-one-person",
+        "status": "PASS"
+      },
+      {
+        "name": "seating-and-stay-real-pages",
+        "status": "PASS"
+      },
+      {
+        "name": "notes-published-and-refresh",
+        "status": "PASS"
+      },
+      {
+        "name": "confirmed-room-export-download-matches-nightly-statistics",
+        "status": "PASS"
+      },
+      {
+        "name": "independent-mobile-context-reads-cloud-data",
+        "status": "PASS"
+      },
+      {
+        "name": "guest-roster-134-row-import-with-preview-and-safety-version",
+        "status": "PASS"
+      }
+    ],
+    "supabaseRequests": 0,
+    "roster": {
+      "total": 134,
+      "removalConfirmation": true,
+      "existingRoomAndNightKept": true,
+      "safetyVersion": true,
+      "noteRetained": true,
+      "collaborationLinkStillWorks": true
+    }
+  },
+  "backup": {
+    "location": "/Users/baojie/.local/share/wedding-planner-backups/2026-11-15-guest-roster",
+    "environment": {
+      "mode": "read-only-environment-backup",
+      "status": "verified",
+      "sourceHash": "770803b321712c69fa35d2492add67605f5ba28918b8548551e9de0dea2c3935",
+      "consistency": "preliminary",
+      "counts": {
+        "planner_fusion_preprod_access": 22,
+        "planner_fusion_preprod_activity": 19,
+        "planner_fusion_preprod_current": 83,
+        "planner_fusion_preprod_receipts": 192,
+        "planner_fusion_probe_access": 62,
+        "planner_fusion_probe_activity": 41,
+        "planner_fusion_probe_current": 313,
+        "planner_fusion_probe_history": 154,
+        "planner_fusion_probe_receipts": 1038,
+        "weddings": 1,
+        "cloudbase_storage_objects": 4
+      },
+      "encryptedFileSha256": "825838b9b1cb9789beecc81a9e50b4244239e012cb6357d3fe009802e079b7a3",
+      "twoPassContentMatch": true,
+      "storageBytes": 2718,
+      "functionConfigurations": 4,
+      "exclusions": [
+        "function-code-packages",
+        "static-website-files",
+        "authentication-users",
+        "database-index-definitions"
+      ]
+    },
+    "gatewayAndHosting": {
+      "status": "PASS",
+      "previousFrontend": "aa3887ce23f52d23fd69e1258562fee3a905d110",
+      "previousGateway": "97d99fdf01f39876c431338e9deec76ec288ab32",
+      "previousGatewayBundleSha256": "628d7cc08c09838dbaa3eb1dcfa25afc8128d97c05e0299930ace86b3369f0d4",
+      "files": [
+        {
+          "path": "assets/index-B-9tgjTy.js",
+          "sha256": "f1a9759b07caf4fbe24bb370154dc0ad967e5277b2f40e163e73aa73f3da9986"
+        },
+        {
+          "path": "assets/index-CveNsre2.css",
+          "sha256": "3fbdc6dec085f87ecf0ae7e14582c99107cc566e4ed3557cf3d3ef666594f962"
+        },
+        {
+          "path": "favicon.svg",
+          "sha256": "61bc9a161de58248288e6905425d7180f0624c2865007b97d763fdac12043a66"
+        },
+        {
+          "path": "icons.svg",
+          "sha256": "b45fa506195cfcdef406ba9f0c77b36ddc1a7c224040926ec70abc2fdea7b93a"
+        },
+        {
+          "path": "_redirects",
+          "sha256": "6036983e5fc00f0169c9e939b1816ed771eee00e27f2fcc517b819041460b9ef"
+        },
+        {
+          "path": "index.html",
+          "sha256": "6740f75cd324a807fd1d12749e14af34da7cb2043a9416250125469bb3276970"
+        },
+        {
+          "path": "build-info.json",
+          "sha256": "4d44274c7d0a59643734bda15df1a57db1d8eb70b35229270cf4bcd82e2c18c9"
+        }
+      ]
+    }
+  },
+  "scope": "Existing authorized CloudBase frontend and gateway code; actual import verification used one isolated fictitious project, no writes to existing projects or links",
+  "gatewayDeploymentAttempts": {
+    "directZip": "CLI prompt and then wait interrupted; active old code confirmed before retry",
+    "cos": "updated and downloaded active bundle matched"
+  }
+}
