@@ -1,0 +1,209 @@
+{
+  "date": "2026-11-15",
+  "status": "DEPLOYED_AND_VERIFIED",
+  "localBrowser": {
+    "duplicateDefaultAndCustomSuppressed": true,
+    "duplicateCustomSuppressed": true,
+    "multipleCategoriesUseUnion": true,
+    "combinedWithPhoneSearch": true,
+    "clickAgainDeselects": true,
+    "lastDeselectShowsAll": true,
+    "allClearsSelection": true
+  },
+  "remoteCI": {
+    "id": 43686076635,
+    "head_sha": "aa3887ce23f52d23fd69e1258562fee3a905d110",
+    "status": "completed",
+    "conclusion": "success",
+    "html_url": "https://github.com/zty1214/wedding-planner/actions/runs/43686076635",
+    "jobs": [
+      {
+        "name": "check",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/setup-node@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run npm ci",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run npm run check",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run npx playwright install --with-deps chromium",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run npm run test:e2e",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run npm run test:e2e:business",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run npm run test:e2e:feedback",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/upload-artifact@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/upload-artifact@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/setup-node@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      }
+    ]
+  },
+  "hosting": {
+    "status": "PASS",
+    "scope": "frontend-only; published HTTP artifacts",
+    "frontendCommit": "aa3887ce23f52d23fd69e1258562fee3a905d110",
+    "gatewayCommit": "97d99fdf01f39876c431338e9deec76ec288ab32",
+    "gatewayBundleSha256": "628d7cc08c09838dbaa3eb1dcfa25afc8128d97c05e0299930ace86b3369f0d4",
+    "files": [
+      {
+        "path": "_redirects",
+        "sha256": "6036983e5fc00f0169c9e939b1816ed771eee00e27f2fcc517b819041460b9ef",
+        "match": true
+      },
+      {
+        "path": "assets/index-B-9tgjTy.js",
+        "sha256": "f1a9759b07caf4fbe24bb370154dc0ad967e5277b2f40e163e73aa73f3da9986",
+        "match": true
+      },
+      {
+        "path": "assets/index-CveNsre2.css",
+        "sha256": "3fbdc6dec085f87ecf0ae7e14582c99107cc566e4ed3557cf3d3ef666594f962",
+        "match": true
+      },
+      {
+        "path": "favicon.svg",
+        "sha256": "61bc9a161de58248288e6905425d7180f0624c2865007b97d763fdac12043a66",
+        "match": true
+      },
+      {
+        "path": "icons.svg",
+        "sha256": "b45fa506195cfcdef406ba9f0c77b36ddc1a7c224040926ec70abc2fdea7b93a",
+        "match": true
+      },
+      {
+        "path": "index.html",
+        "sha256": "6740f75cd324a807fd1d12749e14af34da7cb2043a9416250125469bb3276970",
+        "match": true
+      },
+      {
+        "path": "build-info.json",
+        "sha256": "4d44274c7d0a59643734bda15df1a57db1d8eb70b35229270cf4bcd82e2c18c9",
+        "match": true
+      }
+    ]
+  },
+  "previousHostingBackup": {
+    "status": "PASS",
+    "previousCommit": "626b891ed7dfaa91bc53e7ba90865adffcfa672f",
+    "previousGateway": "97d99fdf01f39876c431338e9deec76ec288ab32",
+    "files": [
+      {
+        "path": "assets/index-DbuVJnV-.js",
+        "sha256": "409fb84ba892816ec1957cb9a0094c11923ccedc35247407176c64532dc741a7"
+      },
+      {
+        "path": "assets/index-CveNsre2.css",
+        "sha256": "3fbdc6dec085f87ecf0ae7e14582c99107cc566e4ed3557cf3d3ef666594f962"
+      },
+      {
+        "path": "favicon.svg",
+        "sha256": "61bc9a161de58248288e6905425d7180f0624c2865007b97d763fdac12043a66"
+      },
+      {
+        "path": "icons.svg",
+        "sha256": "b45fa506195cfcdef406ba9f0c77b36ddc1a7c224040926ec70abc2fdea7b93a"
+      },
+      {
+        "path": "_redirects",
+        "sha256": "6036983e5fc00f0169c9e939b1816ed771eee00e27f2fcc517b819041460b9ef"
+      },
+      {
+        "path": "index.html",
+        "sha256": "d5fad8bca391b4e91033ec507a93931ad70f57c01a82476dab7c36a6272dcb5f"
+      },
+      {
+        "path": "build-info.json",
+        "sha256": "1d47ceab793324379ff8ad7fb9047c3b204fdb220c9d6b6325aa7e3fa03a81a8"
+      }
+    ],
+    "directory": "/Users/baojie/.local/share/wedding-planner-backups/2026-11-15-guest-filters/hosting"
+  },
+  "cloudBrowser": {
+    "scope": "read-only opening of the existing family project and local category toggles, no mutation requests issued by the checks",
+    "commit": "aa3887ce23f52d23fd69e1258562fee3a905d110",
+    "checks": [
+      {
+        "viewport": {
+          "width": 1470,
+          "height": 920
+        },
+        "categoryButtonsUnique": true,
+        "multiSelectUnion": true,
+        "deselectOneKeepsOther": true,
+        "lastDeselectRestoresFullList": true,
+        "allClearsSelection": true
+      },
+      {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "categoryButtonsUnique": true,
+        "multiSelectUnion": true,
+        "deselectOneKeepsOther": true,
+        "lastDeselectRestoresFullList": true,
+        "allClearsSelection": true
+      }
+    ],
+    "status": "PASS"
+  },
+  "scope": "Static frontend only, existing collaboration links and category assignments unchanged"
+}
