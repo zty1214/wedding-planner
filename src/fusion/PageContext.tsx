@@ -11,7 +11,7 @@ export function useWeddingStore<T = WeddingState>(selector: (state: WeddingState
 }
 export function useAllGroups() {
   const groups = useWeddingStore(s => s.customGroups)
-  return [...DEFAULT_GUEST_GROUPS, ...groups]
+  return [...new Set([...DEFAULT_GUEST_GROUPS, ...groups])]
 }
 
 export function useFusionMode() { return useContext(PageStoreContext) !== null }

@@ -22,6 +22,10 @@ export async function seedVisualScale(store) {
     const id = `g${i}`; data.guestOrder.push(id)
     data.guests[id] = { id, revision: 0, name: i % 10 === 0 ? `虚构长姓名欧阳司徒一家亲友代表${i + 1}` : `虚构宾客${i + 1}`, group: i % 2 ? '新郎亲属' : '新娘朋友', phone: `00${String(i).padStart(9, '0')}`, notes: '纯虚构验收数据', side: i % 2 ? 'groom' : 'bride', attendance: 'confirmed', tableId: `t${Math.floor(i / 10)}`, seatIndex: i % 10, roomId: i < 60 ? `r${Math.floor(i / 2)}` : null, stayNeed: i < 60 ? 'needed' : 'not_needed', stayDates: i < 60 ? (i % 2 ? ['2027-01-01'] : [...data.config.stayDates]) : [] }
   }
+  if (process.env.FEEDBACK_EDITOR_FIXTURE === '1') {
+    data.config.customGroups = ['新郎亲属', '新娘朋友', '新娘朋友', '工作人员']
+    data.guests.g2.group = '工作人员'
+  }
   if (process.env.FEEDBACK_EXPORT_FIXTURE === '1') {
     data.guests.g60.stayNeed = 'needed'
     data.guests.g61.roomId = 'pending-room'; data.guests.g61.stayNeed = 'needed'

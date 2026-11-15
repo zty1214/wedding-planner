@@ -20,7 +20,7 @@ export default function GuestsPage() {
   const [group, setGroup] = useState(allGroups[0])
   const [phone, setPhone] = useState('')
   const [search, setSearch] = useState('')
-  const [filterGroup, setFilterGroup] = useState('全部')
+  const [selectedGroups, setSelectedGroups] = useState<string[]>([])
   const [showAddGroup, setShowAddGroup] = useState(false)
   const [newGroup, setNewGroup] = useState('')
   const opener = useRef<HTMLElement | null>(null)
@@ -65,9 +65,17 @@ export default function GuestsPage() {
     setEditingId(null)
   }
 
+  const toggleGroupFilter = (category: string | null) => {
+    setSelectedGroups(current => {
+      if (category === null) return []
+      if (!fusion) return [category]
+      return current.includes(category) ? current.filter(group => group !== category) : [...current, category]
+    })
+  }
+
   const filtered = guests.filter((g) => {
     const matchSearch = g.name.includes(search) || (g.phone || '').includes(search)
-    const matchGroup = filterGroup === '全部' || g.group === filterGroup
+    const matchGroup = selectedGroups.length === 0 || selectedGroups.includes(g.group)
     return matchSearch && matchGroup
   })
 
@@ -75,7 +83,8 @@ export default function GuestsPage() {
   const confirmedCount = guests.filter((g) => (g.attendance ?? (g.status === 'confirmed' ? 'confirmed' : 'pending')) === 'confirmed').length
   const unseatedCount = guests.filter(g => !g.tableId && g.attendance !== 'declined').length
   const declinedCount = guests.filter(g => g.attendance === 'declined').length
-  const filterGroups = ['全部', ...allGroups]
+  const filterGroups = [null, ...allGroups]
+  const allFilterLabel = allGroups.includes('全部') ? '清除类别筛选' : '全部'
 
   return (
     <div className={`${fusion ? 'planner-page planner-guests' : 'sm:flex sm:flex-col'} h-full min-w-0 [overflow-wrap:anywhere] overflow-y-auto p-3 sm:p-6 max-w-4xl mx-auto`}>
@@ -212,20 +221,23 @@ export default function GuestsPage() {
             className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-200"
           />
         </div>
-        <div className="min-w-0 max-w-full flex gap-1 flex-wrap">
-          {filterGroups.map((g) => (
-            <button
-              key={g}
-              onClick={() => setFilterGroup(g)}
-              className={`max-w-full break-words [overflow-wrap:anywhere] px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                filterGroup === g
-                  ? 'bg-[#d4728a] text-white'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
-            >
-              {g}
-            </button>
-          ))}
+        <div role="group" aria-label="宾客类别筛选" className="min-w-0 max-w-full flex gap-1 flex-wrap">
+          {filterGroups.map(category => {
+            const selected = category === null ? selectedGroups.length === 0 : selectedGroups.includes(category)
+            return (
+              <button
+                key={category === null ? 'all' : `category:${category}`}
+                type="button"
+                aria-pressed={selected}
+                onClick={() => toggleGroupFilter(category)}
+                className={`max-w-full break-words [overflow-wrap:anywhere] px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                  selected ? 'bg-[#d4728a] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                {category ?? allFilterLabel}
+              </button>
+            )
+          })}
         </div>
       </div>
 
