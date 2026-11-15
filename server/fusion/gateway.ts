@@ -7,7 +7,7 @@ import { noteService } from './noteService.ts'
 import { coreHandlers } from './coreHandlers.ts'
 import { commandService } from './commandService.ts'
 import type { Handler, TransactionStore } from './commandService.ts'
-import { assertGatewayRequestSize, CommandError } from '../../src/fusion/protocol.ts'
+import { assertGatewayRequestSize, CommandError, replacesEpoch } from '../../src/fusion/protocol.ts'
 import type { ProbeImages } from './probeImages.ts'
 
 /** Shared business routing; project admission never grants access or creates unknown projects. */
@@ -60,7 +60,7 @@ export function fusionGateway(store: TransactionStore, acceptsProject: (id: stri
           || (e.command as Record<string, unknown>).projectId !== e.projectId) throw new CommandError('FORBIDDEN')
         const type = (e.command as Record<string, unknown>).type
         if (type === 'access.rotateCollaboration') return { ok: true, value: await accessService(store).execute(e.command, e.secret) }
-        return { ok: true, value: await ((type === 'version.save' || type === 'version.restore') ? historyService(store) : ['stayDate.remove', 'note.delete', 'guest.delete', 'table.deleteWithGuests', 'room.deleteWithAssignments', 'guest.clearRoom', 'guest.clearStayNeed', 'recycle.restore'].includes(String(type)) ? recycleService(store) : typeof type === 'string' && type.startsWith('note.') ? notes : service).execute(e.command, e.secret) }
+        return { ok: true, value: await ((type === 'version.save' || replacesEpoch(type)) ? historyService(store) : ['stayDate.remove', 'note.delete', 'guest.delete', 'table.deleteWithGuests', 'room.deleteWithAssignments', 'guest.clearRoom', 'guest.clearStayNeed', 'recycle.restore'].includes(String(type)) ? recycleService(store) : typeof type === 'string' && type.startsWith('note.') ? notes : service).execute(e.command, e.secret) }
       }
       if (e.action === 'receipt' && typeof e.dataEpoch === 'string' && e.dataEpoch.length > 0
         && typeof e.operationId === 'string' && e.operationId.length > 0) {

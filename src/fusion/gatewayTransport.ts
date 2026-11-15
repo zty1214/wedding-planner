@@ -2,7 +2,7 @@ import { assertActivityMonth } from './activity.ts'
 import { assertProjectVersion, assertVersionMeta } from './history.ts'
 import { assertTextNote } from './notes.ts'
 import { assertRecycleRecord } from './recycle.ts'
-import { assertGatewayRequestSize, CommandError } from './protocol.ts'
+import { assertGatewayRequestSize, CommandError, replacesEpoch } from './protocol.ts'
 import type { Command, ErrorCode, Receipt } from './protocol.ts'
 import type { ProjectSnapshot, ProjectTransport } from './repository.ts'
 import { assertCore } from '../../server/fusion/coreHandlers.ts'
@@ -16,8 +16,8 @@ function record(value: unknown): Record<string, unknown> {
 function receipt(value: unknown, command: Command): Receipt {
   const r = record(value)
   if (r.projectId !== command.projectId || r.dataEpoch !== command.dataEpoch || r.operationId !== command.operationId
-    || (r.resultDataEpoch !== undefined && (command.type !== 'version.restore' || typeof r.resultDataEpoch !== 'string' || !r.resultDataEpoch))
-    || (command.type === 'version.restore' && typeof r.resultDataEpoch !== 'string')
+    || (r.resultDataEpoch !== undefined && (!replacesEpoch(command.type) || typeof r.resultDataEpoch !== 'string' || !r.resultDataEpoch))
+    || (replacesEpoch(command.type) && typeof r.resultDataEpoch !== 'string')
     || typeof r.requestDigest !== 'string' || !/^[a-f0-9]{64}$/.test(r.requestDigest)
     || typeof r.committedAt !== 'string' || !Number.isFinite(Date.parse(r.committedAt))
     || !Number.isSafeInteger(r.snapshotRevision) || Number(r.snapshotRevision) < 0) throw Error('INVALID_GATEWAY_RECEIPT')

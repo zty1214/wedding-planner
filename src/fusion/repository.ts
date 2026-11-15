@@ -1,7 +1,7 @@
 import type { TextNote } from './notes.ts'
 import type { Core } from './core.ts'
 import type { Command, Json } from './protocol.ts'
-import { assertCommand, canonicalJson, commandDigest, CommandError } from './protocol.ts'
+import { assertCommand, canonicalJson, commandDigest, CommandError, replacesEpoch } from './protocol.ts'
 import { assertSameRequest, durableOutbox } from './outbox.ts'
 import type { CommandTransport, OutboxStorage, Pending } from './outbox.ts'
 import { projectDraft } from './projectDraft.ts'
@@ -312,7 +312,7 @@ export function projectRepository(projectId: string, storage: OutboxStorage, tra
       const task = edits.then(async () => {
         if (stopped || !confirmed || !view.snapshot || ['conflict', 'forbidden', 'failed'].includes(view.status)) throw new Error('EDITING_PAUSED')
         if (dataEpoch !== view.snapshot.dataEpoch) throw new CommandError('PROJECT_REPLACED')
-        if ((type === 'version.save' || type === 'version.restore') && (view.status !== 'synced' || view.pending)) throw new Error('EDITING_PAUSED')
+        if ((type === 'version.save' || replacesEpoch(type)) && (view.status !== 'synced' || view.pending)) throw new Error('EDITING_PAUSED')
         const snapshot = view.snapshot
         const command: Command = { projectId, dataEpoch: snapshot.dataEpoch, operationId, commandVersion: 1, ...frozen }
         transport.validateCommand?.(command)

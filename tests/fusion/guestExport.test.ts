@@ -26,18 +26,24 @@ test('guest Excel preserves seven columns, text phones, distinct people and expl
 })
 
 
-test('Fusion workbook preserves full groups and leaves unset side blank without inference', async () => {
+test('Fusion workbook matches guest controls and round-trips guest ID, text phone and stay need', async () => {
   const { emptyCore } = await import('../../src/fusion/core.ts')
   const { buildExportWorkbook } = await import('../../src/fusion/exportWorkbook.ts')
+  const { readGuestRosterWorkbook } = await import('../../src/fusion/guestRosterWorkbook.ts')
+  const { planGuestRoster } = await import('../../src/fusion/guestRoster.ts')
   const core = emptyCore()
-  core.guests.a = { id: 'a', revision: 0, name: '虚构宾客', group: '新娘同事', phone: '000123', notes: '', side: 'unset', attendance: 'pending', tableId: null, seatIndex: null, roomId: null, stayNeed: 'pending', stayDates: [] }
+  core.guests.a = { id: 'a', revision: 0, name: '虚构宾客', group: '新娘同事', phone: '000123', notes: '', side: 'groom', attendance: 'pending', tableId: null, seatIndex: null, roomId: null, stayNeed: 'needed', stayDates: [] }
   core.guestOrder = ['a']
   const result = buildExportWorkbook({ projectId: 'p', source: 'confirmed', capturedAt: '2026-10-08T00:00:00.000Z', snapshot: { data: core, dataEpoch: 'e', snapshotRevision: 0, role: 'management' } }, 'guests')
-  const bytes = XLSX.write(result.workbook, { type: 'buffer', bookType: 'xlsx' })
-  const read = XLSX.read(bytes, { type: 'buffer' }), rows = XLSX.utils.sheet_to_json<string[]>(read.Sheets['宾客名单'], { header: 1 })
-  assert.equal(rows[1][1], '000123'); assert.equal(rows[1][2], '新娘同事'); assert.equal(rows[1][3], '')
-  core.guests.a.side = 'groom'
-  const explicit = buildExportWorkbook({ projectId: 'p', source: 'confirmed', capturedAt: '2026-10-08T00:00:00.000Z', snapshot: { data: core, dataEpoch: 'e', snapshotRevision: 0, role: 'management' } }, 'guests')
-  const explicitRows = XLSX.utils.sheet_to_json<string[]>(explicit.workbook.Sheets['宾客名单'], { header: 1 })
-  assert.equal(explicitRows[1][2], '新娘同事'); assert.equal(explicitRows[1][3], '男方')
+  const bytes: ArrayBuffer = XLSX.write(result.workbook, { type: 'array', bookType: 'xlsx' })
+  const read = XLSX.read(bytes, { type: 'array' }), sheet = read.Sheets['宾客名单']
+  const rows = XLSX.utils.sheet_to_json<string[]>(sheet, { header: 1 })
+  assert.deepEqual(rows[0], ['姓名', '电话', '分组标签', '出席状态', '住宿需求', '桌号/桌名', '备注', '宾客编号'])
+  assert.deepEqual(rows[1], ['虚构宾客', '000123', '新娘同事', '待确认', '需要住宿', '', '', 'a'])
+  assert.equal(sheet.B2.t, 's')
+  assert.deepEqual(planGuestRoster(core, readGuestRosterWorkbook(bytes)), { added: [], updated: [], removed: [] })
+  sheet.B2 = { t: 'n', v: 123 }
+  assert.throws(() => readGuestRosterWorkbook(XLSX.write(read, { type: 'array', bookType: 'xlsx' })), /第 2 行「电话」请填写文本/)
+  sheet.B2 = { t: 's', v: '000123' }; sheet.A2 = { t: 's', v: '名字', f: '"名字"' }
+  assert.throws(() => readGuestRosterWorkbook(XLSX.write(read, { type: 'array', bookType: 'xlsx' })), /第 2 行「姓名」包含公式/)
 })

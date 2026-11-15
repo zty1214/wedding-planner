@@ -1,6 +1,7 @@
 import PrivateDraftPanel from './PrivateDraftPanel'
 import FusionFieldEditor from './FusionFieldEditor'
 import ActivityCalendar from './ActivityCalendar'
+import { ATTENDANCE_LABELS } from './guestRoster'
 import { useContext, useEffect, useState, useSyncExternalStore } from 'react'
 import { RepositoryContext } from './RepositoryContext'
 import type { ProjectSnapshot } from './repository'
@@ -14,10 +15,10 @@ function ArrangementPreview({ core, label }: { core: Core; label: string }) {
     <ul className="space-y-1">{core.tableOrder.map(id => { const t = core.tables[id]; return <li key={id}>{t.label}：{t.seats} 座，位置 ({t.x}, {t.y})，旋转 {t.rotation}°</li> })}</ul>
     <ul className="space-y-1">{core.roomOrder.map(id => { const r = core.rooms[id]; return <li key={id}>{r.label} · {r.type}{r.notes ? ` · ${r.notes}` : ''}</li> })}</ul>
     <div className="overflow-x-auto"><table className="w-full text-sm text-left"><caption className="text-left">逐人安排（同名记录按各自位置列出）</caption>
-      <thead><tr><th>宾客</th><th>出席 / 归属</th><th>座位</th><th>住宿</th></tr></thead>
+      <thead><tr><th>宾客</th><th>出席状态</th><th>座位</th><th>住宿</th></tr></thead>
       <tbody>{core.guestOrder.map(id => { const g = core.guests[id]; return <tr key={id} className="border-t">
         <td className="py-2">{g.name}<small className="block">{g.group}</small></td>
-        <td>{{ pending: '待确认', confirmed: '已确认', declined: '不出席' }[g.attendance]} / {{ unset: '未设置', bride: '女方', groom: '男方', shared: '共同' }[g.side]}</td>
+        <td>{ATTENDANCE_LABELS[g.attendance]}</td>
         <td>{g.tableId ? `${core.tables[g.tableId].label} · ${(g.seatIndex ?? 0) + 1} 号座` : '未排座'}</td>
         <td>{g.roomId ? `${core.rooms[g.roomId].label} · ${g.stayDates.join('、') || '晚次待定'}` : { pending: '需求待确认', needed: '待安排房间', not_needed: '不需要' }[g.stayNeed]}</td>
       </tr> })}</tbody></table></div>

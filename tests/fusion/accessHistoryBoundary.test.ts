@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { randomBytes, randomUUID } from 'node:crypto'
-import { mkdtemp, readFile, rm } from 'node:fs/promises'
+import { writeFile, mkdtemp, readFile, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import * as XLSX from 'xlsx'
@@ -77,7 +77,7 @@ test('downloaded XLSX bytes and workbook metadata exclude link secrets after rot
       const artifact = buildExportWorkbook({ projectId: 'a', source: 'confirmed', capturedAt: new Date().toISOString(), snapshot }, kind)
       const path = join(directory, artifact.filename)
       // Same writeFile defaults as ExportPanel. ZIP entries are uncompressed by default.
-      XLSX.writeFile(artifact.workbook, path)
+      await writeFile(path, XLSX.write(artifact.workbook, { type: 'buffer', bookType: 'xlsx' }))
       const bytes = await readFile(path), raw = bytes.toString('utf8')
       assert.ok(raw.includes('docProps/core.xml'))
       assert.ok(raw.includes('<dc:subject>'), 'audit includes serialized provenance metadata')

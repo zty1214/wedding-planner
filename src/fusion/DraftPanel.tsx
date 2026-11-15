@@ -10,7 +10,7 @@ const names: Record<string, string> = {
   'guest.delete': '删除宾客', 'table.add': '新增桌子', 'table.move': '移动桌子', 'table.update': '调整桌子', 'table.deleteWithGuests': '删除桌子并释放座位',
   'room.arrange': '旧版房间统一晚次安排', 'room.assignGuests': '安排所选宾客和晚次', 'room.add': '新增房间', 'room.update': '编辑房间', 'room.deleteWithAssignments': '删除房间并清除安排', 'project.update': '编辑项目配置', 'group.add': '新增分组',
   'stayDate.add': '新增晚次', 'stayDate.remove': '删除晚次', 'note.add': '新增笔记', 'note.update': '编辑笔记', 'note.delete': '删除笔记',
-  'version.save': '保存历史版本', 'version.restore': '恢复整个项目', 'recycle.restore': '恢复回收内容',
+  'guest.replaceRoster': '替换宾客名单', 'version.save': '保存历史版本', 'version.restore': '恢复整个项目', 'recycle.restore': '恢复回收内容',
 }
 export default function DraftPanel({ repo, onClose }: { repo: ReturnType<typeof projectRepository>; onClose(): void }) {
   const view = useSyncExternalStore(repo.subscribe, repo.getSnapshot)

@@ -1,12 +1,13 @@
 import { monthDays, describeActivity } from '../../src/fusion/activity.ts'
 import { beforeBusinessWrite } from './dailySnapshots.ts'
 import { randomUUID } from 'node:crypto'
-import { assertCommand, canonicalJson, CommandError } from '../../src/fusion/protocol.ts'
+import { assertCommand, canonicalJson, CommandError, GUEST_REPLACE, replacesEpoch } from '../../src/fusion/protocol.ts'
 import type { Receipt } from '../../src/fusion/protocol.ts'
 import { assertProjectVersion } from '../../src/fusion/history.ts'
 import type { ProjectVersion, VersionMeta } from '../../src/fusion/history.ts'
 import { assertTextNote } from '../../src/fusion/notes.ts'
 import { assertCore } from './coreHandlers.ts'
+import { applyGuestRoster, planGuestRoster } from '../../src/fusion/guestRoster.ts'
 import { authorize, businessDay, hashSecret } from './commandService.ts'
 import type { TransactionStore } from './commandService.ts'
 
@@ -36,15 +37,15 @@ export function historyService(store: TransactionStore, now = () => new Date()) 
     async execute(input: unknown, secret: string): Promise<Receipt> {
       assertCommand(input)
       const c = structuredClone(input), p = c.payload
-      const restoring = c.type === 'version.restore'
-      const field = restoring ? 'id' : 'name'
-      if ((!restoring && c.type !== 'version.save') || !p || typeof p !== 'object' || Array.isArray(p) || Object.keys(p).length !== 1
-        || typeof p[field] !== 'string' || !(p[field] as string).trim() || (!restoring && (p[field] as string).trim().length > 100)) throw new CommandError('INVALID_INPUT')
-      const value = (p[field] as string).trim()
+      const restoring = c.type === 'version.restore', importing = c.type === GUEST_REPLACE, replacing = replacesEpoch(c.type)
+      if ((!replacing && c.type !== 'version.save') || !p || typeof p !== 'object' || Array.isArray(p) || Object.keys(p).length !== 1) throw new CommandError('INVALID_INPUT')
+      const raw = restoring ? p.id : p.name
+      const value = typeof raw === 'string' ? raw.trim() : ''
+      if (importing ? !Array.isArray(p.rows) : !value || (!restoring && value.length > 100)) throw new CommandError('INVALID_INPUT')
       const digest = hashSecret(canonicalJson(c))
       return store.run(c.projectId, async tx => {
         const role = authorize(await tx.access(), secret)
-        if (restoring && role !== 'management') throw new CommandError('FORBIDDEN')
+        if (replacing && role !== 'management') throw new CommandError('FORBIDDEN')
         const old = await tx.receipt(c.dataEpoch, c.operationId)
         if (old) { if (old.digest !== digest) throw new CommandError('OPERATION_ID_REUSED'); return old.receipt }
         const current = await tx.current()
@@ -59,10 +60,25 @@ export function historyService(store: TransactionStore, now = () => new Date()) 
           assertTextNote(note); notes.push(note)
         }
         const date = now()
-        if (restoring) await beforeBusinessWrite(tx, current, date)
-        const meta: VersionMeta = { id: `${c.dataEpoch}:${c.operationId}${restoring ? ':safety' : ''}`, name: restoring ? '整项目恢复前的安全版本' : value, kind: restoring ? 'safety' : 'manual', status: 'ready',
+        let target: Pick<ProjectVersion, 'core' | 'notes' | 'noteRetiredIds'> | undefined
+        if (restoring) {
+          const saved = await tx.version(value)
+          if (!saved) throw new CommandError('NOT_FOUND')
+          assertProjectVersion(saved)
+          if (saved.expiresAt && Date.parse(saved.expiresAt) <= date.getTime()) throw new CommandError('CONFLICT')
+          target = saved
+        } else if (importing) {
+          const plan = planGuestRoster(current.data, p.rows)
+          if (!plan.added.length && !plan.updated.length && !plan.removed.length) throw new CommandError('INVALID_INPUT')
+          const data = applyGuestRoster(current.data, plan, randomUUID)
+          assertCore(data)
+          target = { core: data, notes, noteRetiredIds: index.retiredIds ?? [] }
+        }
+        if (target) await beforeBusinessWrite(tx, current, date)
+        const name = importing ? '替换宾客名单前的安全版本' : restoring ? '整项目恢复前的安全版本' : value
+        const meta: VersionMeta = { id: `${c.dataEpoch}:${c.operationId}${replacing ? ':safety' : ''}`, name, kind: replacing ? 'safety' : 'manual', status: 'ready',
           dataEpoch: c.dataEpoch, snapshotRevision: current.snapshotRevision, notesRevision: index.revision,
-          capturedAt: date.toISOString(), businessDate: businessDay(date), expiresAt: restoring ? new Date(date.getTime() + 90 * 86400000).toISOString() : null,
+          capturedAt: date.toISOString(), businessDate: businessDay(date), expiresAt: replacing ? new Date(date.getTime() + 90 * 86400000).toISOString() : null,
           counts: { guests: current.data.guestOrder.length, tables: current.data.tableOrder.length, rooms: current.data.roomOrder.length, notes: notes.length } }
         const version: ProjectVersion = { ...meta, schemaVersion: 1, core: structuredClone(current.data), notes, noteRetiredIds: index.retiredIds ?? [] }
         assertProjectVersion(version)
@@ -71,11 +87,7 @@ export function historyService(store: TransactionStore, now = () => new Date()) 
         await tx.putVersion(version); await tx.putHistoryIndex([meta, ...history])
         const receipt: Receipt = { projectId: c.projectId, dataEpoch: c.dataEpoch, operationId: c.operationId, requestDigest: digest,
           snapshotRevision: current.snapshotRevision, notesRevision: index.revision, committedAt: date.toISOString() }
-        if (restoring) {
-          const target = await tx.version(value)
-          if (!target) throw new CommandError('NOT_FOUND')
-          assertProjectVersion(target)
-          if (target.expiresAt && Date.parse(target.expiresAt) <= date.getTime()) throw new CommandError('CONFLICT')
+        if (target) {
           const dataEpoch = randomUUID()
           for (const note of target.notes) await tx.putNote(dataEpoch, structuredClone(note))
           await tx.putNoteIndex(dataEpoch, { revision: index.revision + 1, order: target.notes.map(n => n.id), retiredIds: [...target.noteRetiredIds] })

@@ -1,7 +1,7 @@
 import { editTextNote } from './notes.ts'
 import type { Core } from './core.ts'
 import type { Command } from './protocol.ts'
-import { CommandError } from './protocol.ts'
+import { CommandError, GUEST_REPLACE } from './protocol.ts'
 import { removeCore } from './removeCore.ts'
 import { assertCore, coreHandlers } from '../../server/fusion/coreHandlers.ts'
 import type { ProjectSnapshot } from './repository.ts'
@@ -10,7 +10,7 @@ const handlers = coreHandlers()
 export function projectDraft(snapshot: ProjectSnapshot, command: Command) {
   const { type } = command
   const handler = handlers.get(type)
-  if (!handler && !['version.save', 'version.restore', 'note.add', 'note.update', 'stayDate.remove', 'note.delete', 'guest.delete', 'table.deleteWithGuests', 'room.deleteWithAssignments', 'guest.clearRoom', 'guest.clearStayNeed', 'recycle.restore'].includes(type)) throw new CommandError('INVALID_INPUT')
+  if (!handler && !['version.save', 'version.restore', GUEST_REPLACE, 'note.add', 'note.update', 'stayDate.remove', 'note.delete', 'guest.delete', 'table.deleteWithGuests', 'room.deleteWithAssignments', 'guest.clearRoom', 'guest.clearStayNeed', 'recycle.restore'].includes(type)) throw new CommandError('INVALID_INPUT')
   const next = handler ? handler.apply(snapshot.data, command) as Core : snapshot.data
   let nextSnapshot = { ...snapshot, data: next }
   if (type === 'note.add' || type === 'note.update') {

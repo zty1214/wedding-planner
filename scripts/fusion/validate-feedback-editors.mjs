@@ -29,6 +29,17 @@ try {
  await bride.click();assert.equal(await all.getAttribute('aria-pressed'),'true');assert.equal(await guests.count(),150)
  await staff.click();assert.equal(await guests.count(),1);await all.click();assert.equal(await staff.getAttribute('aria-pressed'),'false');assert.equal(await guests.count(),150)
  report.guestFilters={duplicateDefaultAndCustomSuppressed:true,duplicateCustomSuppressed:true,multipleCategoriesUseUnion:true,combinedWithPhoneSearch:true,clickAgainDeselects:true,lastDeselectShowsAll:true,allClearsSelection:true}
+ const sort=page.getByRole('combobox',{name:'名单排序',exact:true}),seatFilter=chip('只看待分配')
+ const statusName=async where=>await guests[where]().getAttribute('aria-label')
+ assert.match(await statusName('first'),/亲友代表1的出席状态/)
+ await sort.selectOption('table');assert.match(await statusName('first'),/亲友代表11的出席状态/);assert.match(await statusName('last'),/虚构宾客150的出席状态/)
+ await sort.selectOption('recent');assert.match(await statusName('first'),/虚构宾客150的出席状态/)
+ await seatFilter.click();assert.equal(await guests.count(),1);assert.equal(await statusName('first'),'虚构宾客149的出席状态')
+ await chip('新郎亲属').click();assert.equal(await guests.count(),0);await all.click();assert.equal(await guests.count(),1)
+ await seatFilter.click();await sort.selectOption('added');assert.equal(await guests.count(),150)
+ assert.equal(await page.getByRole('combobox',{name:/的归属$/}).count(),0)
+ const statusY=await guests.first().boundingBox(),stayY=await page.getByRole('combobox',{name:/的住宿需求$/}).first().boundingBox();assert.ok(Math.abs(statusY.y-stayY.y)<1)
+ report.guestList={naturalTableOrder:true,unseatedAtEnd:true,newestFirst:true,unseatedFilterExcludesDeclined:true,filterComposesWithCategories:true,attendanceAndStayOnSameRow:true,sideControlRemoved:true}
  const edit=page.getByTitle('编辑',{exact:true}).last();await edit.click()
  const input=page.getByRole('textbox',{name:'宾客姓名',exact:true});await input.waitFor();await page.waitForFunction(()=>document.activeElement?.getAttribute('aria-label')==='宾客姓名')
  const position=await input.boundingBox();assert.ok(position.y>=0 && position.y<1000)

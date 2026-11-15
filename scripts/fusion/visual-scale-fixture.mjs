@@ -25,6 +25,9 @@ export async function seedVisualScale(store) {
   if (process.env.FEEDBACK_EDITOR_FIXTURE === '1') {
     data.config.customGroups = ['新郎亲属', '新娘朋友', '新娘朋友', '工作人员']
     data.guests.g2.group = '工作人员'
+    data.tables.t0.label = '第10桌'; data.tables.t1.label = '第2桌'
+    Object.assign(data.guests.g148, { tableId: null, seatIndex: null })
+    Object.assign(data.guests.g149, { tableId: null, seatIndex: null, attendance: 'declined' })
   }
   if (process.env.FEEDBACK_EXPORT_FIXTURE === '1') {
     data.guests.g60.stayNeed = 'needed'

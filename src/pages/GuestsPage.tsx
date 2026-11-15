@@ -1,15 +1,24 @@
 import ResponsiveEditor from '../fusion/ResponsiveEditor'
 import FusionFieldEditor from '../fusion/FusionFieldEditor'
 import FusionGuestForm from '../fusion/FusionGuestForm'
+import GuestRosterImport from '../fusion/GuestRosterImport'
 import { ExportContext } from '../fusion/ExportContext'
+import { RepositoryContext } from '../fusion/RepositoryContext'
 import { useContext, useRef, useState } from 'react'
 import { useWeddingStore, useAllGroups, useFusionMode } from '../fusion/PageContext'
 import { Plus, Trash2, Search, UserCheck, UserX, Pencil, Check, X, TagPlus, Download, BedDouble } from 'lucide-react'
 import type { Guest } from '../types'
 import { exportGuestsToExcel } from '../utils/exportGuests'
+import { ATTENDANCE_LABELS, STAY_NEED_LABELS } from '../fusion/guestRoster'
+
+type ListSort = 'added' | 'recent' | 'table'
+const needsSeat = (guest: Guest) => !guest.tableId && guest.attendance !== 'declined'
+const tableNames = new Intl.Collator('zh-CN', { numeric: true })
 
 export default function GuestsPage() {
   const openExport = useContext(ExportContext)
+  const repo = useContext(RepositoryContext)
+  const formEpoch = repo?.getSnapshot().snapshot?.dataEpoch
   const { guests, tables, rooms, addGuest, updateGuest, removeGuest, addCustomGroup, setGuestStayNeed } = useWeddingStore()
   const fusion = useFusionMode()
   const [decliningId, setDecliningId] = useState<string | null>(null)
@@ -21,6 +30,8 @@ export default function GuestsPage() {
   const [phone, setPhone] = useState('')
   const [search, setSearch] = useState('')
   const [selectedGroups, setSelectedGroups] = useState<string[]>([])
+  const [onlyUnseated, setOnlyUnseated] = useState(false)
+  const [listSort, setListSort] = useState<ListSort>('added')
   const [showAddGroup, setShowAddGroup] = useState(false)
   const [newGroup, setNewGroup] = useState('')
   const opener = useRef<HTMLElement | null>(null)
@@ -76,12 +87,21 @@ export default function GuestsPage() {
   const filtered = guests.filter((g) => {
     const matchSearch = g.name.includes(search) || (g.phone || '').includes(search)
     const matchGroup = selectedGroups.length === 0 || selectedGroups.includes(g.group)
-    return matchSearch && matchGroup
+    return matchSearch && matchGroup && (!onlyUnseated || needsSeat(g))
   })
+  if (listSort === 'recent') filtered.reverse()
+  if (listSort === 'table') {
+    const byId = new Map(tables.map((table, order) => [table.id, { label: table.label, order }]))
+    filtered.sort((a, b) => {
+      const left = a.tableId ? byId.get(a.tableId) : undefined, right = b.tableId ? byId.get(b.tableId) : undefined
+      if (!left || !right) return Number(!!right) - Number(!!left)
+      return tableNames.compare(left.label, right.label) || left.order - right.order || (a.seatIndex ?? 0) - (b.seatIndex ?? 0)
+    })
+  }
 
   const assignedCount = guests.filter((g) => g.tableId).length
   const confirmedCount = guests.filter((g) => (g.attendance ?? (g.status === 'confirmed' ? 'confirmed' : 'pending')) === 'confirmed').length
-  const unseatedCount = guests.filter(g => !g.tableId && g.attendance !== 'declined').length
+  const unseatedCount = guests.filter(needsSeat).length
   const declinedCount = guests.filter(g => g.attendance === 'declined').length
   const filterGroups = [null, ...allGroups]
   const allFilterLabel = allGroups.includes('全部') ? '清除类别筛选' : '全部'
@@ -135,7 +155,7 @@ export default function GuestsPage() {
       {/* Add form */}
       <ResponsiveEditor enabled={fusion} label={editingId ? '编辑宾客' : '添加宾客'} open={showGuestEditor}>
       <div className="bg-white rounded-xl p-4 border border-gray-100 mb-4 [&_input]:min-w-0 [&_input]:max-w-full [&_select]:min-w-0 [&_select]:max-w-full">
-        {fusion ? <FusionGuestForm key={editingId ?? 'new'} guestId={editingId ?? undefined} focusOnOpen={showGuestEditor || !!editingId} onClose={showGuestEditor || editingId ? closeGuestEditor : undefined} groups={allGroups} onAddGroup={() => setShowAddGroup(true)} /> : (
+        {fusion ? <FusionGuestForm key={JSON.stringify([formEpoch, editingId])} guestId={editingId ?? undefined} focusOnOpen={showGuestEditor || !!editingId} onClose={showGuestEditor || editingId ? closeGuestEditor : undefined} groups={allGroups} onAddGroup={() => setShowAddGroup(true)} /> : (
         <div className="flex gap-3 flex-wrap items-center">
           <input
             value={name}
@@ -241,6 +261,19 @@ export default function GuestsPage() {
         </div>
       </div>
 
+      {fusion && <div className="mb-4 flex flex-wrap items-center gap-2" role="group" aria-label="宾客名单筛选和排序">
+        <button type="button" aria-pressed={onlyUnseated} onClick={() => setOnlyUnseated(value => !value)}
+          className={`rounded-lg border px-3 py-1.5 text-sm ${onlyUnseated ? 'bg-[#d4728a] text-white' : 'bg-white text-gray-700'}`}>只看待分配</button>
+        <label className="flex items-center gap-2 text-sm text-gray-600">排序
+          <select aria-label="名单排序" value={listSort} onChange={e => setListSort(e.target.value as ListSort)} className="min-w-0 border rounded text-sm">
+            <option value="added">添加顺序（最早在前）</option>
+            <option value="recent">添加顺序（最近在前）</option>
+            <option value="table">桌号（升序）</option>
+          </select>
+        </label>
+        <GuestRosterImport />
+      </div>}
+
       {/* Guest list */}
       <div className={fusion ? 'space-y-2' : 'flex-1 overflow-y-auto space-y-2'}>
         {filtered.length === 0 && (
@@ -321,27 +354,26 @@ export default function GuestsPage() {
                       </span>
                     )}
                   </div>
-                  {fusion && <div className="flex flex-wrap gap-3 text-xs text-gray-600 mt-2">
-                    <label>出席状态 <select aria-label={`${guest.name}的出席状态`} className="border rounded p-1" value={guest.attendance ?? 'pending'} onChange={e => {
-                      const attendance = e.target.value as NonNullable<Guest['attendance']>
-                      if (attendance === 'declined' && guest.tableId) { setDecliningId(guest.id); return }
-                      void updateGuest(guest.id, { attendance })
-                    }}>
-                      <option value="pending">待确认</option><option value="confirmed">已确认</option><option value="declined">不出席</option>
-                    </select></label>
-                    <label>归属 <select aria-label={`${guest.name}的归属`} className="border rounded p-1" value={guest.side ?? 'unset'} onChange={e => void updateGuest(guest.id, { side: e.target.value as NonNullable<Guest['side']> })}>
-                      <option value="unset">未设置</option><option value="bride">女方</option><option value="groom">男方</option><option value="shared">共同</option>
-                    </select></label>
+                  {(fusion || setGuestStayNeed) && <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-gray-600 sm:flex sm:flex-wrap sm:items-center sm:gap-3">
+                    {fusion && <label className="flex min-w-0 flex-col gap-1 sm:flex-row sm:items-center">出席状态
+                      <select aria-label={`${guest.name}的出席状态`} className="min-w-0 border rounded p-1" value={guest.attendance ?? 'pending'} onChange={e => {
+                        const attendance = e.target.value as NonNullable<Guest['attendance']>
+                        if (attendance === 'declined' && guest.tableId) { setDecliningId(guest.id); return }
+                        void updateGuest(guest.id, { attendance })
+                      }}>
+                        {Object.entries(ATTENDANCE_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+                      </select>
+                    </label>}
+                    {setGuestStayNeed && <label className="flex min-w-0 flex-col gap-1 sm:flex-row sm:items-center">住宿需求
+                      <select aria-label={`${guest.name}的住宿需求`} className="min-w-0 border rounded p-1" value={guest.stayNeed ?? 'pending'} onChange={e => {
+                        const value = e.target.value as NonNullable<Guest['stayNeed']>
+                        if (guest.roomId && value === 'not_needed' && !confirm(`将“${guest.name}”改为不需要住宿？房间和住宿晚次将清除，并保留在回收站。`)) return
+                        void setGuestStayNeed(guest.id, value)
+                      }}>
+                        {Object.entries(STAY_NEED_LABELS).map(([value, label]) => <option key={value} value={value} disabled={!!guest.roomId && value === 'pending'}>{label}</option>)}
+                      </select>
+                    </label>}
                   </div>}
-                  {setGuestStayNeed && <label className="block text-xs text-gray-500 mt-2">住宿需求
-                    <select aria-label={`${guest.name}的住宿需求`} className="ml-2 border rounded p-1" value={guest.stayNeed ?? 'pending'} onChange={e => {
-                      const value = e.target.value as 'pending' | 'needed' | 'not_needed'
-                      if (guest.roomId && value === 'not_needed' && !confirm(`将“${guest.name}”改为不需要住宿？房间和住宿晚次将清除，并保留在回收站。`)) return
-                      setGuestStayNeed(guest.id, value)
-                    }}>
-                      <option value="pending" disabled={!!guest.roomId}>待确认</option><option value="needed">需要住宿</option><option value="not_needed">不需要住宿</option>
-                    </select>
-                  </label>}
                   {guest.phone && (
                     <div className="text-xs text-gray-400 mt-0.5 [overflow-wrap:anywhere]">{guest.phone}</div>
                   )}
