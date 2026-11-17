@@ -5,7 +5,7 @@ import type { ProjectSnapshot } from './repository.ts'
 
 export function describePayload(item: Pending, snapshot: ProjectSnapshot | null): string {
   const labels: Record<string, string> = { name: '姓名', group: '分组', phone: '电话', notes: '备注', title: '标题', content: '正文', category: '分类',
-    stayDates: '住宿晚次', customGroups: '自定义分组', createdAt: '创建时间', updatedAt: '更新时间', tableId: '桌位', roomId: '房间', seatIndex: '座号', dates: '住宿晚次', date: '晚次', additionalRoomStays: '其他房间晚次', household: '户', travelMode: '出行方式', reservedGuestIds: '指定入住人', twinGiftDate: '赠送标间晚次', byNight: '分晚安排', stayNeed: '住宿需求', attendance: '出席状态', side: '归属',
+    stayDates: '住宿晚次', customGroups: '自定义分组', createdAt: '创建时间', updatedAt: '更新时间', tableId: '桌位', roomId: '房间', seatIndex: '座号', dates: '住宿晚次', date: '晚次', additionalRoomStays: '其他房间晚次', household: '户', travelMode: '出行方式', reservedGuestIds: '指定入住人', twinGiftDate: '赠送标间晚次', byNight: '分晚安排', moveConflictingNights: '移入所选晚次', stayNeed: '住宿需求', attendance: '出席状态', side: '归属',
     label: '名称', seats: '座位数', x: '横向位置', y: '纵向位置', rotation: '旋转角度', mainStagePos: '舞台位置', type: '房型', firstId: '第一位宾客', secondId: '第二位宾客' }
   const enums: Record<string, string> = { pending: '待确认', needed: '需要', not_needed: '不需要', confirmed: '已确认', declined: '不出席', unset: '未设置', bride: '女方', groom: '男方', shared: '共同' }
   function value(key: string, v: unknown): string {

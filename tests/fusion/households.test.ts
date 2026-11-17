@@ -103,4 +103,9 @@ test('room changes by night preserve existing stays and the gift offsets one sch
   assert.deepEqual(guestStays((await read()).guests.a), [{ roomId: 't', dates: [early] }])
   await recycleService(store).execute(command('recycle.restore', { id: clear.operationId }, { 'guest:a': 3 }), 'collab')
   assert.deepEqual(guestStays((await read()).guests.a), guestStays(saved.guests.a))
+  await service.execute(command('room.assignGuests', { id: 't', guestIds: ['a'], dates: [early, first], byNight: true, moveConflictingNights: true },
+    { config: 0, 'room:t': 0, 'guest:a': 4 }), 'collab')
+  const moved = await read()
+  assert.deepEqual(guestStays(moved.guests.a), [{ roomId: 's', dates: [second] }, { roomId: 't', dates: [early, first] }])
+  assert.deepEqual(guestStays(moved.guests.b), guestStays(saved.guests.b))
 })

@@ -358,8 +358,9 @@ export function coreHandlers(): Map<string, Handler> {
   })
   // Frozen older selections retain their original single-room semantics.
   add('room.assignGuests', (c, p, cmd) => {
-    fields(p, ['id', 'guestIds', 'dates'], ['byNight'])
-    if (p.byNight !== undefined && p.byNight !== true) invalid()
+    fields(p, ['id', 'guestIds', 'dates'], ['byNight', 'moveConflictingNights'])
+    if ((p.byNight !== undefined && p.byNight !== true)
+      || (p.moveConflictingNights !== undefined && (p.moveConflictingNights !== true || p.byNight !== true))) invalid()
     const key = id(p.id), room = entity(c.rooms, key), selected = dates(p.dates)
     expected(cmd, `room:${key}`, room.revision); expected(cmd, 'config', c.config.revision)
     if (selected.some(date => !c.config.stayDates.includes(date)) || !Array.isArray(p.guestIds)) invalid()
@@ -370,12 +371,23 @@ export function coreHandlers(): Map<string, Handler> {
     for (const guestId of ids) expected(cmd, `guest:${guestId}`, entity(c.guests, guestId).revision)
     for (const guestId of ids) {
       const g = c.guests[guestId]
-      if (p.byNight) requireFreeRoomNights(g, room, selected)
-      else if (g.additionalRoomStays || (room.reservedGuestIds && !room.reservedGuestIds.includes(guestId))) throw new CommandError('CONFLICT')
+      if (!p.byNight && (g.additionalRoomStays || (room.reservedGuestIds && !room.reservedGuestIds.includes(guestId)))) throw new CommandError('CONFLICT')
       touch(g, () => {
         g.stayNeed = 'needed'
-        if (p.byNight) setDatesInRoom(g, key, [...selected])
-        else writeGuestStays(g, [{ roomId: key, dates: [...selected] }])
+        if (!p.byNight) {
+          writeGuestStays(g, [{ roomId: key, dates: [...selected] }])
+          return
+        }
+        if (p.moveConflictingNights) {
+          const retained = guestStays(g).flatMap(stay => {
+            if (stay.roomId === key || !stay.dates.some(date => selected.includes(date))) return [stay]
+            const dates = stay.dates.filter(date => !selected.includes(date))
+            return dates.length ? [{ ...stay, dates }] : []
+          })
+          writeGuestStays(g, retained)
+        }
+        requireFreeRoomNights(g, room, selected)
+        setDatesInRoom(g, key, [...selected])
       })
     }
   })

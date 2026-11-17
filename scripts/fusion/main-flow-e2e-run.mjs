@@ -171,13 +171,17 @@ try {
     await navigate('住宿安排')
     await night(2026, 12, 31)
     await night(2027, 1, 1)
-    async function arrange(names, dates) {
+    async function arrange(names, dates, moveNights = false) {
       await button('添加标间').click()
       const dialog = page.getByRole('dialog', { name: '房间住宿安排' })
       await dialog.getByText('选择宾客和住宿时间。', { exact: true }).waitFor()
       for (const name of names) await dialog.locator('label').filter({ hasText: name }).getByRole('checkbox').check()
       for (const date of dates) await dialog.getByRole('checkbox', { name: date, exact: true }).check()
-      await dialog.getByRole('button', { name: '确认整批安排', exact: true }).click()
+      const ordinary = dialog.getByRole('button', { name: '确认整批安排', exact: true })
+      if (moveNights) {
+        assert.equal(await ordinary.count(), 0)
+        await dialog.getByRole('button', { name: '移入所选晚次', exact: true }).click()
+      } else await ordinary.click()
       await dialog.waitFor({ state: 'hidden' })
       await page.locator('.planner-sync[data-state="synced"]').waitFor()
     }
@@ -186,7 +190,7 @@ try {
     await verifyNights(page, false)
     const split = await serverRead(page, collaborationLink)
     assert.deepEqual(split.data.rooms.map(room => [room.label, split.data.guests.find(g => g.roomId === room.id).stayDates]), [['标间1', ['2026-12-31']], ['标间2', ['2027-01-01']]])
-    await arrange(['虚构甲', '虚构乙'], ['2026-12-31', '2027-01-01'])
+    await arrange(['虚构甲', '虚构乙'], ['2026-12-31', '2027-01-01'], true)
     await verifyNights()
     const shared = await serverRead(page, collaborationLink), room = shared.data.rooms.find(room => room.label === '标间3')
     assert.ok(shared.data.guests.every(g => JSON.stringify(g.stayDates) === JSON.stringify(['2026-12-31', '2027-01-01'])))

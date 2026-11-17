@@ -42,7 +42,7 @@ export default function FusionRoomArrangement({ room, guests, dates, onClose }: 
     window.addEventListener('beforeunload', unload)
     return () => { mounted.current = false; window.removeEventListener('beforeunload', unload); void queue.current.finally(() => opened?.close()) }
   }, [repo, room.id])
-  function change(next: typeof form) {
+  function change(next: typeof form, moveNights = false) {
     if (!ready || recovered || submitting.current || active.current?.handoff) return
     setForm(next); dirty.current = true
     const number = ++sequence.current, snapshot = initial.current
@@ -51,7 +51,7 @@ export default function FusionRoomArrangement({ room, guests, dates, onClose }: 
     const affected = next.guestIds
     const revisions: Record<string, number> = { [`room:${room.id}`]: active.current.entityRevision, config: snapshot.data.config.revision }
     for (const id of affected) revisions[`guest:${id}`] = snapshot.data.guests[id]?.revision ?? -1
-    const value = JSON.stringify({ guestIds: next.guestIds, dates: next.dates, assignmentMode: 'byNight', expectedRevisions: revisions })
+    const value = JSON.stringify({ guestIds: next.guestIds, dates: next.dates, assignmentMode: moveNights ? 'moveNights' : 'byNight', expectedRevisions: revisions })
     setMessage('正在保存选择到本机…')
     queue.current = queue.current.then(async () => {
       const draft = active.current!
@@ -67,12 +67,12 @@ export default function FusionRoomArrangement({ room, guests, dates, onClose }: 
     if (dirty.current) { setMessage('选择未落盘，暂不能关闭。请先重试本机保存。'); return }
     onClose()
   }
-  async function submit() {
+  async function submit(moveNights = false) {
     const reconciling = !!active.current?.handoff
-    if (!ready || submitting.current || (!reconciling && (!count || (!recovered && dateConflicts.length)))) return
+    if (!ready || submitting.current || (!reconciling && (!count || (!recovered && dateConflicts.length && !moveNights)))) return
     const peak = Math.max(0, ...form.dates.map(date => occupants.filter(guest => stayInRoom(guest, room.id)?.dates.includes(date)).length + count))
     if (!reconciling && peak > ROOM_CAPACITY[room.type] && !window.confirm(`所选晚次最多安排${peak}人，超过建议${ROOM_CAPACITY[room.type]}人。仍要安排吗？`)) return
-    if (!active.current) change(form)
+    if (moveNights || !active.current) change(form, moveNights)
     submitting.current = true; setBusy(true)
     try {
       await queue.current
@@ -99,12 +99,13 @@ export default function FusionRoomArrangement({ room, guests, dates, onClose }: 
     try {
       const value = JSON.parse(draft.value) as typeof form & { assignmentMode?: string }
       if (!Array.isArray(value.guestIds) || !Array.isArray(value.dates)) throw Error('INVALID_INPUT')
-      active.current = structuredClone(draft); setRecovered(true); setForm({ guestIds: value.guestIds, dates: value.dates }); setMessage(value.assignmentMode ? '已载入原草稿；保留原代次和冲突校验，不会自动覆盖当前安排。' : '旧草稿仍按原房间统一晚次核对；如需逐人安排，请按最新安排另存新草稿。')
+      active.current = structuredClone(draft); setRecovered(true); setForm({ guestIds: value.guestIds, dates: value.dates }); setMessage(value.assignmentMode === 'moveNights' ? '已载入原草稿，包含移入所选晚次。保存时核对原始版本。' : value.assignmentMode ? '已载入原草稿；保留原代次和冲突校验，不会自动覆盖当前安排。' : '旧草稿仍按原房间统一晚次核对；如需逐人安排，请按最新安排另存新草稿。')
     } catch { setMessage('草稿无法载入，请到本机草稿导出原内容。') }
   }
   const needle = query.trim().toLowerCase()
   const matches = guests.filter(g => (!room.reservedGuestIds || room.reservedGuestIds.includes(g.id)) && `${g.name}\n${g.group}\n${g.phone ?? ''}`.toLowerCase().includes(needle))
   const frozen = !!active.current?.handoff
+  const movingNights = !recovered && !frozen && dateConflicts.length > 0
   const displayedDates = [...new Set([...dates, ...form.dates])].sort()
   const removedDates = form.dates.filter(date => !dates.includes(date))
   return <section className="planner-room-arrangement">
@@ -131,12 +132,13 @@ export default function FusionRoomArrangement({ room, guests, dates, onClose }: 
         </label>
       })}</div>
       {room.reservedGuestIds && <p className="text-xs text-gray-500">此套房仅限预留入住人。</p>}
-      {!recovered && dateConflicts.length > 0 && <p role="alert">{dateConflicts.map(guest => guest.name).join('、')}所选晚次已在其他房间，请调整日期。</p>}
+      {!recovered && dateConflicts.length > 0 && <p role="alert">{dateConflicts.map(guest => guest.name).join('、')}所选晚次已在其他房间。移入会转移这些晚次，其余晚次保留。</p>}
       {!matches.length && <p>全名单没有匹配宾客。请核对搜索内容。</p>}
     </fieldset>
     <p role="status" className="text-xs text-gray-500">{message}</p>
     {dirty.current && <button disabled={busy} onClick={() => change(form)}>重试本机保存</button>}
     {saved.length > 0 && <details><summary>恢复房间安排草稿（{saved.length}）</summary>{saved.map(d => <button key={d.id} disabled={busy} onClick={() => void recover(d)}>{new Date(d.updatedAt).toLocaleString('zh-CN')}</button>)}</details>}
-    <button className="planner-room-arrangement-confirm" disabled={!ready || busy || (!count && !frozen) || (!recovered && !frozen && dateConflicts.length > 0)} onClick={() => void submit()}>{frozen ? '核对原提交' : '确认整批安排'}</button>
+    <button className="planner-room-arrangement-confirm" disabled={!ready || busy || (!count && !frozen)}
+      onClick={() => void submit(movingNights)}>{frozen ? '核对原提交' : movingNights ? '移入所选晚次' : '确认整批安排'}</button>
   </section>
 }
