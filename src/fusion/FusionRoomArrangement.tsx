@@ -3,6 +3,7 @@ import { useContext, useEffect, useRef, useState } from 'react'
 import { RepositoryContext } from './RepositoryContext'
 import { openFieldDraftVault, fieldDraftCommand } from './fieldDrafts'
 import type { FieldDraft, FieldDraftVault } from './fieldDrafts'
+import { guestStays, stayInRoom } from './guestStays'
 import { handoffForm } from './formHandoff'
 import { ROOM_CAPACITY } from '../types'
 import { formatNight } from '../utils/date'
@@ -23,7 +24,9 @@ export default function FusionRoomArrangement({ room, guests, dates, onClose }: 
   const queue = useRef(Promise.resolve()), sequence = useRef(0), dirty = useRef(false), submitting = useRef(false), mounted = useRef(true)
   usePendingInputGuard(dirty)
   const search = useRef<HTMLInputElement>(null)
-  const currentIds = guests.filter(g => g.roomId === room.id).map(g => g.id)
+  const occupants = guests.filter(guest => stayInRoom(guest, room.id))
+  const dateConflicts = guests.filter(guest => form.guestIds.includes(guest.id)
+    && guestStays(guest).some(stay => stay.roomId !== room.id && stay.dates.some(date => form.dates.includes(date))))
   const count = form.guestIds.length
   useEffect(() => {
     let opened: FieldDraftVault | null = null
@@ -48,7 +51,7 @@ export default function FusionRoomArrangement({ room, guests, dates, onClose }: 
     const affected = next.guestIds
     const revisions: Record<string, number> = { [`room:${room.id}`]: active.current.entityRevision, config: snapshot.data.config.revision }
     for (const id of affected) revisions[`guest:${id}`] = snapshot.data.guests[id]?.revision ?? -1
-    const value = JSON.stringify({ guestIds: next.guestIds, dates: next.dates, assignmentMode: 'selectedGuests', expectedRevisions: revisions })
+    const value = JSON.stringify({ guestIds: next.guestIds, dates: next.dates, assignmentMode: 'byNight', expectedRevisions: revisions })
     setMessage('正在保存选择到本机…')
     queue.current = queue.current.then(async () => {
       const draft = active.current!
@@ -66,8 +69,8 @@ export default function FusionRoomArrangement({ room, guests, dates, onClose }: 
   }
   async function submit() {
     const reconciling = !!active.current?.handoff
-    if (!ready || submitting.current || (!count && !reconciling)) return
-    const peak = Math.max(0, ...form.dates.map(date => currentIds.filter(id => guests.find(g => g.id === id)!.stayDates.includes(date)).length + count))
+    if (!ready || submitting.current || (!reconciling && (!count || (!recovered && dateConflicts.length)))) return
+    const peak = Math.max(0, ...form.dates.map(date => occupants.filter(guest => stayInRoom(guest, room.id)?.dates.includes(date)).length + count))
     if (!reconciling && peak > ROOM_CAPACITY[room.type] && !window.confirm(`所选晚次最多安排${peak}人，超过建议${ROOM_CAPACITY[room.type]}人。仍要安排吗？`)) return
     if (!active.current) change(form)
     submitting.current = true; setBusy(true)
@@ -96,11 +99,11 @@ export default function FusionRoomArrangement({ room, guests, dates, onClose }: 
     try {
       const value = JSON.parse(draft.value) as typeof form & { assignmentMode?: string }
       if (!Array.isArray(value.guestIds) || !Array.isArray(value.dates)) throw Error('INVALID_INPUT')
-      active.current = structuredClone(draft); setRecovered(true); setForm({ guestIds: value.guestIds, dates: value.dates }); setMessage(value.assignmentMode === 'selectedGuests' ? '已载入原草稿；保留原代次和冲突校验，不会自动覆盖当前安排。' : '旧草稿仍按原房间统一晚次核对；如需逐人安排，请按最新安排另存新草稿。')
+      active.current = structuredClone(draft); setRecovered(true); setForm({ guestIds: value.guestIds, dates: value.dates }); setMessage(value.assignmentMode ? '已载入原草稿；保留原代次和冲突校验，不会自动覆盖当前安排。' : '旧草稿仍按原房间统一晚次核对；如需逐人安排，请按最新安排另存新草稿。')
     } catch { setMessage('草稿无法载入，请到本机草稿导出原内容。') }
   }
   const needle = query.trim().toLowerCase()
-  const matches = guests.filter(g => `${g.name}\n${g.group}\n${g.phone ?? ''}`.toLowerCase().includes(needle))
+  const matches = guests.filter(g => (!room.reservedGuestIds || room.reservedGuestIds.includes(g.id)) && `${g.name}\n${g.group}\n${g.phone ?? ''}`.toLowerCase().includes(needle))
   const frozen = !!active.current?.handoff
   const displayedDates = [...new Set([...dates, ...form.dates])].sort()
   const removedDates = form.dates.filter(date => !dates.includes(date))
@@ -118,12 +121,22 @@ export default function FusionRoomArrangement({ room, guests, dates, onClose }: 
       {removedDates.length > 0 && <p>原选择包含已移除日期：{removedDates.join('、')}。原请求仍保留；重新编辑时请取消这些日期或选择现有日期。</p>}
       {!dates.length && <p>尚未设置项目日期，可先保留晚次待定；关闭后在住宿页添加日期。</p>}
       <div className="planner-room-arrangement-search"><input ref={search} type="search" aria-label="搜索住宿宾客" placeholder="搜索姓名 / 分组 / 电话" value={query} onChange={e => setQuery(e.target.value)} className="w-full" /></div>
-      <div className="planner-room-arrangement-guests">{matches.map(g => <label key={g.id} className="planner-room-guest-row flex gap-2 items-center py-2 border-b"><input type="checkbox" checked={g.roomId === room.id || form.guestIds.includes(g.id)} disabled={g.roomId === room.id} onChange={() => change({ ...form, guestIds: form.guestIds.includes(g.id) ? form.guestIds.filter(id => id !== g.id) : [...form.guestIds, g.id] })} /><span className="min-w-0 flex-1"><span>{g.name}</span><small className="ml-2 text-gray-500">{g.group}</small>{g.attendance === 'confirmed' && <small className="ml-2 text-emerald-600 inline-block whitespace-nowrap">已确认</small>}{(g.attendance === 'declined' || g.stayNeed === 'not_needed') && <small className="block text-gray-500">{g.attendance === 'declined' ? '不出席，仍可安排住宿' : '原不需要住宿'}</small>}</span><span className="planner-room-guest-action">{g.roomId === room.id ? '已安排' : form.guestIds.includes(g.id) ? '已选择' : g.roomId ? '移入（原其他房间）' : '安排入住'}</span></label>)}</div>
+      <div className="planner-room-arrangement-guests">{matches.map(g => {
+        const assigned = !!stayInRoom(g, room.id), selected = form.guestIds.includes(g.id)
+        return <label key={g.id} className="planner-room-guest-row flex gap-2 items-center py-2 border-b">
+          <input type="checkbox" checked={assigned || selected} disabled={assigned}
+            onChange={() => change({ ...form, guestIds: selected ? form.guestIds.filter(id => id !== g.id) : [...form.guestIds, g.id] })} />
+          <span className="min-w-0 flex-1"><span>{g.name}</span><small className="ml-2 text-gray-500">{g.group}</small>{g.attendance === 'confirmed' && <small className="ml-2 text-emerald-600 inline-block whitespace-nowrap">已确认</small>}{(g.attendance === 'declined' || g.stayNeed === 'not_needed') && <small className="block text-gray-500">{g.attendance === 'declined' ? '不出席，仍可安排住宿' : '原不需要住宿'}</small>}</span>
+          <span className="planner-room-guest-action">{assigned ? '已安排' : selected ? '已选择' : g.roomId ? '另安排晚次' : '安排入住'}</span>
+        </label>
+      })}</div>
+      {room.reservedGuestIds && <p className="text-xs text-gray-500">此套房仅限预留入住人。</p>}
+      {!recovered && dateConflicts.length > 0 && <p role="alert">{dateConflicts.map(guest => guest.name).join('、')}所选晚次已在其他房间，请调整日期。</p>}
       {!matches.length && <p>全名单没有匹配宾客。请核对搜索内容。</p>}
     </fieldset>
     <p role="status" className="text-xs text-gray-500">{message}</p>
     {dirty.current && <button disabled={busy} onClick={() => change(form)}>重试本机保存</button>}
     {saved.length > 0 && <details><summary>恢复房间安排草稿（{saved.length}）</summary>{saved.map(d => <button key={d.id} disabled={busy} onClick={() => void recover(d)}>{new Date(d.updatedAt).toLocaleString('zh-CN')}</button>)}</details>}
-    <button className="planner-room-arrangement-confirm" disabled={!ready || busy || (!count && !frozen)} onClick={() => void submit()}>{frozen ? '核对原提交' : '确认整批安排'}</button>
+    <button className="planner-room-arrangement-confirm" disabled={!ready || busy || (!count && !frozen) || (!recovered && !frozen && dateConflicts.length > 0)} onClick={() => void submit()}>{frozen ? '核对原提交' : '确认整批安排'}</button>
   </section>
 }

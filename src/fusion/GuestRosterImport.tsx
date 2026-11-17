@@ -65,7 +65,7 @@ export default function GuestRosterImport() {
     <button type="button" className="rounded-lg border bg-white px-3 py-1.5 text-sm text-[#a44861]" onClick={() => { setPreview(null); setError(''); setStatus(''); setOpen(true) }}>导入名单</button>
     {open && <FusionDialog label="导入宾客名单" onClose={close}><section className="space-y-3">
       <div className="flex items-center justify-between gap-2"><h2>导入宾客名单</h2><button type="button" disabled={busy} onClick={close}>关闭</button></div>
-      <p>可编辑导出的名单后导回，或下载空白模板。保留表头和原宾客编号；新增宾客的编号留空，电话填文本。桌号仅供核对，已有座位和住宿按系统保留。</p>
+      <p>可编辑导出的名单后导回，或下载空白模板。保留表头和原宾客编号；新增宾客的编号留空，电话填文本。桌号和户名供核对，已有席位、住宿和户关系按系统保留。</p>
       <p className="text-sm text-gray-600">出席状态：待确认、已确认、不出席。住宿需求：待确认、需要住宿、不需要住宿。状态留空视为待确认；表里没有的宾客会在预览中列出。</p>
       <button type="button" onClick={() => XLSX.writeFile(buildGuestWorkbook([], [], true), '宾客名单导入模板.xlsx')}>下载空白模板</button>
       <label className="block text-sm">选择 Excel 名单

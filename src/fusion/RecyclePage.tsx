@@ -3,7 +3,8 @@ import { RepositoryContext } from './RepositoryContext'
 import { previewRestore } from './recycle'
 import type { RecycleRecord } from './recycle'
 import type { TextNote } from './notes'
-import type { Core } from './core'
+import { guestStays } from './guestStays'
+import type { Core, CoreGuest } from './core'
 
 const labels: Record<string, string> = {
   'guest.clearStayNeed': '改为不需要住宿并清除安排', 'stayDate.remove': '删除住宿晚次', 'note.delete': '删除笔记', 'guest.delete': '删除宾客', 'table.deleteWithGuests': '删除桌子并移出宾客',
@@ -28,7 +29,10 @@ function details(record: RecycleRecord, core: Core) {
     if (!b || typeof b !== 'object' || Array.isArray(b)) return ''
     if (c.section === 'config') return `恢复删除前的住宿晚次列表：${Array.isArray(b.stayDates) ? b.stayDates.join('、') : ''}`
     if (c.section === 'notes') return `笔记“${b.title || '无标题'}”（${b.category}）：${b.content}`
-    if (c.section === 'guests') return `${b.name}：桌位 ${name('tables', b.tableId)}${typeof b.seatIndex === 'number' ? `，第 ${b.seatIndex + 1} 座` : ''}；房间 ${name('rooms', b.roomId)}；住宿晚次 ${Array.isArray(b.stayDates) && b.stayDates.length ? b.stayDates.join('、') : '未选择'}。${b.phone ? `电话：${b.phone}。` : ''}${b.notes ? `备注：${b.notes}` : ''}`
+    if (c.section === 'guests') {
+      const stays = guestStays(b as CoreGuest).map(stay => `${name('rooms', stay.roomId)}（${stay.dates.join('、') || '晚次待定'}）`).join('、')
+      return `${b.name} · 桌位 ${name('tables', b.tableId)}${typeof b.seatIndex === 'number' ? `，第 ${b.seatIndex + 1} 座` : ''} · 住宿 ${stays || '未安排'}。${b.phone ? `电话 ${b.phone}。` : ''}${b.notes ? `备注 ${b.notes}` : ''}`
+    }
     if (c.section === 'tables') return `桌子“${b.label}”：${b.seats} 个座位，恢复原来的位置和朝向。`
     return `房间“${b.label}”：${b.type}。${b.notes ?? ''}`
   })

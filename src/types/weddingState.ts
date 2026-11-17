@@ -1,4 +1,4 @@
-import type { Guest, Table, Note, Room, RoomType, SharedLink } from './index.ts'
+import type { Guest, Table, Note, Room, RoomType, SharedLink, TravelMode } from './index.ts'
 
 type SaveResult = void | Promise<boolean>
 
@@ -12,6 +12,7 @@ export interface WeddingState {
   notes: Note[]
   customGroups: string[]
   stayDates: string[] // 项目级可选住宿晚次（ISO 日期），默认婚礼两晚
+  twinGiftDate?: string | null
   sharedLinks: SharedLink[] // 我生成的分享链接（仅本地）
 
   // Project actions
@@ -25,13 +26,17 @@ export interface WeddingState {
 
   // Guest actions
   addGuest: (name: string, group: string, phone?: string) => SaveResult
+  addHousehold?: (name: string, group: string, count: number) => Promise<boolean>
+  setHouseholdTravel?: (id: string, mode: TravelMode) => Promise<boolean>
   updateGuest: (id: string, patch: Partial<Guest>) => SaveResult
   removeGuest: (id: string) => void
   assignGuestToTable: (guestId: string, tableId: string | null, seatIndex: number | null) => void
   swapGuestSeats?: (firstId: string, secondId: string) => void
   assignGuestToRoom: (guestId: string, roomId: string | null) => void | Promise<boolean>
   setGuestStayNeed?: (id: string, value: 'pending' | 'needed' | 'not_needed') => void
-  setGuestStayDates: (guestId: string, dates: string[]) => SaveResult
+  clearGuestRoom?: (guestId: string, roomId: string) => Promise<boolean>
+  setGuestStayDates: (guestId: string, dates: string[], roomId?: string) => SaveResult
+  setTwinGift?: (enabled: boolean, date: string | null) => Promise<boolean>
   addCustomGroup: (group: string) => SaveResult
 
   // Table actions

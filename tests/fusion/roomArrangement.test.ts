@@ -109,7 +109,7 @@ test('same-room guests keep independent nights across old room metadata, card ed
   assert.deepEqual(c.guests.b.stayDates, ['2027-01-02'])
   assert.deepEqual(projectDraft({ data: before, dataEpoch: 'e', snapshotRevision: 0, role: 'management' }, add).snapshot.data, c)
   const guests = () => Object.values(c.guests).map(g => ({ ...g, status: 'unassigned' as const }))
-  for (const date of c.config.stayDates) assert.deepEqual(accommodationNight(roomViews(c), guests(), date), { king: 1, twin: 0, total: 1, people: 1, checkIn: 1 })
+  for (const date of c.config.stayDates) assert.deepEqual(accommodationNight(roomViews(c), guests(), date), { king: 1, twin: 0, suite: 0, total: 1, people: 1, checkIn: 1 })
   assert.equal(roomOccupancy(roomViews(c)[0], guests(), c.config.stayDates).peak, 1)
   const wb = buildRoomWorkbook(roomViews(c), guests(), c.config.stayDates, true)
   const rows = XLSX.utils.sheet_to_json<Record<string, string>>(wb.Sheets['住宿明细'])

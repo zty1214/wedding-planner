@@ -69,6 +69,7 @@ export interface CommandHandler {
 }
 
 export const GUEST_REPLACE = 'guest.replaceRoster'
+export const HOUSEHOLD_RECONCILE = 'household.reconcile'
 export const replacesEpoch = (type: unknown) => type === 'version.restore' || type === GUEST_REPLACE
 
 /** Normal writes retain the original budget; a complete roster has a separate, bounded budget. */
@@ -76,6 +77,7 @@ export const GATEWAY_REQUEST_BYTES = 16384
 export const GUEST_REPLACE_REQUEST_BYTES = 256 * 1024
 export function assertGatewayRequestSize(event: unknown) {
   const request = event as { action?: unknown; command?: { type?: unknown } } | null | undefined
-  const limit = request?.action === 'execute' && request.command?.type === GUEST_REPLACE ? GUEST_REPLACE_REQUEST_BYTES : GATEWAY_REQUEST_BYTES
+  const largeWrite = request?.action === 'execute' && [GUEST_REPLACE, HOUSEHOLD_RECONCILE, 'household.create'].some(type => request.command?.type === type)
+  const limit = largeWrite ? GUEST_REPLACE_REQUEST_BYTES : GATEWAY_REQUEST_BYTES
   if (new TextEncoder().encode(canonicalJson(event)).byteLength > limit) throw new CommandError('REQUEST_TOO_LARGE')
 }

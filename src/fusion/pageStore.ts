@@ -1,3 +1,4 @@
+import { guestStays, stayInRoom } from './guestStays.ts'
 import { roomViews } from './roomNights.ts'
 import { nextRoomLabel } from './roomLabel.ts'
 import { createStore } from 'zustand/vanilla'
@@ -28,9 +29,14 @@ export function createPageStore(projectId: string, repo: ReturnType<typeof proje
     setMainStagePos: mainStagePos => send('project.update', { patch: { mainStagePos } }, ['config']),
     addSharedLink: unsupported, renameSharedLink: unsupported, removeSharedLink: unsupported,
     addGuest: (name, group, phone) => send('guest.add', { id: crypto.randomUUID(), name, group, phone: phone ?? '' }),
+    addHousehold: (name, group, count) => send('household.create', {
+      id: crypto.randomUUID(), name, group, guestIds: Array.from({ length: count }, () => crypto.randomUUID()),
+    }),
+    setHouseholdTravel: (id, travelMode) => send('household.setTravel', { id, travelMode },
+      Object.values(current().guests).filter(g => g.household?.id === id).map(g => `guest:${g.id}`)),
     updateGuest: (id, patch) => {
       const converted: Record<string, Json> = {}
-      for (const key of ['name', 'group', 'phone', 'notes', 'side', 'attendance'] as const) if (Object.hasOwn(patch, key)) converted[key] = patch[key] ?? ''
+      for (const key of ['name', 'group', 'phone', 'notes', 'side', 'attendance', 'travelMode'] as const) if (Object.hasOwn(patch, key)) converted[key] = patch[key] ?? ''
       if (patch.status && !patch.attendance) converted.attendance = patch.status === 'confirmed' ? 'confirmed' : 'pending'
       return send('guest.update', { id, patch: converted }, [`guest:${id}`])
     },
@@ -47,7 +53,10 @@ export function createPageStore(projectId: string, repo: ReturnType<typeof proje
     setGuestStayNeed: (id, stayNeed) => current().guests[id]?.roomId && stayNeed === 'not_needed'
       ? send('guest.clearStayNeed', { id }, [`guest:${id}`])
       : send('guest.setStayNeed', { id, stayNeed }, [`guest:${id}`]),
-    setGuestStayDates: (id, dates) => send('guest.setStayDates', { id, dates }, [`guest:${id}`, 'config']),
+    clearGuestRoom: (id, roomId) => send('guest.clearRoom', { id, roomId }, [`guest:${id}`]),
+    setGuestStayDates: (id, dates, roomId) => send('guest.setStayDates',
+      roomId ? { id, dates, roomId } : { id, dates }, [`guest:${id}`, 'config', ...(roomId ? [`room:${roomId}`] : [])]),
+    setTwinGift: (enabled, date) => send('stayGift.update', { enabled, date }, ['config']),
     addCustomGroup: group => send('group.add', { group }, ['config']),
     addTable: (seats, x, y) => {
       const used = new Set(Object.values(current().tables).map(table => table.label))
@@ -64,12 +73,12 @@ export function createPageStore(projectId: string, repo: ReturnType<typeof proje
       })
     },
     arrangeRoom: (roomId, guestIds, dates) => {
-      return send('room.assignGuests', { id: roomId, guestIds, dates }, [`room:${roomId}`, 'config', ...guestIds.map(id => `guest:${id}`)])
+      return send('room.assignGuests', { id: roomId, guestIds, dates, byNight: true }, [`room:${roomId}`, 'config', ...guestIds.map(id => `guest:${id}`)])
     },
     updateRoom: (id, patch) => send('room.update', { id, patch: JSON.parse(JSON.stringify(patch)) }, [`room:${id}`]),
-    removeRoom: id => send('room.deleteWithAssignments', { id }, [`room:${id}`, ...Object.values(current().guests).filter(g => g.roomId === id).map(g => `guest:${g.id}`)]),
+    removeRoom: id => send('room.deleteWithAssignments', { id }, [`room:${id}`, ...Object.values(current().guests).filter(g => stayInRoom(g, id)).map(g => `guest:${g.id}`)]),
     addStayDate: date => send('stayDate.add', { date }, ['config']),
-    removeStayDate: date => send('stayDate.remove', { date }, ['config', ...Object.values(current().guests).filter(g => g.stayDates.includes(date)).map(g => `guest:${g.id}`), ...Object.values(current().rooms).filter(room => room.stayDates?.includes(date)).map(room => `room:${room.id}`)]), setStayDates: unsupported,
+    removeStayDate: date => send('stayDate.remove', { date }, ['config', ...Object.values(current().guests).filter(g => guestStays(g).some(stay => stay.dates.includes(date))).map(g => `guest:${g.id}`), ...Object.values(current().rooms).filter(room => room.stayDates?.includes(date)).map(room => `room:${room.id}`)]), setStayDates: unsupported,
     addNote: (category, title, content, images) => {
       if (images.length) { notice('当前只保存文本笔记，图片附件已延后。'); return Promise.resolve(false) }
       return send('note.add', { id: crypto.randomUUID(), category, title, content })
@@ -83,11 +92,11 @@ export function createPageStore(projectId: string, repo: ReturnType<typeof proje
   const apply = () => {
     const snapshot = repo.getSnapshot().snapshot
     if (!snapshot) {
-      store.setState({ projectTitle: '', mainStagePos: null, customGroups: [], stayDates: [], guests: [], notes: [], tables: [], rooms: [] })
+      store.setState({ projectTitle: '', mainStagePos: null, customGroups: [], stayDates: [], twinGiftDate: undefined, guests: [], notes: [], tables: [], rooms: [] })
       return
     }
     const c = snapshot.data, normalizedRooms = roomViews(c)
-    store.setState({ projectTitle: c.config.title, mainStagePos: c.config.mainStagePos, customGroups: c.config.customGroups, stayDates: c.config.stayDates,
+    store.setState({ projectTitle: c.config.title, mainStagePos: c.config.mainStagePos, customGroups: c.config.customGroups, stayDates: c.config.stayDates, twinGiftDate: c.config.twinGiftDate,
       guests: c.guestOrder.map(id => { const g = c.guests[id]; return { ...g, stayDates: g.roomId ? g.stayDates : [], status: g.attendance === 'confirmed' ? 'confirmed' : g.tableId ? 'assigned' : 'unassigned' } }),
       notes: (snapshot.notes ?? []).map(note => ({ ...note, images: [] })),
       tables: c.tableOrder.map(id => c.tables[id]), rooms: normalizedRooms })

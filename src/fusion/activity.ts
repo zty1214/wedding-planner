@@ -39,16 +39,16 @@ export function describeActivity(c: Pick<Command, 'type' | 'payload'>, before?: 
   const type = restoredType ?? c.type
   let category: ActivityCategory = 'unclassified'
   if (type.startsWith('note.')) category = 'notes'
-  else if (type.startsWith('room.') || type.startsWith('stayDate.') || ['guest.assignRoom', 'guest.clearRoom', 'guest.setStayNeed', 'guest.clearStayNeed', 'guest.setStayDates'].includes(type)) category = 'stay'
+  else if (type.startsWith('room.') || type.startsWith('stayDate.') || type === 'stayGift.update' || ['guest.assignRoom', 'guest.clearRoom', 'guest.setStayNeed', 'guest.clearStayNeed', 'guest.setStayDates'].includes(type)) category = 'stay'
   else if (['guest.assign', 'guest.unassign', 'guest.swapSeats'].includes(type)) category = 'seating'
   else if (type.startsWith('table.')) category = 'layout'
-  else if (type.startsWith('guest.') || type === 'group.add') category = 'guests'
+  else if (type.startsWith('guest.') || type.startsWith('household.') || type === 'group.add') category = 'guests'
   else if (type === 'project.update') {
     const p = c.payload as { patch?: Record<string, unknown> }
     category = p?.patch && Object.keys(p.patch).every(k => k === 'mainStagePos') ? 'layout' : 'project'
   } else if (type === 'version.restore') category = 'project'
   const change: ActivityChange = c.type.endsWith('.restore') ? 'restored' : category === 'unclassified' ? 'unclassified'
-    : type.endsWith('.add') ? 'added' : /delete|clear|\.remove$/.test(type) ? 'deleted' : 'adjusted'
+    : (type.endsWith('.add') || type === 'household.create') ? 'added' : /delete|clear|\.remove$/.test(type) ? 'deleted' : 'adjusted'
   const guests = (v?: Json): Record<string, Json> => v && typeof v === 'object' && !Array.isArray(v) && v.schemaVersion === 2 ? v.guests as Record<string, Json> : {}
   const a = guests(before), b = guests(after)
   const affectedGuests = new Set([...Object.keys(a), ...Object.keys(b)].filter(id => canonicalJson(a[id] ?? null) !== canonicalJson(b[id] ?? null))).size

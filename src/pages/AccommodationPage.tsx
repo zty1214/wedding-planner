@@ -7,10 +7,11 @@ import { ExportContext } from '../fusion/ExportContext'
 import { useContext, useEffect, useMemo, useState } from 'react'
 import { BedDouble, Bed, DoorOpen, Plus, Download, Trash2, Search, X, UserPlus, Pencil, CalendarPlus } from 'lucide-react'
 import { useWeddingStore, useFusionMode } from '../fusion/PageContext'
-import { ROOM_CAPACITY, type Guest, type Room } from '../types'
+import { FUSION_ROOM_TYPES, ROOM_CAPACITY, type Guest, type Room } from '../types'
 import { exportRoomsToExcel } from '../utils/exportRooms'
 import { formatNight } from '../utils/date'
-import { accommodationNight, accommodationTodos, roomOccupancy } from '../utils/accommodation'
+import { stayInRoom } from '../fusion/guestStays'
+import { accommodationBilling, accommodationNight, accommodationTodos, roomOccupancy } from '../utils/accommodation'
 import DatePicker from '../components/DatePicker'
 
 const ALL = '全部'
@@ -21,6 +22,9 @@ export default function AccommodationPage() {
   const rooms = useWeddingStore((s) => s.rooms)
   const guests = useWeddingStore((s) => s.guests)
   const stayDates = useWeddingStore((s) => s.stayDates)
+  const twinGiftDate = useWeddingStore(s => s.twinGiftDate)
+  const setTwinGift = useWeddingStore(s => s.setTwinGift)
+  const clearGuestRoom = useWeddingStore(s => s.clearGuestRoom)
   const addRoom = useWeddingStore((s) => s.addRoom)
   const updateRoom = useWeddingStore((s) => s.updateRoom)
   const removeRoom = useWeddingStore((s) => s.removeRoom)
@@ -58,14 +62,14 @@ export default function AccommodationPage() {
 
   // 某房间的入住人（按当前日期筛选）
   const occupantsOf = (room: Room): Guest[] => {
-    const all = guests.filter((g) => g.roomId === room.id)
+    const all = guests.filter(g => stayInRoom(g, room.id))
     if (dateFilter === ALL) return all
-    return all.filter((g) => (g.stayDates || []).includes(dateFilter))
+    return all.filter(g => stayInRoom(g, room.id)?.dates.includes(dateFilter))
   }
 
-  const visibleRooms = rooms.filter((r) => (typeFilter === ALL || r.type === typeFilter) && (!fusion || dateFilter === ALL || guests.some(g => g.roomId === r.id && g.stayDates.includes(dateFilter))))
+  const visibleRooms = rooms.filter((r) => (typeFilter === ALL || r.type === typeFilter) && (!fusion || dateFilter === ALL || r.stayDates?.includes(dateFilter)))
   if (fusion && roomSort !== 'original') visibleRooms.sort((a, b) => {
-    const type = roomSort === 'type' ? (a.type === '大床房' ? 0 : 1) - (b.type === '大床房' ? 0 : 1) : 0
+    const type = roomSort === 'type' ? FUSION_ROOM_TYPES.indexOf(a.type) - FUSION_ROOM_TYPES.indexOf(b.type) : 0
     return type || a.label.localeCompare(b.label, 'zh-CN', { numeric: true })
   })
   const duplicateLabels = [...new Set(rooms.filter((room, index) => rooms.findIndex(other => other.label.trim() === room.label.trim()) !== index).map(room => room.label))]
@@ -75,11 +79,13 @@ export default function AccommodationPage() {
     const king = rooms.filter((r) => r.type === '大床房').length
     const twin = rooms.filter((r) => r.type === '标间').length
     const stayed = guests.filter((g) => g.roomId).length
-    return { king, twin, total: rooms.length, stayed }
+    const suite = rooms.filter(r => r.type === '套房').length
+    return { king, twin, suite, total: rooms.length, stayed }
   }, [rooms, guests])
 
   const nightStats = useMemo(() => dateFilter === ALL ? null : accommodationNight(rooms, guests, dateFilter), [dateFilter, rooms, guests])
 
+  const billing = useMemo(() => accommodationBilling(rooms, guests, stayDates, twinGiftDate), [rooms, guests, stayDates, twinGiftDate])
   const handleExport = () => openExport ? openExport('rooms') : exportRoomsToExcel(rooms, guests, stayDates)
 
   const toggleNight = (g: Guest, date: string) => {
@@ -108,7 +114,7 @@ export default function AccommodationPage() {
           </div>
           <div className="planner-stay-actions flex flex-wrap items-center gap-2">
             {fusion && <select aria-label="添加房间" disabled={creatingRoom} value="" onChange={e => { if (e.target.value) void createRoom(e.target.value as Room['type']) }} className="md:hidden">
-              <option value="">添加房间</option><option value="大床房">大床房</option><option value="标间">标间</option>
+              <option value="">添加房间</option>{FUSION_ROOM_TYPES.map(type => <option key={type}>{type}</option>)}
             </select>}
             <button
               disabled={creatingRoom} onClick={() => void createRoom('大床房')}
@@ -122,6 +128,10 @@ export default function AccommodationPage() {
             >
               <Plus className="w-4 h-4" /> 添加标间
             </button>
+            {fusion && <button disabled={creatingRoom} onClick={() => void createRoom('套房')}
+              className="flex items-center gap-1.5 px-3 py-2 text-sm rounded-lg border border-[#f0c4d0] text-[#d4728a] hover:bg-[#fdf5f7]">
+              <Plus className="w-4 h-4" /> 添加套房
+            </button>}
             <button
               onClick={handleExport}
               disabled={rooms.length === 0}
@@ -143,7 +153,7 @@ export default function AccommodationPage() {
               <span key={d} className="flex items-center">
                 <Seg active={dateFilter === d} onClick={() => setDateFilter(d)}>{formatNight(d)}</Seg>
                 <button
-                  onClick={() => { if (confirm(`删除 ${formatNight(d)} 这一晚？该晚的入住记录会被清除。`)) { removeStayDate(d); if (dateFilter === d) setDateFilter(ALL) } }}
+                  onClick={() => { if (confirm(`删除 ${formatNight(d)} 这一晚？该晚的入住记录会被清除。${d === twinGiftDate ? '赠送晚次改为待定。' : ''}`)) { removeStayDate(d); if (dateFilter === d) setDateFilter(ALL) } }}
                   className="ml-0.5 text-gray-300 hover:text-red-400"
                   title="删除该日期"
                 >
@@ -177,6 +187,7 @@ export default function AccommodationPage() {
             <Seg active={typeFilter === ALL} onClick={() => setTypeFilter(ALL)}>全部</Seg>
             <Seg active={typeFilter === '大床房'} onClick={() => setTypeFilter('大床房')}>大床房</Seg>
             <Seg active={typeFilter === '标间'} onClick={() => setTypeFilter('标间')}>标间</Seg>
+            {fusion && <Seg active={typeFilter === '套房'} onClick={() => setTypeFilter('套房')}>套房</Seg>}
           </div>
         </div>
 
@@ -185,6 +196,7 @@ export default function AccommodationPage() {
           <div className="flex gap-4 mb-6 flex-wrap">
             <StatCard value={nightStats.king} label="大床房·当晚" color="#d4728a" />
             <StatCard value={nightStats.twin} label="标间·当晚" color="#7c9ec9" />
+            {fusion && <StatCard value={nightStats.suite} label="套房·当晚" color="#b07cc6" />}
             <StatCard value={nightStats.total} label="当晚房间数" color="#5fae8f" />
             <StatCard value={nightStats.people} label={fusion ? "当晚安排人数" : "当晚总人数"} color="#d99a4e" />
             <StatCard value={nightStats.checkIn} label={fusion ? "该晚开始安排人数" : "该晚开始住宿人数"} color="#b07cc6" />
@@ -193,11 +205,31 @@ export default function AccommodationPage() {
           <div className="flex gap-4 mb-6 flex-wrap">
             <StatCard value={stats.king} label="大床房" color="#d4728a" />
             <StatCard value={stats.twin} label="标间" color="#7c9ec9" />
+            {fusion && <StatCard value={stats.suite} label="套房" color="#b07cc6" />}
             <StatCard value={stats.total} label={fusion ? "全部房间安排" : "合计房间"} color="#5fae8f" />
             <StatCard value={stats.stayed} label="已安排住宿" color="#d99a4e" />
 
           </div>
         )}
+
+        {fusion && setTwinGift && <section aria-label="酒店间夜" className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-gray-100 bg-white p-3 text-sm">
+          <div className="flex flex-wrap gap-x-4 gap-y-1">
+            <span>实订 <strong>{billing.actual}</strong> 间夜</span>
+            <span>赠送标间 <strong>{billing.gifted}</strong> 间夜</span>
+            <span>计费 <strong>{billing.billed}</strong> 间夜</span>
+            {nightStats && twinGiftDate === dateFilter && <span>所选晚次计费 <strong>{nightStats.total - billing.gifted}</strong> 间夜</span>}
+          </div>
+          <label className="flex items-center gap-2 text-xs">赠送晚次
+            <select aria-label="赠送晚次" value={twinGiftDate === undefined ? 'off' : twinGiftDate ?? 'pending'} onChange={event => {
+              const value = event.target.value
+              void setTwinGift(value !== 'off', value === 'off' || value === 'pending' ? null : value)
+            }}>
+              <option value="off">无赠送</option>
+              <option value="pending">日期待定</option>
+              {stayDates.map(date => <option value={date} key={date}>{date}</option>)}
+            </select>
+          </label>
+        </section>}
 
         <div className="planner-stay-stats flex gap-4 mb-4 flex-wrap" aria-label="住宿待办">
           <StatCard value={todos.needsRoom.length} label="需要住宿·待分房" color="#9ca3af" names={todos.needsRoom.map(g => g.name)} />
@@ -224,6 +256,11 @@ export default function AccommodationPage() {
             {visibleRooms.map((room) => {
               const occupants = occupantsOf(room)
               const capacity = ROOM_CAPACITY[room.type]
+              const roomColors = {
+                大床房: ['from-[#fbeef2]', 'bg-[#d4728a]', 'text-[#d4728a]'],
+                标间: ['from-[#e9f0fa]', 'bg-[#7c9ec9]', 'text-[#426791]'],
+                套房: ['from-[#f3edf8]', 'bg-[#77518b]', 'text-[#77518b]'],
+              }[room.type]
               const occupancy = roomOccupancy(room, guests, stayDates)
               const overNights = occupancy.over.filter(n => dateFilter === ALL || n.date === dateFilter)
               const over = overNights.length > 0
@@ -231,8 +268,8 @@ export default function AccommodationPage() {
               return (
                 <div key={room.id} className={`bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col transition-opacity ${emptyThisNight ? 'opacity-60' : ''}`}>
                   {/* 卡片头：图标徽章 + 房号 */}
-                  <div className={`flex items-center gap-3 px-4 py-3 bg-gradient-to-r to-white ${room.type === '大床房' ? 'from-[#fbeef2]' : 'from-[#e9f0fa]'}`}>
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 text-white shadow-sm ${room.type === '大床房' ? 'bg-[#d4728a]' : 'bg-[#7c9ec9]'}`}>
+                  <div className={`flex items-center gap-3 px-4 py-3 bg-gradient-to-r to-white ${roomColors[0]}`}>
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 text-white shadow-sm ${roomColors[1]}`}>
                       {room.type === '大床房' ? <BedDouble className="w-5 h-5" /> : <Bed className="w-5 h-5" />}
                     </div>
                     <div className="min-w-0 flex-1">
@@ -254,7 +291,7 @@ export default function AccommodationPage() {
                         )}
                       </div>
                       {fusion && duplicateLabels.includes(room.label) && <p className="text-xs">标识：{room.id}</p>}
-                      <span className={`text-xs ${room.type === '大床房' ? 'text-[#d4728a]' : 'text-[#7c9ec9]'}`}>{room.type}</span>
+                      <span className={`text-xs ${roomColors[2]}`}>{room.type}</span>
                     </div>
                     <button
                       onClick={() => { if (confirm(`删除 ${room.label}？入住宾客将被移出房间。`)) removeRoom(room.id) }}
@@ -280,7 +317,11 @@ export default function AccommodationPage() {
                             <div className="flex items-center justify-between">
                               <span className="min-w-0 [overflow-wrap:anywhere] text-sm text-gray-700">{g.name}</span>
                               <button
-                                onClick={() => { if (confirm(`将“${g.name}”移出房间？其已选住宿晚次也会清除。`)) assignGuestToRoom(g.id, null) }}
+                                onClick={() => {
+                                  if (!confirm(`将“${g.name}”移出「${room.label}」并清除这间房的晚次？`)) return
+                                  if (clearGuestRoom) void clearGuestRoom(g.id, room.id)
+                                  else void assignGuestToRoom(g.id, null)
+                                }}
                                 className="text-gray-300 hover:text-red-400 transition-colors shrink-0"
                                 title="移出房间"
                               >
@@ -288,7 +329,7 @@ export default function AccommodationPage() {
                               </button>
                             </div>
                             {/* 每位宾客独立选择晚次 */}
-                            {fusion && <div className="mt-1.5"><FusionGuestDates guest={g} dates={stayDates} /></div>}
+                            {fusion && <div className="mt-1.5"><FusionGuestDates guest={g} dates={stayDates} roomId={room.id} /></div>}
                             {!fusion && <div className="flex items-center gap-1 mt-1.5 flex-wrap">
                               {stayDates.length === 0 ? (
                                 <span className="text-[11px] text-gray-300">先在上方「＋添加日期」，再点选住哪几晚</span>

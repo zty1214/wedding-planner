@@ -9,7 +9,7 @@ export function buildExportWorkbook(value: ExportSnapshot, kind: 'guests' | 'roo
   const guests: Guest[] = core.guestOrder.map(id => ({ ...core.guests[id], status: core.guests[id].attendance === 'confirmed' ? 'confirmed' : core.guests[id].tableId ? 'assigned' : 'unassigned' }))
   const workbook = kind === 'guests'
     ? buildGuestWorkbook(guests, core.tableOrder.map(id => core.tables[id]), true)
-    : buildRoomWorkbook(roomViews(core), guests, core.config.stayDates, true)
+    : buildRoomWorkbook(roomViews(core), guests, core.config.stayDates, true, core.config.twinGiftDate)
   const label = source === 'confirmed' ? '云端已确认' : '本机未同步草稿'
   const provenance = `${label}；项目 ${projectId}；代次 ${snapshot.dataEpoch}；核心版本 ${snapshot.snapshotRevision}；取样 ${capturedAt}${value.restoreTarget ? `；待恢复目标 ${value.restoreTarget.id}（${value.restoreTarget.name}），尚未执行恢复` : ''}`
   workbook.Props = { Title: `${core.config.title} · ${label}`, Subject: provenance, Comments: provenance }

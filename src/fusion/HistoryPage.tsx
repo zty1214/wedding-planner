@@ -1,6 +1,8 @@
 import PrivateDraftPanel from './PrivateDraftPanel'
 import FusionFieldEditor from './FusionFieldEditor'
 import ActivityCalendar from './ActivityCalendar'
+import { guestStays } from './guestStays'
+import { TRAVEL_LABELS } from '../types'
 import { ATTENDANCE_LABELS } from './guestRoster'
 import { useContext, useEffect, useState, useSyncExternalStore } from 'react'
 import { RepositoryContext } from './RepositoryContext'
@@ -12,15 +14,16 @@ function ArrangementPreview({ core, label }: { core: Core; label: string }) {
     <h3 className="font-semibold">{label}</h3>
     <p>标题：{core.config.title}；舞台：{core.config.mainStagePos ? `${core.config.mainStagePos.x}, ${core.config.mainStagePos.y}` : '未设置'}</p>
     <p>分组：{core.config.customGroups.join('、') || '无'}；可选晚次：{core.config.stayDates.join('、') || '无'}</p>
+    {core.config.twinGiftDate !== undefined && <p>赠送标间 1 间夜 · {core.config.twinGiftDate ?? '日期待定'}</p>}
     <ul className="space-y-1">{core.tableOrder.map(id => { const t = core.tables[id]; return <li key={id}>{t.label}：{t.seats} 座，位置 ({t.x}, {t.y})，旋转 {t.rotation}°</li> })}</ul>
     <ul className="space-y-1">{core.roomOrder.map(id => { const r = core.rooms[id]; return <li key={id}>{r.label} · {r.type}{r.notes ? ` · ${r.notes}` : ''}</li> })}</ul>
     <div className="overflow-x-auto"><table className="w-full text-sm text-left"><caption className="text-left">逐人安排（同名记录按各自位置列出）</caption>
       <thead><tr><th>宾客</th><th>出席状态</th><th>座位</th><th>住宿</th></tr></thead>
       <tbody>{core.guestOrder.map(id => { const g = core.guests[id]; return <tr key={id} className="border-t">
-        <td className="py-2">{g.name}<small className="block">{g.group}</small></td>
+        <td className="py-2">{g.name}<small className="block">{[g.group, g.household?.name, g.travelMode && TRAVEL_LABELS[g.travelMode]].filter(Boolean).join(' · ')}</small></td>
         <td>{ATTENDANCE_LABELS[g.attendance]}</td>
         <td>{g.tableId ? `${core.tables[g.tableId].label} · ${(g.seatIndex ?? 0) + 1} 号座` : '未排座'}</td>
-        <td>{g.roomId ? `${core.rooms[g.roomId].label} · ${g.stayDates.join('、') || '晚次待定'}` : { pending: '需求待确认', needed: '待安排房间', not_needed: '不需要' }[g.stayNeed]}</td>
+        <td>{g.roomId ? `${guestStays(g).map(stay => `${core.rooms[stay.roomId].label} · ${stay.dates.join('、') || '晚次待定'}`).join(' / ')}` : { pending: '需求待确认', needed: '待安排房间', not_needed: '不需要' }[g.stayNeed]}</td>
       </tr> })}</tbody></table></div>
   </section>
 }

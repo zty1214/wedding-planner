@@ -55,8 +55,8 @@
 @media(min-width:768px){.planner-editor:not(.planner-editor-modal){position:static;width:100%;max-height:none;border:0;border-radius:0;box-shadow:none;background:transparent;margin:0;overflow:visible}.planner-editor:not(.planner-editor-modal)>section{padding:16px;border:1px solid var(--planner-line)}}
 @media(max-width:767px){
   .planner-guests-heading{gap:8px;margin-bottom:8px}.planner-guests .planner-guests-export{display:none}
-  .planner-guests-stats{grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;margin-bottom:8px}
-  .planner-guests-stats>div{padding:6px}.planner-guests-stats>div>div:first-child{font-size:20px}.planner-guests-stats>div>div:last-child{font-size:11px}
+  .planner-guests-stats{grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;margin-bottom:8px}
+  .planner-guests-stats>div{padding:6px 3px}.planner-guests-stats>div>div:first-child{font-size:20px}.planner-guests-stats>div>div:last-child{font-size:11px}
   .planner-guests>p{font-size:12px;margin-bottom:8px}
   .planner-notes>div:first-child,.planner-notes>div:nth-child(2){margin-bottom:8px}
 }

@@ -1,3 +1,4 @@
+import { guestStays } from './guestStays'
 import { useState, useSyncExternalStore, useCallback } from 'react'
 import * as XLSX from 'xlsx'
 import { seatingExportModel } from './seatingExport'
@@ -14,7 +15,7 @@ export default function ExportPanel({ repo, initialKind, onClose }: { repo: Retu
   const [rendering, setRendering] = useState<ExportSnapshot | null>(null)
   const rendered = useCallback((message?: string, image?: string) => { setRendering(null); setError(message ?? ''); setPreview(image ?? null) }, [])
   const [capturing, setCapturing] = useState(false)
-  const pendingDates = value ? Object.values(value.snapshot.data.guests).filter(guest => guest.roomId && guest.stayDates.length === 0).length : 0
+  const pendingDates = value ? Object.values(value.snapshot.data.guests).filter(guest => guestStays(guest).some(stay => !stay.dates.length)).length : 0
   const pendingRooms = value ? Object.values(value.snapshot.data.guests).filter(guest => !guest.roomId && guest.stayNeed === 'needed').length : 0
   async function capture(source: 'confirmed' | 'draft') {
     setPreview(null); setCapturing(true)

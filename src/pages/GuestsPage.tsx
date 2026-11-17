@@ -1,15 +1,17 @@
 import ResponsiveEditor from '../fusion/ResponsiveEditor'
 import FusionFieldEditor from '../fusion/FusionFieldEditor'
 import FusionGuestForm from '../fusion/FusionGuestForm'
+import FusionDialog from '../fusion/FusionDialog'
+import { guestStays } from '../fusion/guestStays'
 import GuestRosterImport from '../fusion/GuestRosterImport'
 import { ExportContext } from '../fusion/ExportContext'
 import { RepositoryContext } from '../fusion/RepositoryContext'
 import { useContext, useRef, useState } from 'react'
 import { useWeddingStore, useAllGroups, useFusionMode } from '../fusion/PageContext'
 import { Plus, Trash2, Search, UserCheck, UserX, Pencil, Check, X, TagPlus, Download, BedDouble } from 'lucide-react'
-import type { Guest } from '../types'
+import { TRAVEL_LABELS, type Guest, type TravelMode } from '../types'
 import { exportGuestsToExcel } from '../utils/exportGuests'
-import { ATTENDANCE_LABELS, STAY_NEED_LABELS } from '../fusion/guestRoster'
+import { ATTENDANCE_LABELS, MAX_GUEST_ROWS, STAY_NEED_LABELS } from '../fusion/guestRoster'
 
 type ListSort = 'added' | 'recent' | 'table'
 const needsSeat = (guest: Guest) => !guest.tableId && guest.attendance !== 'declined'
@@ -19,7 +21,7 @@ export default function GuestsPage() {
   const openExport = useContext(ExportContext)
   const repo = useContext(RepositoryContext)
   const formEpoch = repo?.getSnapshot().snapshot?.dataEpoch
-  const { guests, tables, rooms, addGuest, updateGuest, removeGuest, addCustomGroup, setGuestStayNeed } = useWeddingStore()
+  const { guests, tables, rooms, addGuest, addHousehold, setHouseholdTravel, updateGuest, removeGuest, addCustomGroup, setGuestStayNeed } = useWeddingStore()
   const fusion = useFusionMode()
   const [decliningId, setDecliningId] = useState<string | null>(null)
   const [savingAttendance, setSavingAttendance] = useState(false)
@@ -35,6 +37,7 @@ export default function GuestsPage() {
   const [showAddGroup, setShowAddGroup] = useState(false)
   const [newGroup, setNewGroup] = useState('')
   const opener = useRef<HTMLElement | null>(null)
+  const [showHouseholdForm, setShowHouseholdForm] = useState(false)
   const [showGuestEditor, setShowGuestEditor] = useState(false)
   function closeGuestEditor() {
     setShowGuestEditor(false); setEditingId(null); setShowAddGroup(false)
@@ -85,7 +88,7 @@ export default function GuestsPage() {
   }
 
   const filtered = guests.filter((g) => {
-    const matchSearch = g.name.includes(search) || (g.phone || '').includes(search)
+    const matchSearch = g.name.includes(search) || (g.phone || '').includes(search) || g.household?.name.includes(search)
     const matchGroup = selectedGroups.length === 0 || selectedGroups.includes(g.group)
     return matchSearch && matchGroup && (!onlyUnseated || needsSeat(g))
   })
@@ -99,12 +102,152 @@ export default function GuestsPage() {
     })
   }
 
+  const households = new Map<string, Guest[]>()
+  for (const g of guests) {
+    if (!g.household) continue
+    const members = households.get(g.household.id) ?? []
+    members.push(g)
+    households.set(g.household.id, members)
+  }
+  const grouped = new Map<string, Guest[]>()
+  for (const g of filtered) {
+    const key = fusion && g.household && listSort !== 'table' ? `household:${g.household.id}` : `guest:${g.id}`
+    const members = grouped.get(key) ?? []
+    members.push(g)
+    grouped.set(key, members)
+  }
+  const householdCount = households.size + guests.filter(g => !g.household).length
+  const filtering = !!search || selectedGroups.length > 0 || onlyUnseated
   const assignedCount = guests.filter((g) => g.tableId).length
   const confirmedCount = guests.filter((g) => (g.attendance ?? (g.status === 'confirmed' ? 'confirmed' : 'pending')) === 'confirmed').length
   const unseatedCount = guests.filter(needsSeat).length
   const declinedCount = guests.filter(g => g.attendance === 'declined').length
   const filterGroups = [null, ...allGroups]
   const allFilterLabel = allGroups.includes('全部') ? '清除类别筛选' : '全部'
+
+  const renderGuest = (guest: Guest) => (
+    <div
+      key={guest.id}
+      className="bg-white rounded-lg px-4 py-3 border border-gray-100 flex flex-wrap sm:flex-nowrap items-center gap-3 group"
+    >
+      {!fusion && editingId === guest.id ? (
+        /* Edit mode */
+        <div className="flex-1 flex items-center gap-2 flex-wrap">
+          <input
+            value={editName}
+            onChange={(e) => setEditName(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && saveEdit()}
+            className="w-24 px-2 py-1 border border-rose-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-rose-300"
+            autoFocus
+          />
+          <select
+            value={editGroup}
+            onChange={(e) => setEditGroup(e.target.value)}
+            className="px-2 py-1 border border-gray-200 rounded text-sm focus:outline-none"
+          >
+            {allGroups.map((g) => (
+              <option key={g} value={g}>{g}</option>
+            ))}
+          </select>
+          <input
+            value={editPhone}
+            onChange={(e) => setEditPhone(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && saveEdit()}
+            placeholder="手机号"
+            className="w-32 px-2 py-1 border border-gray-200 rounded text-sm focus:outline-none"
+          />
+          <button
+            onClick={saveEdit}
+            className="p-1.5 text-emerald-500 hover:bg-emerald-50 rounded transition-colors"
+          >
+            <Check className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => setEditingId(null)}
+            className="p-1.5 text-gray-400 hover:bg-gray-50 rounded transition-colors"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      ) : (
+        /* Display mode */
+        <>
+          <div className="flex-1 min-w-0 basis-full sm:basis-auto">
+            <div className="flex flex-wrap items-center gap-2 [overflow-wrap:anywhere]">
+              <span className="font-medium text-gray-800 text-sm">{guest.name}</span>
+              <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">
+                {guest.group}
+              </span>
+              {fusion ? <span className="text-xs text-gray-600">{guest.tableId ? tables.find(t => t.id === guest.tableId)?.label ?? '已排座' : '未排座'}</span> : guest.status === 'confirmed' ? (
+                <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 flex items-center gap-0.5">
+                  <UserCheck className="w-3 h-3" /> 已确认
+                </span>
+              ) : guest.tableId ? (
+                <span className="text-xs px-2 py-0.5 rounded-full bg-rose-50 text-rose-600 flex items-center gap-0.5">
+                  <UserCheck className="w-3 h-3" /> 已分配
+                </span>
+              ) : (
+                <span className="text-xs px-2 py-0.5 rounded-full bg-amber-50 text-amber-600 flex items-center gap-0.5">
+                  <UserX className="w-3 h-3" /> 待分配
+                </span>
+              )}
+              {guest.household && listSort === 'table' && <span className="text-xs text-gray-500">{guest.household.name} 户</span>}
+              {guestStays(guest).map(stay => (
+                <span key={stay.roomId} className="min-w-0 text-xs px-2 py-0.5 rounded-full bg-[#eef3fa] text-[#7c9ec9] flex items-center gap-0.5">
+                  <BedDouble className="w-3 h-3" />
+                  {rooms.find(r => r.id === stay.roomId)?.label || '已安排住宿'}
+                </span>
+              ))}
+            </div>
+            {(fusion || setGuestStayNeed) && <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-gray-600 sm:flex sm:flex-wrap sm:items-center sm:gap-3">
+              {fusion && <label className="flex min-w-0 flex-col gap-1 sm:flex-row sm:items-center">出席状态
+                <select aria-label={`${guest.name}的出席状态`} className="min-w-0 border rounded p-1" value={guest.attendance ?? 'pending'} onChange={e => {
+                  const attendance = e.target.value as NonNullable<Guest['attendance']>
+                  if (attendance === 'declined' && guest.tableId) { setDecliningId(guest.id); return }
+                  void updateGuest(guest.id, { attendance })
+                }}>
+                  {Object.entries(ATTENDANCE_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+                </select>
+              </label>}
+              {setGuestStayNeed && <label className="flex min-w-0 flex-col gap-1 sm:flex-row sm:items-center">住宿需求
+                <select aria-label={`${guest.name}的住宿需求`} className="min-w-0 border rounded p-1" value={guest.stayNeed ?? 'pending'} onChange={e => {
+                  const value = e.target.value as NonNullable<Guest['stayNeed']>
+                  if (guest.roomId && value === 'not_needed' && !confirm(`将“${guest.name}”改为不需要住宿？房间和住宿晚次将清除，并保留在回收站。`)) return
+                  void setGuestStayNeed(guest.id, value)
+                }}>
+                  {Object.entries(STAY_NEED_LABELS).map(([value, label]) => <option key={value} value={value} disabled={!!guest.roomId && value === 'pending'}>{label}</option>)}
+                </select>
+              </label>}
+              {fusion && <label className="flex min-w-0 flex-col gap-1 sm:flex-row sm:items-center">出行方式
+                <select aria-label={`${guest.name}的出行方式`} className="min-w-0 border rounded p-1" value={guest.travelMode ?? 'pending'}
+                  onChange={event => void updateGuest(guest.id, { travelMode: event.target.value as TravelMode })}>
+                  {Object.entries(TRAVEL_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+                </select>
+              </label>}
+            </div>}
+            {guest.phone && (
+              <div className="text-xs text-gray-400 mt-0.5 [overflow-wrap:anywhere]">{guest.phone}</div>
+            )}
+          </div>
+          <button
+            data-guest-form-switch
+            onClick={() => startEdit(guest.id)}
+            className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100 p-1.5 text-gray-400 hover:text-[#d4728a] transition-all"
+            title="编辑"
+          >
+            <Pencil className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => { if (confirm(`删除宾客“${guest.name}”？其座位、房间和住宿晚次安排也会一并移除。`)) removeGuest(guest.id) }}
+            className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100 p-1.5 text-gray-400 hover:text-red-500 transition-all"
+            title="删除"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        </>
+      )}
+    </div>
+  )
 
   return (
     <div className={`${fusion ? 'planner-page planner-guests' : 'sm:flex sm:flex-col'} h-full min-w-0 [overflow-wrap:anywhere] overflow-y-auto p-3 sm:p-6 max-w-4xl mx-auto`}>
@@ -122,11 +265,15 @@ export default function GuestsPage() {
       </div>
 
       {/* Stats */}
-      <div className="planner-guests-stats grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6">
+      <div className={`planner-guests-stats grid grid-cols-2 ${fusion ? 'sm:grid-cols-5' : 'sm:grid-cols-4'} gap-3 sm:gap-4 mb-6`}>
         <div className="bg-white rounded-xl p-4 flex-1 border border-gray-100">
           <div className="text-2xl font-bold text-gray-800">{guests.length}</div>
           <div className="text-sm text-gray-500">总宾客数</div>
         </div>
+        {fusion && <div className="bg-white rounded-xl p-4 flex-1 border border-gray-100">
+          <div className="text-2xl font-bold text-gray-800">{householdCount}</div>
+          <div className="text-sm text-gray-500">总户数</div>
+        </div>}
         <div className="bg-white rounded-xl p-4 flex-1 border border-gray-100">
           <div className="text-2xl font-bold text-emerald-600">{confirmedCount}</div>
           <div className="text-sm text-gray-500">确认出席</div>
@@ -271,6 +418,7 @@ export default function GuestsPage() {
             <option value="table">桌号（升序）</option>
           </select>
         </label>
+        {addHousehold && <button type="button" className="rounded-lg border px-3 py-1.5 text-sm" onClick={() => setShowHouseholdForm(true)}>添加一户</button>}
         <GuestRosterImport />
       </div>}
 
@@ -281,123 +429,73 @@ export default function GuestsPage() {
             {guests.length === 0 ? '还没有添加宾客，从上方开始添加吧' : '没有匹配的宾客'}
           </div>
         )}
-        {filtered.map((guest) => (
-          <div
-            key={guest.id}
-            className="bg-white rounded-lg px-4 py-3 border border-gray-100 flex flex-wrap sm:flex-nowrap items-center gap-3 group"
-          >
-            {!fusion && editingId === guest.id ? (
-              /* Edit mode */
-              <div className="flex-1 flex items-center gap-2 flex-wrap">
-                <input
-                  value={editName}
-                  onChange={(e) => setEditName(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && saveEdit()}
-                  className="w-24 px-2 py-1 border border-rose-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-rose-300"
-                  autoFocus
-                />
-                <select
-                  value={editGroup}
-                  onChange={(e) => setEditGroup(e.target.value)}
-                  className="px-2 py-1 border border-gray-200 rounded text-sm focus:outline-none"
-                >
-                  {allGroups.map((g) => (
-                    <option key={g} value={g}>{g}</option>
-                  ))}
+        {[...grouped].map(([key, members]) => {
+          const household = members[0].household
+          if (!household || !key.startsWith('household:')) return members.map(renderGuest)
+          const allMembers = households.get(household.id)!
+          const modes = new Set(allMembers.map(guest => guest.travelMode ?? 'pending'))
+          const mode = modes.size === 1 ? modes.values().next().value : ''
+          return <details key={key} className="rounded-xl border border-gray-100 bg-white px-3 py-2" open={filtering || undefined}>
+            <summary className="cursor-pointer py-1.5 text-sm font-semibold">{household.name}（{allMembers.length} 人）</summary>
+            <div className="space-y-2 pt-2">
+              {setHouseholdTravel && <label className="flex flex-wrap items-center gap-2 text-xs">整户出行方式
+                <select aria-label={`${household.name}整户出行方式`} value={mode} onChange={event => void setHouseholdTravel(household.id, event.target.value as TravelMode)}>
+                  {mode === '' && <option value="" disabled>出行方式不同</option>}
+                  {Object.entries(TRAVEL_LABELS).map(([value, label]) => <option value={value} key={value}>{label}</option>)}
                 </select>
-                <input
-                  value={editPhone}
-                  onChange={(e) => setEditPhone(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && saveEdit()}
-                  placeholder="手机号"
-                  className="w-32 px-2 py-1 border border-gray-200 rounded text-sm focus:outline-none"
-                />
-                <button
-                  onClick={saveEdit}
-                  className="p-1.5 text-emerald-500 hover:bg-emerald-50 rounded transition-colors"
-                >
-                  <Check className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => setEditingId(null)}
-                  className="p-1.5 text-gray-400 hover:bg-gray-50 rounded transition-colors"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-            ) : (
-              /* Display mode */
-              <>
-                <div className="flex-1 min-w-0 basis-full sm:basis-auto">
-                  <div className="flex flex-wrap items-center gap-2 [overflow-wrap:anywhere]">
-                    <span className="font-medium text-gray-800 text-sm">{guest.name}</span>
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">
-                      {guest.group}
-                    </span>
-                    {fusion ? <span className="text-xs text-gray-600">{guest.tableId ? tables.find(t => t.id === guest.tableId)?.label ?? '已排座' : '未排座'}</span> : guest.status === 'confirmed' ? (
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 flex items-center gap-0.5">
-                        <UserCheck className="w-3 h-3" /> 已确认
-                      </span>
-                    ) : guest.tableId ? (
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-rose-50 text-rose-600 flex items-center gap-0.5">
-                        <UserCheck className="w-3 h-3" /> 已分配
-                      </span>
-                    ) : (
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-amber-50 text-amber-600 flex items-center gap-0.5">
-                        <UserX className="w-3 h-3" /> 待分配
-                      </span>
-                    )}
-                    {guest.roomId && (
-                      <span className="min-w-0 text-xs px-2 py-0.5 rounded-full bg-[#eef3fa] text-[#7c9ec9] flex items-center gap-0.5">
-                        <BedDouble className="w-3 h-3" />
-                        {rooms.find((r) => r.id === guest.roomId)?.label || '已安排住宿'}
-                      </span>
-                    )}
-                  </div>
-                  {(fusion || setGuestStayNeed) && <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-gray-600 sm:flex sm:flex-wrap sm:items-center sm:gap-3">
-                    {fusion && <label className="flex min-w-0 flex-col gap-1 sm:flex-row sm:items-center">出席状态
-                      <select aria-label={`${guest.name}的出席状态`} className="min-w-0 border rounded p-1" value={guest.attendance ?? 'pending'} onChange={e => {
-                        const attendance = e.target.value as NonNullable<Guest['attendance']>
-                        if (attendance === 'declined' && guest.tableId) { setDecliningId(guest.id); return }
-                        void updateGuest(guest.id, { attendance })
-                      }}>
-                        {Object.entries(ATTENDANCE_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
-                      </select>
-                    </label>}
-                    {setGuestStayNeed && <label className="flex min-w-0 flex-col gap-1 sm:flex-row sm:items-center">住宿需求
-                      <select aria-label={`${guest.name}的住宿需求`} className="min-w-0 border rounded p-1" value={guest.stayNeed ?? 'pending'} onChange={e => {
-                        const value = e.target.value as NonNullable<Guest['stayNeed']>
-                        if (guest.roomId && value === 'not_needed' && !confirm(`将“${guest.name}”改为不需要住宿？房间和住宿晚次将清除，并保留在回收站。`)) return
-                        void setGuestStayNeed(guest.id, value)
-                      }}>
-                        {Object.entries(STAY_NEED_LABELS).map(([value, label]) => <option key={value} value={value} disabled={!!guest.roomId && value === 'pending'}>{label}</option>)}
-                      </select>
-                    </label>}
-                  </div>}
-                  {guest.phone && (
-                    <div className="text-xs text-gray-400 mt-0.5 [overflow-wrap:anywhere]">{guest.phone}</div>
-                  )}
-                </div>
-                <button
-                  data-guest-form-switch
-                  onClick={() => startEdit(guest.id)}
-                  className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100 p-1.5 text-gray-400 hover:text-[#d4728a] transition-all"
-                  title="编辑"
-                >
-                  <Pencil className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => { if (confirm(`删除宾客“${guest.name}”？其座位、房间和住宿晚次安排也会一并移除。`)) removeGuest(guest.id) }}
-                  className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100 p-1.5 text-gray-400 hover:text-red-500 transition-all"
-                  title="删除"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </>
-            )}
-          </div>
-        ))}
+              </label>}
+              {members.map(renderGuest)}
+            </div>
+          </details>
+        })}
       </div>
+      {addHousehold && showHouseholdForm && <HouseholdForm groups={allGroups} save={addHousehold} onClose={() => setShowHouseholdForm(false)} />}
     </div>
   )
+}
+
+function HouseholdForm({ groups, save, onClose }: {
+  groups: string[]
+  save(name: string, group: string, count: number): Promise<boolean>
+  onClose(): void
+}) {
+  const [name, setName] = useState('')
+  const [group, setGroup] = useState(groups[0] ?? '')
+  const [count, setCount] = useState('2')
+  const [busy, setBusy] = useState(false)
+  const submitting = useRef(false)
+  const [error, setError] = useState('')
+  const size = Number(count)
+  const valid = !!name.trim() && Number.isSafeInteger(size) && size >= 1 && size <= MAX_GUEST_ROWS
+
+  return <FusionDialog label="添加一户" onClose={onClose}>
+    <form className="space-y-3" onSubmit={async event => {
+      event.preventDefault()
+      if (submitting.current || !valid) return
+      submitting.current = true; setBusy(true); setError('')
+      try {
+        if (await save(name.trim(), group, size)) onClose()
+        else setError('未能添加，请核对顶部同步状态后重试。')
+      } catch { setError('未能添加，请核对顶部同步状态后重试。') }
+      finally { submitting.current = false; setBusy(false) }
+    }}>
+      <h2 className="text-base font-semibold">添加一户</h2>
+      <label className="grid gap-1 text-sm">户名
+        <input autoFocus required value={name} onChange={event => setName(event.target.value)} />
+      </label>
+      <div className="grid grid-cols-2 gap-3">
+        <label className="grid gap-1 text-sm">人数
+          <input type="number" min="1" max={MAX_GUEST_ROWS} required value={count} onChange={event => setCount(event.target.value)} />
+        </label>
+        <label className="grid min-w-0 gap-1 text-sm">分组标签
+          <select value={group} onChange={event => setGroup(event.target.value)}>{groups.map(value => <option key={value}>{value}</option>)}</select>
+        </label>
+      </div>
+      {error && <p role="alert">{error}</p>}
+      <div className="flex flex-wrap justify-end gap-2">
+        <button type="button" disabled={busy} onClick={onClose}>关闭</button>
+        <button type="submit" disabled={!valid || busy}>{busy ? '正在添加…' : '添加'}</button>
+      </div>
+    </form>
+  </FusionDialog>
 }

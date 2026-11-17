@@ -30,8 +30,8 @@ test('lodging todos separate need, room and dates independently from attendance'
 })
 test('night statistics and exported matrices agree for staggered arrivals and partial nights', () => {
   const people = [guest('小明', dates), guest('小明 2', [dates[1]]), guest('待定', []), guest('无房', dates, { roomId: null })]
-  assert.deepEqual(accommodationNight([room], people, dates[0]), { king: 0, twin: 1, total: 1, people: 1, checkIn: 1 })
-  assert.deepEqual(accommodationNight([room], people, dates[1]), { king: 0, twin: 1, total: 1, people: 2, checkIn: 1 })
+  assert.deepEqual(accommodationNight([room], people, dates[0]), { king: 0, twin: 1, suite: 0, total: 1, people: 1, checkIn: 1 })
+  assert.deepEqual(accommodationNight([room], people, dates[1]), { king: 0, twin: 1, suite: 0, total: 1, people: 2, checkIn: 1 })
   const bytes = XLSX.write(buildRoomWorkbook([room], people, dates), { type: 'buffer', bookType: 'xlsx' })
   const wb = XLSX.read(bytes, { type: 'buffer' })
   assert.deepEqual(wb.SheetNames, ['住宿明细', '每晚用房'])

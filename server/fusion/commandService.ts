@@ -8,7 +8,7 @@ import type { ProjectVersion, VersionMeta } from '../../src/fusion/history.ts'
 import type { RecycleRecord } from '../../src/fusion/recycle.ts'
 import type { TextNote, NoteIndex } from '../../src/fusion/notes.ts'
 import { createHash, timingSafeEqual } from 'node:crypto'
-import { assertCommand, canonicalJson, CommandError } from '../../src/fusion/protocol.ts'
+import { assertCommand, canonicalJson, CommandError, HOUSEHOLD_RECONCILE } from '../../src/fusion/protocol.ts'
 import type { Json, Receipt } from '../../src/fusion/protocol.ts'
 
 export interface Access { creationDigest?: string; revision?: number; collaborationHash: string; managementHash: string }
@@ -85,6 +85,7 @@ export function commandService(store: TransactionStore, handlers: ReadonlyMap<st
           if (previous.digest !== digest) throw new CommandError('OPERATION_ID_REUSED')
           return previous.receipt
         }
+        if (command.type === HOUSEHOLD_RECONCILE && command.expectedRevisions.snapshot !== current.snapshotRevision) throw new CommandError('CONFLICT')
         const next = handler.apply(structuredClone(current.data), command)
         const changed = canonicalJson(next) !== canonicalJson(current.data)
         const committedAt = now()

@@ -1,6 +1,7 @@
 import * as XLSX from 'xlsx'
+import { TRAVEL_LABELS } from '../types/index.ts'
 import type { Guest, Table } from '../types/index.ts'
-import { ATTENDANCE_LABELS, GUEST_COLUMNS, GUEST_SHEET, STAY_NEED_LABELS } from '../fusion/guestRoster.ts'
+import { ATTENDANCE_LABELS, GUEST_EXPORT_COLUMNS, GUEST_SHEET, STAY_NEED_LABELS } from '../fusion/guestRoster.ts'
 
 // 根据分组推断所属方（男方/女方）
 function deriveSide(guest: Guest): string {
@@ -26,11 +27,11 @@ function deriveStatus(guest: Guest): string {
 export function buildGuestWorkbook(guests: Guest[], tables: Table[], fusion = false) {
   const tableMap = new Map(tables.map(t => [t.id, t.label]))
   const tableName = (g: Guest) => g.tableId ? tableMap.get(g.tableId) ?? '' : ''
-  const rows = guests.map(g => fusion ? [g.name, g.phone || '', g.group, deriveStatus(g), STAY_NEED_LABELS[g.stayNeed ?? 'pending'], tableName(g), g.notes || '', g.id]
+  const rows = guests.map(g => fusion ? [g.name, g.phone || '', g.group, deriveStatus(g), STAY_NEED_LABELS[g.stayNeed ?? 'pending'], tableName(g), g.notes || '', g.id, g.household?.name ?? '', TRAVEL_LABELS[g.travelMode ?? 'pending']]
     : [g.name, g.phone || '', cleanGroup(g.group), deriveSide(g), deriveStatus(g), tableName(g), g.notes || ''])
-  const headers = fusion ? [...GUEST_COLUMNS] : ['姓名', '电话', '分组标签', '所属方', '出席状态', '桌号/桌名', '备注']
+  const headers = fusion ? [...GUEST_EXPORT_COLUMNS] : ['姓名', '电话', '分组标签', '所属方', '出席状态', '桌号/桌名', '备注']
   const ws = XLSX.utils.aoa_to_sheet([headers, ...rows])
-  ws['!cols'] = (fusion ? [14, 18, 16, 10, 14, 14, 22, 34] : [12, 16, 14, 8, 10, 12, 20]).map(wch => ({ wch }))
+  ws['!cols'] = (fusion ? [14, 18, 16, 10, 14, 14, 22, 34, 18, 12] : [12, 16, 14, 8, 10, 12, 20]).map(wch => ({ wch }))
   const wb = XLSX.utils.book_new()
   XLSX.utils.book_append_sheet(wb, ws, GUEST_SHEET)
   return wb

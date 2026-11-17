@@ -1,3 +1,9 @@
+export type GuestHousehold = { id: string; name: string }
+export type RoomStay = { roomId: string; dates: string[] }
+
+export const TRAVEL_LABELS = { pending: '待确认', rail: '高铁', driving: '自驾', charter: '统一包车' } as const
+export type TravelMode = keyof typeof TRAVEL_LABELS
+
 export interface Guest {
   id: string
   name: string
@@ -9,6 +15,9 @@ export interface Guest {
   roomId: string | null // 住宿房间（与座位独立），null 表示暂不安排住宿
   stayNeed?: 'pending' | 'needed' | 'not_needed' // 新内核独立住宿需求
   stayDates: string[] // 入住的晚次（ISO 日期 'YYYY-MM-DD'），仅当 roomId 非空时有意义
+  additionalRoomStays?: RoomStay[]
+  household?: GuestHousehold
+  travelMode?: TravelMode
   attendance?: 'pending' | 'confirmed' | 'declined'
   side?: 'unset' | 'bride' | 'groom' | 'shared'
   status: 'unassigned' | 'assigned' | 'confirmed' // 未分配 / 已分配待确认 / 确认出席
@@ -24,7 +33,7 @@ export interface Table {
 }
 
 // 房型：大床房（按 1 间 1 户处理）/ 标间（固定 2 个床位）
-export type RoomType = '大床房' | '标间'
+export type RoomType = '大床房' | '标间' | '套房'
 
 export interface Room {
   id: string
@@ -32,6 +41,7 @@ export interface Room {
   label: string // 项目内唯一房间号
   stayDates?: string[] // 兼容旧统一晚次数据；当前页面从宾客个人晚次派生房间汇总
   notes?: string
+  reservedGuestIds?: string[]
 }
 
 // 「我生成的分享链接」——仅存本地浏览器，用于记录你为朋友新建的独立项目，不参与云端同步
@@ -42,11 +52,13 @@ export interface SharedLink {
 }
 
 export const ROOM_TYPES: RoomType[] = ['大床房', '标间']
+export const FUSION_ROOM_TYPES: RoomType[] = [...ROOM_TYPES, '套房']
 
 // 每种房型建议容纳人数：大床房按户（1-2 人，建议 2），标间固定 2 人
 export const ROOM_CAPACITY: Record<RoomType, number> = {
   大床房: 2,
   标间: 2,
+  套房: 2,
 }
 
 export interface Note {
