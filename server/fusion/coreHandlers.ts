@@ -1,5 +1,5 @@
 import type { Core, CoreGuest, CoreRoom } from '../../src/fusion/core.ts'
-import { adjacentEmptySeats, newGuest } from '../../src/fusion/households.ts'
+import { adjacentEmptySeats, checkedHouseholdMembers, newGuest } from '../../src/fusion/households.ts'
 import { guestStays, setDatesInRoom, stayInRoom, writeGuestStays } from '../../src/fusion/guestStays.ts'
 import { MAX_GUEST_ROWS } from '../../src/fusion/guestRoster.ts'
 import { FUSION_ROOM_TYPES, TRAVEL_LABELS } from '../../src/types/index.ts'
@@ -63,6 +63,16 @@ function touch<T extends { revision: number }>(target: T, change: () => void) {
   const before = canonicalJson(target)
   change()
   if (before !== canonicalJson(target)) target.revision++
+}
+function updateAttendance(guest: CoreGuest, value: unknown) {
+  if (value !== 'pending' && value !== 'confirmed' && value !== 'declined') invalid()
+  guest.attendance = value as CoreGuest['attendance']
+  if (value === 'declined') { guest.tableId = null; guest.seatIndex = null }
+}
+function updateStayNeed(guest: CoreGuest, value: unknown) {
+  if (value !== 'pending' && value !== 'needed' && value !== 'not_needed') invalid()
+  if (guest.roomId && value !== 'needed') invalid()
+  guest.stayNeed = value as CoreGuest['stayNeed']
 }
 function requireFreeRoomNights(guest: CoreGuest, room: CoreRoom, selected: string[]) {
   if (room.reservedGuestIds && !room.reservedGuestIds.includes(guest.id)) throw new CommandError('CONFLICT')
@@ -196,11 +206,7 @@ export function coreHandlers(): Map<string, Handler> {
         if (typeof patch.side !== 'string' || !['unset', 'bride', 'groom', 'shared'].includes(patch.side)) invalid()
         g.side = patch.side as CoreGuest['side']
       }
-      if (Object.hasOwn(patch, 'attendance')) {
-        if (typeof patch.attendance !== 'string' || !['pending', 'confirmed', 'declined'].includes(patch.attendance)) invalid()
-        g.attendance = patch.attendance as CoreGuest['attendance']
-        if (g.attendance === 'declined') { g.tableId = null; g.seatIndex = null }
-      }
+      if (Object.hasOwn(patch, 'attendance')) updateAttendance(g, patch.attendance)
     })
   })
   const usedHouseholdIds = (c: Core) => new Set(Object.values(c.guests).flatMap(g => g.household ? [g.household.id] : []))
@@ -214,13 +220,36 @@ export function coreHandlers(): Map<string, Handler> {
       insertGuest(c, { ...newGuest(member, name, group), household })
     }
   })
+  add('household.merge', (c, p, cmd) => {
+    fields(p, ['id', 'name', 'guestIds'])
+    const household = { id: id(p.id), name: text(p.name, true).trim() }
+    const selected = ids(p.guestIds)
+    const members = selected.map(guestId => guest(c, { id: guestId }, cmd))
+    if (members.length === 1 && members[0].household?.id !== household.id) invalid()
+    const selectedIds = new Set(selected)
+    const selectedHouseholds = new Set(members.flatMap(g => g.household ? [g.household.id] : []))
+    selectedHouseholds.add(household.id)
+    if (Object.values(c.guests).some(g => g.household && selectedHouseholds.has(g.household.id) && !selectedIds.has(g.id))) {
+      throw new CommandError('CONFLICT')
+    }
+    for (const g of members) touch(g, () => { g.household = household })
+  })
   add('household.setTravel', (c, p, cmd) => {
     fields(p, ['id', 'travelMode'])
-    const key = id(p.id), mode = travel(p.travelMode)
-    const members = Object.values(c.guests).filter(g => g.household?.id === key)
-    if (!members.length || Object.keys(cmd.expectedRevisions).length !== members.length) throw new CommandError('CONFLICT')
-    for (const g of members) expected(cmd, `guest:${g.id}`, g.revision)
-    for (const g of members) touch(g, () => { g.travelMode = mode })
+    const mode = travel(p.travelMode)
+    for (const g of checkedHouseholdMembers(c, id(p.id), cmd.expectedRevisions)) touch(g, () => { g.travelMode = mode })
+  })
+  add('household.setStatus', (c, p, cmd) => {
+    fields(p, ['id', 'patch'])
+    const patch = record(p.patch)
+    fields(patch, [], ['attendance', 'stayNeed', 'travelMode'])
+    if (Object.keys(patch).length !== 1) invalid()
+    const members = checkedHouseholdMembers(c, id(p.id), cmd.expectedRevisions)
+    for (const g of members) touch(g, () => {
+      if (Object.hasOwn(patch, 'attendance')) updateAttendance(g, patch.attendance)
+      else if (Object.hasOwn(patch, 'stayNeed')) updateStayNeed(g, patch.stayNeed)
+      else g.travelMode = travel(patch.travelMode)
+    })
   })
   add(HOUSEHOLD_RECONCILE, (c, p, cmd) => {
     fields(p, ['households'])
@@ -393,9 +422,7 @@ export function coreHandlers(): Map<string, Handler> {
   })
   add('guest.setStayNeed', (c, p, cmd) => {
     fields(p, ['id', 'stayNeed']); const g = guest(c, p, cmd)
-    if (!['pending', 'needed', 'not_needed'].includes(String(p.stayNeed))) invalid()
-    if (g.roomId && p.stayNeed !== 'needed') throw new CommandError('INVALID_INPUT')
-    touch(g, () => { g.stayNeed = p.stayNeed as CoreGuest['stayNeed'] })
+    touch(g, () => { updateStayNeed(g, p.stayNeed) })
   })
   add('guest.assignRoom', (c, p, cmd) => {
     fields(p, ['id', 'roomId']); const g = guest(c, p, cmd), roomId = p.roomId === null ? null : id(p.roomId)

@@ -77,7 +77,8 @@ export const GATEWAY_REQUEST_BYTES = 16384
 export const GUEST_REPLACE_REQUEST_BYTES = 256 * 1024
 export function assertGatewayRequestSize(event: unknown) {
   const request = event as { action?: unknown; command?: { type?: unknown } } | null | undefined
-  const largeWrite = request?.action === 'execute' && [GUEST_REPLACE, HOUSEHOLD_RECONCILE, 'household.create'].some(type => request.command?.type === type)
+  const largeWrite = request?.action === 'execute' && ([GUEST_REPLACE, HOUSEHOLD_RECONCILE, 'household.create', 'household.merge', 'household.setTravel', 'household.setStatus'].some(type => request.command?.type === type)
+    || (request.command?.type === 'guest.clearStayNeed' && (request.command as { payload?: { scope?: unknown } }).payload?.scope === 'household'))
   const limit = largeWrite ? GUEST_REPLACE_REQUEST_BYTES : GATEWAY_REQUEST_BYTES
   if (new TextEncoder().encode(canonicalJson(event)).byteLength > limit) throw new CommandError('REQUEST_TOO_LARGE')
 }

@@ -5,7 +5,7 @@ import { describePayload, describeCurrent } from './draftDescription'
 import type { ProjectSnapshot, projectRepository } from './repository'
 const states = { prepared: '已保存在本机，尚未发送', result_unknown: '云端结果待确认', conflict: '与当前安排冲突', forbidden: '凭证失效，草稿保留', failed: '操作被拒绝，草稿保留' }
 const names: Record<string, string> = {
-  'household.create': '添加一户宾客', 'household.setTravel': '设置整户出行方式', 'stayGift.update': '设置赠送标间间夜',
+  'household.create': '添加一户宾客', 'household.merge': '合并或编辑一户宾客', 'household.setStatus': '调整整户状态', 'household.setTravel': '设置整户出行方式', 'stayGift.update': '设置赠送标间间夜',
   'guest.add': '新增宾客', 'guest.update': '编辑宾客', 'guest.assign': '安排座位', 'guest.unassign': '移出座位', 'guest.swapSeats': '交换座位',
   'guest.assignRoom': '安排房间', 'guest.setStayDates': '调整晚次', 'guest.setStayNeed': '调整住宿需求', 'guest.clearRoom': '清除房间安排', 'guest.clearStayNeed': '清除住宿需求',
   'guest.delete': '删除宾客', 'table.add': '新增桌子', 'table.move': '移动桌子', 'table.update': '调整桌子', 'table.deleteWithGuests': '删除桌子并释放座位',

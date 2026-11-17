@@ -2,6 +2,8 @@ import ResponsiveEditor from '../fusion/ResponsiveEditor'
 import FusionFieldEditor from '../fusion/FusionFieldEditor'
 import FusionGuestForm from '../fusion/FusionGuestForm'
 import FusionDialog from '../fusion/FusionDialog'
+import FusionRosterCard from '../fusion/FusionRosterCard'
+import FusionHouseholdMerge from '../fusion/FusionHouseholdMerge'
 import { guestStays } from '../fusion/guestStays'
 import GuestRosterImport from '../fusion/GuestRosterImport'
 import { ExportContext } from '../fusion/ExportContext'
@@ -9,9 +11,10 @@ import { RepositoryContext } from '../fusion/RepositoryContext'
 import { useContext, useRef, useState } from 'react'
 import { useWeddingStore, useAllGroups, useFusionMode } from '../fusion/PageContext'
 import { Plus, Trash2, Search, UserCheck, UserX, Pencil, Check, X, TagPlus, Download, BedDouble } from 'lucide-react'
-import { TRAVEL_LABELS, type Guest, type TravelMode } from '../types'
+import type { Guest } from '../types'
+import type { GuestStatusPatch } from '../types/weddingState'
 import { exportGuestsToExcel } from '../utils/exportGuests'
-import { ATTENDANCE_LABELS, MAX_GUEST_ROWS, STAY_NEED_LABELS } from '../fusion/guestRoster'
+import { MAX_GUEST_ROWS, STAY_NEED_LABELS } from '../fusion/guestRoster'
 
 type ListSort = 'added' | 'recent' | 'table'
 const needsSeat = (guest: Guest) => !guest.tableId && guest.attendance !== 'declined'
@@ -21,11 +24,12 @@ export default function GuestsPage() {
   const openExport = useContext(ExportContext)
   const repo = useContext(RepositoryContext)
   const formEpoch = repo?.getSnapshot().snapshot?.dataEpoch
-  const { guests, tables, rooms, addGuest, addHousehold, setHouseholdTravel, updateGuest, removeGuest, addCustomGroup, setGuestStayNeed } = useWeddingStore()
+  const { guests, tables, rooms, addGuest, addHousehold, mergeHousehold, setHouseholdStatus, updateGuest, removeGuest, addCustomGroup, setGuestStayNeed } = useWeddingStore()
   const fusion = useFusionMode()
-  const [decliningId, setDecliningId] = useState<string | null>(null)
+  const [declining, setDeclining] = useState<{ id: string; household: boolean } | null>(null)
   const [savingAttendance, setSavingAttendance] = useState(false)
-  const decliningGuest = guests.find(g => g.id === decliningId)
+  const [mergeTarget, setMergeTarget] = useState<string | null>(null)
+  const [expandedHouseholds, setExpandedHouseholds] = useState<string[]>([])
   const allGroups = useAllGroups()
   const [name, setName] = useState('')
   const [group, setGroup] = useState(allGroups[0])
@@ -102,22 +106,43 @@ export default function GuestsPage() {
     })
   }
 
-  const households = new Map<string, Guest[]>()
-  for (const g of guests) {
-    if (!g.household) continue
-    const members = households.get(g.household.id) ?? []
-    members.push(g)
-    households.set(g.household.id, members)
+  const rosterKey = (guest: Guest) => fusion && guest.household ? `household:${guest.household.id}` : `guest:${guest.id}`
+  const roster = new Map<string, Guest[]>()
+  for (const guest of guests) {
+    const key = rosterKey(guest)
+    const members = roster.get(key) ?? []
+    members.push(guest)
+    roster.set(key, members)
   }
-  const grouped = new Map<string, Guest[]>()
-  for (const g of filtered) {
-    const key = fusion && g.household && listSort !== 'table' ? `household:${g.household.id}` : `guest:${g.id}`
-    const members = grouped.get(key) ?? []
-    members.push(g)
-    grouped.set(key, members)
+  const visibleRows = [...new Set(filtered.map(rosterKey))]
+  const householdCount = roster.size
+  const declineMembers = declining ? declining.household ? roster.get(`household:${declining.id}`) ?? []
+    : guests.filter(guest => guest.id === declining.id) : []
+  const declineName = declining?.household ? declineMembers[0]?.household?.name : declineMembers[0]?.name
+  const declineSeats = declineMembers.filter(guest => guest.tableId).length
+  function saveStatus(id: string, household: boolean, patch: GuestStatusPatch) {
+    if (household) return setHouseholdStatus?.(id, patch)
+    if ('stayNeed' in patch) return setGuestStayNeed?.(id, patch.stayNeed)
+    return updateGuest(id, patch)
   }
-  const householdCount = households.size + guests.filter(g => !g.household).length
-  const filtering = !!search || selectedGroups.length > 0 || onlyUnseated
+  function requestStatus(members: Guest[], patch: GuestStatusPatch, householdId?: string) {
+    const id = householdId ?? members[0].id
+    if ('attendance' in patch && patch.attendance === 'declined' && members.some(guest => guest.tableId)) {
+      setDeclining({ id, household: !!householdId })
+      return
+    }
+    if ('stayNeed' in patch && patch.stayNeed === 'not_needed' && members.some(guest => guest.roomId)) {
+      const name = householdId ? members[0].household?.name + '整户' : members[0].name
+      if (!confirm(`将“${name}”设为不需要住宿？会清除相关房间和住宿晚次，可在回收站恢复。`)) return
+    }
+    void saveStatus(id, !!householdId, patch)
+  }
+  function deleteGuest(guest: Guest) {
+    if (confirm(`删除宾客“${guest.name}”？其座位、房间和住宿晚次安排也会一并移除。`)) removeGuest(guest.id)
+  }
+  const renderMember = (guest: Guest) => <FusionRosterCard key={guest.id} name={guest.name} members={[guest]} tables={tables} rooms={rooms}
+    onStatus={patch => requestStatus([guest], patch)} onEdit={() => startEdit(guest.id)} onDelete={() => deleteGuest(guest)} />
+
   const assignedCount = guests.filter((g) => g.tableId).length
   const confirmedCount = guests.filter((g) => (g.attendance ?? (g.status === 'confirmed' ? 'confirmed' : 'pending')) === 'confirmed').length
   const unseatedCount = guests.filter(needsSeat).length
@@ -125,12 +150,12 @@ export default function GuestsPage() {
   const filterGroups = [null, ...allGroups]
   const allFilterLabel = allGroups.includes('全部') ? '清除类别筛选' : '全部'
 
-  const renderGuest = (guest: Guest) => (
+  const renderLegacyGuest = (guest: Guest) => (
     <div
       key={guest.id}
       className="bg-white rounded-lg px-4 py-3 border border-gray-100 flex flex-wrap sm:flex-nowrap items-center gap-3 group"
     >
-      {!fusion && editingId === guest.id ? (
+      {editingId === guest.id ? (
         /* Edit mode */
         <div className="flex-1 flex items-center gap-2 flex-wrap">
           <input
@@ -178,7 +203,7 @@ export default function GuestsPage() {
               <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">
                 {guest.group}
               </span>
-              {fusion ? <span className="text-xs text-gray-600">{guest.tableId ? tables.find(t => t.id === guest.tableId)?.label ?? '已排座' : '未排座'}</span> : guest.status === 'confirmed' ? (
+              {guest.status === 'confirmed' ? (
                 <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 flex items-center gap-0.5">
                   <UserCheck className="w-3 h-3" /> 已确认
                 </span>
@@ -191,7 +216,6 @@ export default function GuestsPage() {
                   <UserX className="w-3 h-3" /> 待分配
                 </span>
               )}
-              {guest.household && listSort === 'table' && <span className="text-xs text-gray-500">{guest.household.name} 户</span>}
               {guestStays(guest).map(stay => (
                 <span key={stay.roomId} className="min-w-0 text-xs px-2 py-0.5 rounded-full bg-[#eef3fa] text-[#7c9ec9] flex items-center gap-0.5">
                   <BedDouble className="w-3 h-3" />
@@ -199,32 +223,12 @@ export default function GuestsPage() {
                 </span>
               ))}
             </div>
-            {(fusion || setGuestStayNeed) && <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-gray-600 sm:flex sm:flex-wrap sm:items-center sm:gap-3">
-              {fusion && <label className="flex min-w-0 flex-col gap-1 sm:flex-row sm:items-center">出席状态
-                <select aria-label={`${guest.name}的出席状态`} className="min-w-0 border rounded p-1" value={guest.attendance ?? 'pending'} onChange={e => {
-                  const attendance = e.target.value as NonNullable<Guest['attendance']>
-                  if (attendance === 'declined' && guest.tableId) { setDecliningId(guest.id); return }
-                  void updateGuest(guest.id, { attendance })
-                }}>
-                  {Object.entries(ATTENDANCE_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
-                </select>
-              </label>}
-              {setGuestStayNeed && <label className="flex min-w-0 flex-col gap-1 sm:flex-row sm:items-center">住宿需求
-                <select aria-label={`${guest.name}的住宿需求`} className="min-w-0 border rounded p-1" value={guest.stayNeed ?? 'pending'} onChange={e => {
-                  const value = e.target.value as NonNullable<Guest['stayNeed']>
-                  if (guest.roomId && value === 'not_needed' && !confirm(`将“${guest.name}”改为不需要住宿？房间和住宿晚次将清除，并保留在回收站。`)) return
-                  void setGuestStayNeed(guest.id, value)
-                }}>
-                  {Object.entries(STAY_NEED_LABELS).map(([value, label]) => <option key={value} value={value} disabled={!!guest.roomId && value === 'pending'}>{label}</option>)}
-                </select>
-              </label>}
-              {fusion && <label className="flex min-w-0 flex-col gap-1 sm:flex-row sm:items-center">出行方式
-                <select aria-label={`${guest.name}的出行方式`} className="min-w-0 border rounded p-1" value={guest.travelMode ?? 'pending'}
-                  onChange={event => void updateGuest(guest.id, { travelMode: event.target.value as TravelMode })}>
-                  {Object.entries(TRAVEL_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
-                </select>
-              </label>}
-            </div>}
+            {setGuestStayNeed && <label className="mt-2 flex flex-wrap items-center gap-2 text-xs text-gray-600">住宿需求
+              <select aria-label={`${guest.name}的住宿需求`} className="min-w-0 border rounded p-1" value={guest.stayNeed ?? 'pending'} onChange={e =>
+                requestStatus([guest], { stayNeed: e.target.value as NonNullable<Guest['stayNeed']> })}>
+                {Object.entries(STAY_NEED_LABELS).map(([value, label]) => <option key={value} value={value} disabled={!!guest.roomId && value === 'pending'}>{label}</option>)}
+              </select>
+            </label>}
             {guest.phone && (
               <div className="text-xs text-gray-400 mt-0.5 [overflow-wrap:anywhere]">{guest.phone}</div>
             )}
@@ -238,7 +242,7 @@ export default function GuestsPage() {
             <Pencil className="w-4 h-4" />
           </button>
           <button
-            onClick={() => { if (confirm(`删除宾客“${guest.name}”？其座位、房间和住宿晚次安排也会一并移除。`)) removeGuest(guest.id) }}
+            onClick={() => deleteGuest(guest)}
             className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100 p-1.5 text-gray-400 hover:text-red-500 transition-all"
             title="删除"
           >
@@ -289,20 +293,28 @@ export default function GuestsPage() {
       </div>
 
       {fusion && <p className="text-sm text-gray-500 mb-3">不出席：{declinedCount} 人（不计入待分配）；出席状态与排座、住宿分别管理。</p>}
-      {decliningGuest && <section role="alertdialog" aria-label="确认不出席" className="border border-amber-300 rounded p-3 mb-3">
-        <p>将“{decliningGuest.name}”设为不出席？会释放当前座位，住宿安排保留。以后改回出席也不会自动恢复原座位。</p>
-        <button disabled={savingAttendance} className="text-red-700 mr-4" onClick={async () => {
-          setSavingAttendance(true)
-          try { if (await updateGuest(decliningGuest.id, { attendance: 'declined' }) !== false) setDecliningId(null) }
-          finally { setSavingAttendance(false) }
-        }}>确认不出席并释放座位</button>
-        <button disabled={savingAttendance} onClick={() => setDecliningId(null)}>取消</button>
-      </section>}
+      {declining && declineName && <FusionDialog label="确认不出席" onClose={() => { if (!savingAttendance) setDeclining(null) }}>
+        <div className="space-y-3 p-4 sm:p-6">
+          <p>将“{declineName}”{declining.household ? '整户' : ''}设为不出席？会释放 {declineSeats} 个座位，保留住宿安排。</p>
+          <div className="flex flex-wrap justify-end gap-2">
+            <button disabled={savingAttendance} onClick={() => setDeclining(null)}>取消</button>
+            <button disabled={savingAttendance} className="text-red-700" onClick={async () => {
+              setSavingAttendance(true)
+              try {
+                if (await saveStatus(declining.id, declining.household, { attendance: 'declined' }) !== false) setDeclining(null)
+              } finally { setSavingAttendance(false) }
+            }}>确认不出席并释放座位</button>
+          </div>
+        </div>
+      </FusionDialog>}
 
       {/* Add form */}
-      <ResponsiveEditor enabled={fusion} label={editingId ? '编辑宾客' : '添加宾客'} open={showGuestEditor}>
+      <ResponsiveEditor enabled={fusion} label={editingId ? '编辑宾客' : '添加宾客'} open={showGuestEditor} forceModal={!!editingId}>
       <div className="bg-white rounded-xl p-4 border border-gray-100 mb-4 [&_input]:min-w-0 [&_input]:max-w-full [&_select]:min-w-0 [&_select]:max-w-full">
-        {fusion ? <FusionGuestForm key={JSON.stringify([formEpoch, editingId])} guestId={editingId ?? undefined} focusOnOpen={showGuestEditor || !!editingId} onClose={showGuestEditor || editingId ? closeGuestEditor : undefined} groups={allGroups} onAddGroup={() => setShowAddGroup(true)} /> : (
+        {fusion ? <>
+          {editingId && <h2 className="mb-3 text-base font-semibold">编辑宾客</h2>}
+          <FusionGuestForm key={JSON.stringify([formEpoch, editingId])} guestId={editingId ?? undefined} focusOnOpen={showGuestEditor || !!editingId} onClose={showGuestEditor || editingId ? closeGuestEditor : undefined} groups={allGroups} onAddGroup={() => setShowAddGroup(true)} />
+        </> : (
         <div className="flex gap-3 flex-wrap items-center">
           <input
             value={name}
@@ -419,6 +431,7 @@ export default function GuestsPage() {
           </select>
         </label>
         {addHousehold && <button type="button" className="rounded-lg border px-3 py-1.5 text-sm" onClick={() => setShowHouseholdForm(true)}>添加一户</button>}
+        {mergeHousehold && <button type="button" className="rounded-lg border px-3 py-1.5 text-sm" onClick={() => setMergeTarget('')}>合并成一户</button>}
         <GuestRosterImport />
       </div>}
 
@@ -429,26 +442,20 @@ export default function GuestsPage() {
             {guests.length === 0 ? '还没有添加宾客，从上方开始添加吧' : '没有匹配的宾客'}
           </div>
         )}
-        {[...grouped].map(([key, members]) => {
+        {fusion ? visibleRows.map(key => {
+          const members = roster.get(key)!
           const household = members[0].household
-          if (!household || !key.startsWith('household:')) return members.map(renderGuest)
-          const allMembers = households.get(household.id)!
-          const modes = new Set(allMembers.map(guest => guest.travelMode ?? 'pending'))
-          const mode = modes.size === 1 ? modes.values().next().value : ''
-          return <details key={key} className="rounded-xl border border-gray-100 bg-white px-3 py-2" open={filtering || undefined}>
-            <summary className="cursor-pointer py-1.5 text-sm font-semibold">{household.name}（{allMembers.length} 人）</summary>
-            <div className="space-y-2 pt-2">
-              {setHouseholdTravel && <label className="flex flex-wrap items-center gap-2 text-xs">整户出行方式
-                <select aria-label={`${household.name}整户出行方式`} value={mode} onChange={event => void setHouseholdTravel(household.id, event.target.value as TravelMode)}>
-                  {mode === '' && <option value="" disabled>出行方式不同</option>}
-                  {Object.entries(TRAVEL_LABELS).map(([value, label]) => <option value={value} key={value}>{label}</option>)}
-                </select>
-              </label>}
-              {members.map(renderGuest)}
-            </div>
-          </details>
-        })}
+          if (!household) return renderMember(members[0])
+          const expanded = expandedHouseholds.includes(household.id)
+          return <FusionRosterCard key={key} name={household.name} members={members} tables={tables} rooms={rooms}
+            onStatus={patch => requestStatus(members, patch, household.id)} onEdit={() => setMergeTarget(key)} expanded={expanded}
+            onToggleMembers={() => setExpandedHouseholds(current => expanded ? current.filter(id => id !== household.id) : [...current, household.id])}>
+            {expanded && members.map(renderMember)}
+          </FusionRosterCard>
+        }) : filtered.map(renderLegacyGuest)}
       </div>
+      {mergeHousehold && mergeTarget !== null && <FusionHouseholdMerge rows={roster} tables={tables} existing={mergeTarget || undefined}
+        onSave={mergeHousehold} onClose={() => setMergeTarget(null)} />}
       {addHousehold && showHouseholdForm && <HouseholdForm groups={allGroups} save={addHousehold} onClose={() => setShowHouseholdForm(false)} />}
     </div>
   )

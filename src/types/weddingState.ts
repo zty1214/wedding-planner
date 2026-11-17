@@ -2,6 +2,9 @@ import type { Guest, Table, Note, Room, RoomType, SharedLink, TravelMode } from 
 
 type SaveResult = void | Promise<boolean>
 
+export type GuestStatusPatch = { attendance: NonNullable<Guest['attendance']> }
+  | { stayNeed: NonNullable<Guest['stayNeed']> } | { travelMode: TravelMode }
+
 export interface WeddingState {
   projectId: string
   projectTitle: string
@@ -27,7 +30,8 @@ export interface WeddingState {
   // Guest actions
   addGuest: (name: string, group: string, phone?: string) => SaveResult
   addHousehold?: (name: string, group: string, count: number) => Promise<boolean>
-  setHouseholdTravel?: (id: string, mode: TravelMode) => Promise<boolean>
+  mergeHousehold?: (name: string, guestIds: string[], id?: string) => Promise<boolean>
+  setHouseholdStatus?: (id: string, patch: GuestStatusPatch) => Promise<boolean>
   updateGuest: (id: string, patch: Partial<Guest>) => SaveResult
   removeGuest: (id: string) => void
   assignGuestToTable: (guestId: string, tableId: string | null, seatIndex: number | null) => void

@@ -1,4 +1,17 @@
 import type { Core, CoreGuest } from './core.ts'
+import { CommandError } from './protocol.ts'
+
+export function householdMembers(core: Core, id: string) {
+  return Object.values(core.guests).filter(guest => guest.household?.id === id)
+}
+
+/** Bind a bulk edit to the complete group the caller saw. */
+export function checkedHouseholdMembers(core: Core, id: string, revisions: Record<string, number>) {
+  const members = householdMembers(core, id)
+  if (!members.length || Object.keys(revisions).length !== members.length
+    || members.some(guest => revisions[`guest:${guest.id}`] !== guest.revision)) throw new CommandError('CONFLICT')
+  return members
+}
 
 export function newGuest(id: string, name: string, group: string): CoreGuest {
   return {

@@ -109,3 +109,67 @@ test('room changes by night preserve existing stays and the gift offsets one sch
   assert.deepEqual(guestStays(moved.guests.a), [{ roomId: 's', dates: [second] }, { roomId: 't', dates: [early, first] }])
   assert.deepEqual(guestStays(moved.guests.b), guestStays(saved.guests.b))
 })
+
+test('manually grouping guests preserves their assignments and rejects partial moves from existing households', async () => {
+  const core = emptyCore()
+  core.config.stayDates = ['2027-01-02']
+  core.tables.t = { id: 't', revision: 0, label: '桌1', seats: 8, x: 0, y: 0, rotation: 0 }
+  core.tableOrder = ['t']
+  core.rooms.r = { id: 'r', revision: 0, label: '标间1', type: '标间', notes: '' }
+  core.roomOrder = ['r']
+  core.guests = {
+    a: { ...newGuest('a', '甲', '亲友'), tableId: 't', seatIndex: 1, roomId: 'r', stayDates: ['2027-01-02'], stayNeed: 'needed' },
+    b: { ...newGuest('b', '乙', '同事'), attendance: 'confirmed', travelMode: 'rail' },
+    c: newGuest('c', '丙', '亲友'),
+  }
+  core.guestOrder = ['a', 'b', 'c']
+  const { service, command, read } = setup(core)
+  const house = { id: 'h', name: '甲乙' }
+  const merge = command('household.merge', { ...house, guestIds: ['a', 'b'] }, { 'guest:a': 0, 'guest:b': 0 })
+  const receipt = await service.execute(merge, 'collab')
+  assert.deepEqual(await service.execute(merge, 'collab'), receipt)
+  const grouped = await read()
+  assert.deepEqual(grouped.guestOrder, core.guestOrder)
+  for (const id of ['a', 'b']) assert.deepEqual(grouped.guests[id], { ...core.guests[id], household: house, revision: 1 })
+  assert.deepEqual(grouped.guests.c, core.guests.c)
+  await assert.rejects(service.execute(command('household.merge', { id: 'x', name: '只取一人', guestIds: ['a', 'c'] },
+    { 'guest:a': 1, 'guest:c': 0 }), 'collab'), { code: 'CONFLICT' })
+  await assert.rejects(service.execute(command('household.merge', { ...house, guestIds: ['a', 'b', 'c'] },
+    { 'guest:a': 1, 'guest:b': 0, 'guest:c': 0 }), 'collab'), { code: 'CONFLICT' })
+  assert.deepEqual(await read(), grouped)
+})
+
+test('household status updates every member atomically and the whole lodging change can be restored', async () => {
+  const core = emptyCore()
+  core.config.stayDates = ['2027-01-02']
+  core.tables.t = { id: 't', revision: 0, label: '桌1', seats: 8, x: 0, y: 0, rotation: 0 }
+  core.tableOrder = ['t']
+  core.rooms.r = { id: 'r', revision: 0, label: '标间1', type: '标间', notes: '' }
+  core.roomOrder = ['r']
+  const household = { id: 'h', name: '甲乙' }
+  core.guests = {
+    a: { ...newGuest('a', '甲', '亲友'), household, tableId: 't', seatIndex: 1, roomId: 'r', stayDates: ['2027-01-02'], stayNeed: 'needed' },
+    b: { ...newGuest('b', '乙', '同事'), household, tableId: 't', seatIndex: 2 },
+  }
+  core.guestOrder = ['a', 'b']
+  const { service, store, command, read } = setup(core)
+  const set = (patch: Json, revision: number) => service.execute(command('household.setStatus', { id: household.id, patch },
+    { 'guest:a': revision, 'guest:b': revision }), 'collab')
+  await assert.rejects(service.execute(command('household.setStatus', { id: household.id, patch: { attendance: 'confirmed' } },
+    { 'guest:a': 0 }), 'collab'), { code: 'CONFLICT' })
+  await assert.rejects(set({ stayNeed: 'not_needed' }, 0), { code: 'INVALID_INPUT' })
+  assert.deepEqual(await read(), core)
+  await set({ attendance: 'declined' }, 0)
+  await set({ travelMode: 'driving' }, 1)
+  const ready = await read()
+  for (const guest of Object.values(ready.guests)) assert.deepEqual([guest.attendance, guest.travelMode, guest.tableId], ['declined', 'driving', null])
+  assert.equal(ready.guests.a.roomId, 'r')
+  const commandToClear = command('guest.clearStayNeed', { id: household.id, scope: 'household' }, { 'guest:a': 2, 'guest:b': 2 })
+  const recycle = recycleService(store)
+  await recycle.execute(commandToClear, 'collab')
+  const cleared = await read()
+  for (const guest of Object.values(cleared.guests)) assert.deepEqual([guest.stayNeed, guest.roomId, guest.stayDates], ['not_needed', null, []])
+  await recycle.execute(command('recycle.restore', { id: commandToClear.operationId }, { 'guest:a': 3, 'guest:b': 3 }), 'collab')
+  const restored = await read()
+  for (const id of ['a', 'b']) assert.deepEqual(restored.guests[id], { ...ready.guests[id], revision: 4 })
+})

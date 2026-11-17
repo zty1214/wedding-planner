@@ -1,3 +1,4 @@
+import { householdMembers } from './households.ts'
 import { guestStays, stayInRoom } from './guestStays.ts'
 import { roomViews } from './roomNights.ts'
 import { nextRoomLabel } from './roomLabel.ts'
@@ -32,8 +33,16 @@ export function createPageStore(projectId: string, repo: ReturnType<typeof proje
     addHousehold: (name, group, count) => send('household.create', {
       id: crypto.randomUUID(), name, group, guestIds: Array.from({ length: count }, () => crypto.randomUUID()),
     }),
-    setHouseholdTravel: (id, travelMode) => send('household.setTravel', { id, travelMode },
-      Object.values(current().guests).filter(g => g.household?.id === id).map(g => `guest:${g.id}`)),
+    mergeHousehold: (name, guestIds, id) => send('household.merge', { id: id ?? crypto.randomUUID(), name, guestIds },
+      guestIds.map(guestId => `guest:${guestId}`)),
+    setHouseholdStatus: (id, patch) => {
+      const members = householdMembers(current(), id)
+      const refs = members.map(guest => `guest:${guest.id}`)
+      if ('stayNeed' in patch && patch.stayNeed === 'not_needed' && members.some(guest => guest.roomId)) {
+        return send('guest.clearStayNeed', { id, scope: 'household' }, refs)
+      }
+      return send('household.setStatus', { id, patch }, refs)
+    },
     updateGuest: (id, patch) => {
       const converted: Record<string, Json> = {}
       for (const key of ['name', 'group', 'phone', 'notes', 'side', 'attendance', 'travelMode'] as const) if (Object.hasOwn(patch, key)) converted[key] = patch[key] ?? ''

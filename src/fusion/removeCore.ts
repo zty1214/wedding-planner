@@ -2,6 +2,7 @@ import { canonicalJson, CommandError } from './protocol.ts'
 import type { Command } from './protocol.ts'
 import type { Core } from './core.ts'
 import { guestStays, stayInRoom, writeGuestStays } from './guestStays.ts'
+import { checkedHouseholdMembers } from './households.ts'
 import type { CoreChange } from './recycle.ts'
 
 function expected(c: Command, key: string, revision: number) {
@@ -13,7 +14,9 @@ export function removeCore(core: Core, c: Command): CoreChange[] {
   const key = c.type === 'stayDate.remove' ? 'date' : 'id'
   if (!payload || typeof payload !== 'object' || Array.isArray(payload) || typeof payload[key] !== 'string') throw new CommandError('INVALID_INPUT')
   const roomId = c.type === 'guest.clearRoom' ? payload.roomId : undefined
-  if (Object.keys(payload).length !== (roomId === undefined ? 1 : 2) || (roomId !== undefined && typeof roomId !== 'string')) throw new CommandError('INVALID_INPUT')
+  const entireHousehold = c.type === 'guest.clearStayNeed' && payload.scope === 'household'
+  if (Object.keys(payload).length !== (roomId !== undefined || entireHousehold ? 2 : 1)
+    || (roomId !== undefined && typeof roomId !== 'string')) throw new CommandError('INVALID_INPUT')
   const id = payload[key] as string
   const changes: CoreChange[] = []
   const recordGuest = (guestId: string, change: () => void) => {
@@ -59,6 +62,13 @@ export function removeCore(core: Core, c: Command): CoreChange[] {
     changes.push({ section, id, before: structuredClone(entity), after: null, position: core[orderKey].indexOf(id) })
     delete entities[id]; core[orderKey] = core[orderKey].filter(value => value !== id)
     core.retiredIds = [...new Set([...(core.retiredIds ?? []), `${section}:${id}`])]
+  } else if (entireHousehold) {
+    const members = checkedHouseholdMembers(core, id, c.expectedRevisions)
+    if (!members.some(guest => guest.roomId)) throw new CommandError('INVALID_INPUT')
+    for (const guest of members.filter(guest => guest.stayNeed !== 'not_needed')) recordGuest(guest.id, () => {
+      writeGuestStays(guest, [])
+      guest.stayNeed = 'not_needed'
+    })
   } else if (c.type === 'guest.clearRoom' || c.type === 'guest.clearStayNeed') {
     const g = core.guests[id]
     if (!Object.hasOwn(core.guests, id)) throw new CommandError('NOT_FOUND')
